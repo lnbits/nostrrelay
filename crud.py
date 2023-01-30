@@ -76,10 +76,9 @@ async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
     if filter.limit and type(filter.limit) == int and filter.limit > 0:
         query += f" LIMIT {filter.limit}"
 
-    print("### query: ", query)
-    print("### values: ", tuple(values))
+    # print("### query: ", query)
+    # print("### values: ", tuple(values))
     rows = await db.fetchall(query, tuple(values))
-    # events = [NostrEvent.from_row(row) for row in rows]
 
     events = []
     for row in rows:
