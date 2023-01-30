@@ -1,10 +1,7 @@
 from http import HTTPStatus
 
-from fastapi import Depends, Query, WebSocket
+from fastapi import Query, WebSocket
 from loguru import logger
-from starlette.exceptions import HTTPException
-
-from lnbits.decorators import WalletTypeInfo, get_key_type, require_admin_key
 
 from . import nostrrelay_ext
 from .client_manager import NostrClientConnection, NostrClientManager

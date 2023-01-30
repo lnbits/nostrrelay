@@ -1,5 +1,4 @@
 import json
-import re
 from typing import Any, List, Optional
 
 from . import db
@@ -31,7 +30,6 @@ async def create_event(relay_id: str, e: NostrEvent):
         await create_event_tags(relay_id, e.id, name, value, extra)
 
 
-
 async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
     values: List[Any] = []
     query = "SELECT id, pubkey, created_at, kind, content, sig FROM nostrrelay.events"
@@ -41,7 +39,7 @@ async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
             values += filter.e
             e_s = ",".join(["?"] * len(filter.e))
             query += f" nostrrelay.event_tags.value in ({e_s}) AND nostrrelay.event_tags.name = 'e'"
-        
+
         if len(filter.p):
             values += filter.p
             p_s = ",".join(["?"] * len(filter.p))
@@ -50,9 +48,9 @@ async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
         query += " AND nostrrelay.events.relay_id = ?"
     else:
         query += " WHERE nostrrelay.events.relay_id = ?"
-    
+
     values.append(relay_id)
-    
+
     if len(filter.ids) != 0:
         ids = ",".join(["?"] * len(filter.ids))
         query += f" AND id IN ({ids})"
@@ -66,10 +64,10 @@ async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
         query += f" AND kind IN ({kinds})"
         values += filter.kinds
     if filter.since:
-        query += f" AND created_at >= ?"
+        query += " AND created_at >= ?"
         values += [filter.since]
     if filter.until:
-        query += f" AND created_at <= ?"
+        query += " AND created_at <= ?"
         values += [filter.until]
 
     query += " ORDER BY created_at DESC"
@@ -91,7 +89,6 @@ async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
     return events
 
 
-
 async def create_event_tags(
     relay_id: str, event_id: str, tag_name: str, tag_value: str, extra_values: Optional[str]
 ):
@@ -108,6 +105,7 @@ async def create_event_tags(
         """,
         (relay_id, event_id, tag_name, tag_value, extra_values),
     )
+
 
 async def get_event_tags(
     relay_id: str, event_id: str
@@ -126,4 +124,3 @@ async def get_event_tags(
         tags.append(tag)
 
     return tags
-

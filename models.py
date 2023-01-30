@@ -109,7 +109,6 @@ class NostrFilter(BaseModel):
             return False
 
 
-
 class NostrEventType(str, Enum):
     EVENT = "EVENT"
     REQ = "REQ"
