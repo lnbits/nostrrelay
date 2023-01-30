@@ -32,7 +32,8 @@ async def m001_initial(db):
             relay_id TEXT NOT NULL,
             event_id TEXT NOT NULL,
             name TEXT NOT NULL,
-            value TEXT NOT NULL
+            value TEXT NOT NULL,
+            extra TEXT
         );
         """
     )

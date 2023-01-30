@@ -1,4 +1,6 @@
-from typing import Any, List
+import json
+import re
+from typing import Any, List, Optional
 
 from . import db
 from .models import NostrEvent, NostrFilter
@@ -17,35 +19,40 @@ async def create_event(relay_id: str, e: NostrEvent):
             sig
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (id) DO NOTHING
         """,
         (relay_id, e.id, e.pubkey, e.created_at, e.kind, e.content, e.sig),
     )
 
     # todo: optimize with bulk insert
     for tag in e.tags:
-        await create_event_tags(relay_id, e.id, tag[0], tag[1])
+        name, value, *rest = tag
+        extra = json.dumps(rest) if rest else None
+        await create_event_tags(relay_id, e.id, name, value, extra)
 
-
-async def create_event_tags(
-    relay_id: str, event_id: str, tag_name: str, tag_value: str
-):
-    await db.execute(
-        """
-        INSERT INTO nostrrelay.event_tags (
-            relay_id,
-            event_id,
-            name,
-            value
-        )
-        VALUES (?, ?, ?, ?)
-        """,
-        (relay_id, event_id, tag_name, tag_value),
-    )
 
 
 async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
-    query = "SELECT * FROM nostrrelay.events WHERE relay_id = ?"
-    values: List[Any] = [relay_id]
+    values: List[Any] = []
+    query = "SELECT id, pubkey, created_at, kind, content, sig FROM nostrrelay.events"
+    if len(filter.e) or len(filter.p):
+        query += " INNER JOIN nostrrelay.event_tags ON nostrrelay.events.id = nostrrelay.event_tags.event_id WHERE"
+        if len(filter.e):
+            values += filter.e
+            e_s = ",".join(["?"] * len(filter.e))
+            query += f" nostrrelay.event_tags.value in ({e_s}) AND nostrrelay.event_tags.name = 'e'"
+        
+        if len(filter.p):
+            values += filter.p
+            p_s = ",".join(["?"] * len(filter.p))
+            and_op = " AND " if len(filter.e) else ""
+            query += f"{and_op} nostrrelay.event_tags.value in ({p_s}) AND nostrrelay.event_tags.name = 'p'"
+        query += " AND nostrrelay.events.relay_id = ?"
+    else:
+        query += " WHERE nostrrelay.events.relay_id = ?"
+    
+    values.append(relay_id)
+    
     if len(filter.ids) != 0:
         ids = ",".join(["?"] * len(filter.ids))
         query += f" AND id IN ({ids})"
@@ -69,11 +76,55 @@ async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
     if filter.limit and type(filter.limit) == int and filter.limit > 0:
         query += f" LIMIT {filter.limit}"
 
-    # print("### query: ", query)
-    # print("### values: ", tuple(values))
+    print("### query: ", query)
+    print("### values: ", tuple(values))
     rows = await db.fetchall(query, tuple(values))
-    events = [NostrEvent.from_row(row) for row in rows]
+    # events = [NostrEvent.from_row(row) for row in rows]
 
-    # print("### events: ", len(events))
+    events = []
+    for row in rows:
+        event = NostrEvent.from_row(row)
+        event.tags = await get_event_tags(relay_id, event.id)
+        events.append(event)
+
+    print("### events: ", len(events))
 
     return events
+
+
+
+async def create_event_tags(
+    relay_id: str, event_id: str, tag_name: str, tag_value: str, extra_values: Optional[str]
+):
+    await db.execute(
+        """
+        INSERT INTO nostrrelay.event_tags (
+            relay_id,
+            event_id,
+            name,
+            value,
+            extra
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (relay_id, event_id, tag_name, tag_value, extra_values),
+    )
+
+async def get_event_tags(
+    relay_id: str, event_id: str
+) -> List[List[str]]:
+    rows = await db.fetchall(
+        "SELECT * FROM nostrrelay.event_tags WHERE relay_id = ? and event_id = ?",
+        (relay_id, event_id),
+    )
+
+    tags: List[List[str]] = []
+    for row in rows:
+        tag = [row["name"], row["value"]]
+        extra = row["extra"]
+        if extra:
+            tag += json.loads(extra)
+        tags.append(tag)
+
+    return tags
+
