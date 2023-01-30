@@ -1,8 +1,5 @@
-from http import HTTPStatus
-
 from fastapi import Depends, Request
 from fastapi.templating import Jinja2Templates
-from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse
 
 from lnbits.core.models import User
