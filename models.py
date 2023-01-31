@@ -104,13 +104,15 @@ class NostrFilter(BaseModel):
 
         return True
 
-    def tag_in_list(self, event_tags, tag_name):
+    def tag_in_list(self, event_tags, tag_name) -> bool:
         tag_values = [t[1] for t in event_tags if t[0] == tag_name]
         if len(tag_values) == 0:
             return True
-        common_tags = [t for t in tag_values if t in self.e]
+        filter_tags = dict(self).get(tag_name, [])
+        common_tags = [t for t in tag_values if t in filter_tags]
         if len(common_tags) == 0:
             return False
+        return True
 
 
 class NostrEventType(str, Enum):
