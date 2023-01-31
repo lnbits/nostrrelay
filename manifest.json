@@ -1,0 +1,9 @@
+{
+    "repos": [
+        {
+            "id": "nostrrelay",
+            "organisation": "lnbits",
+            "repository": "nostr-relay-extension"
+        }
+    ]
+}
