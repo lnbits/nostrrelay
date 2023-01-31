@@ -15,13 +15,11 @@ class NostrClientManager:
     def add_client(self, client: "NostrClientConnection"):
         setattr(client, "broadcast_event", self.broadcast_event)
         self.clients.append(client)
-        print("### client count:", len(self.clients))
 
     def remove_client(self, client: "NostrClientConnection"):
         self.clients.remove(client)
 
     async def broadcast_event(self, source: "NostrClientConnection", event: NostrEvent):
-        print("### broadcast_event", len(self.clients))
         for client in self.clients:
             if client != source:
                 await client.notify_event(event)
@@ -44,7 +42,6 @@ class NostrClientConnection:
                 resp = await self.__handle_message(data)
                 if resp:
                     for r in resp:
-                        # print("### start send content: ", json.dumps(r))
                         await self.websocket.send_text(json.dumps(r))
             except Exception as e:
                 logger.warning(e)
@@ -53,7 +50,6 @@ class NostrClientConnection:
         for filter in self.filters:
             if filter.matches(event):
                 r = [NostrEventType.EVENT, filter.subscription_id, dict(event)]
-                print("### notify send content: ", json.dumps(r))
                 await self.websocket.send_text(json.dumps(r))
 
     async def __handle_message(self, data: List):
@@ -86,9 +82,7 @@ class NostrClientConnection:
         ]
 
     def __handle_close(self, subscription_id: str) -> None:
-        print("### __handle_close", len(self.filters), subscription_id)
         self.remove_filter(subscription_id)
-        print("### __handle_close", len(self.filters))
 
     def remove_filter(self, subscription_id: str):
         self.filters = [f for f in self.filters if f.subscription_id != subscription_id]
