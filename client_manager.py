@@ -86,9 +86,12 @@ class NostrClientConnection:
         self.remove_filter(subscription_id)
         self.filters.append(filter)
         events = await get_events("111", filter)
-        return [
+        serialized_events = [
             event.serialize_response(subscription_id) for event in events
         ]
+        resp_nip15 = ["EOSE", subscription_id]
+        serialized_events.append(resp_nip15)
+        return serialized_events
 
     def __handle_close(self, subscription_id: str):
         self.remove_filter(subscription_id)
