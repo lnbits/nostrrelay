@@ -1,5 +1,5 @@
 import json
-from typing import Callable, List
+from typing import Any, Callable, List, Union
 
 from fastapi import WebSocket
 from loguru import logger
@@ -49,28 +49,37 @@ class NostrClientConnection:
     async def notify_event(self, event: NostrEvent):
         for filter in self.filters:
             if filter.matches(event):
-                r = [NostrEventType.EVENT, filter.subscription_id, dict(event)]
-                await self.websocket.send_text(json.dumps(r))
+                resp = event.serialize_response(filter.subscription_id)
+                await self.websocket.send_text(json.dumps(resp))
 
-    async def __handle_message(self, data: List):
+    async def __handle_message(self, data: List) -> Union[None, List]:
         if len(data) < 2:
-            return
+            return None
 
         message_type = data[0]
         if message_type == NostrEventType.EVENT:
-            return await self.__handle_event(NostrEvent.parse_obj(data[1]))
+            await self.__handle_event(NostrEvent.parse_obj(data[1]))
+            return None
         if message_type == NostrEventType.REQ:
             if len(data) != 3:
-                return
+                return None
             return await self.__handle_request(data[1], NostrFilter.parse_obj(data[2]))
         if message_type == NostrEventType.CLOSE:
-            return self.__handle_close(data[1])
+            self.__handle_close(data[1])
 
-    async def __handle_event(self, e: "NostrEvent") -> None:
-        # print('### __handle_event', e)
-        e.check_signature()
-        await create_event("111", e)
-        await self.broadcast_event(self, e)
+        return None
+
+    async def __handle_event(self, e: "NostrEvent"):
+        resp_nip20: List[Any] = ["ok", e.id]
+        try:
+            e.check_signature()
+            await create_event("111", e)
+            await self.broadcast_event(self, e)
+            resp_nip20 += [True, ""]
+        except Exception as ex:
+            resp_nip20 += [False, f"error: {ex}"]
+
+        await self.websocket.send_text(json.dumps(resp_nip20))
 
     async def __handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
         filter.subscription_id = subscription_id
@@ -78,10 +87,10 @@ class NostrClientConnection:
         self.filters.append(filter)
         events = await get_events("111", filter)
         return [
-            [NostrEventType.EVENT, subscription_id, dict(event)] for event in events
+            event.serialize_response(subscription_id) for event in events
         ]
 
-    def __handle_close(self, subscription_id: str) -> None:
+    def __handle_close(self, subscription_id: str):
         self.remove_filter(subscription_id)
 
     def remove_filter(self, subscription_id: str):

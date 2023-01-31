@@ -62,6 +62,10 @@ class NostrEvent(BaseModel):
         if not valid_signature:
             raise ValueError(f"Invalid signature: '{self.sig}' for event '{self.id}'")
 
+
+    def serialize_response(self, subscription_id):
+        return [NostrEventType.EVENT, subscription_id, dict(self)]
+
     @classmethod
     def from_row(cls, row: Row) -> "NostrEvent":
         return cls(**dict(row))
