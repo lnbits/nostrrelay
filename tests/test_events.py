@@ -17,12 +17,12 @@ class EventFixture(BaseModel):
 
 @pytest.fixture
 def valid_events() -> List[EventFixture]:
-    data = get_fixture("events")
+    data = get_fixtures("events")
     return [EventFixture.parse_obj(e) for e in data["valid"]]
 
 @pytest.fixture
 def invalid_events() -> List[EventFixture]:
-    data = get_fixture("events")
+    data = get_fixtures("events")
     return [EventFixture.parse_obj(e) for e in data["invalid"]]
 
 
@@ -36,15 +36,12 @@ def test_event_id_and_signature_ok(valid_events: List[EventFixture]):
 
 def test_event_id_and_signature_invalid(invalid_events: List[EventFixture]):
     for f in invalid_events:
-        print("### test_event_id_and_signature_invalid", f.name)
-        with pytest.raises(ValueError, match=f.exception) as e_info:
-            print("### e.info", e_info)
+        with pytest.raises(ValueError, match=f.exception):
             f.data.check_signature()
             
+                        
 
-
-
-def get_fixture(file):
+def get_fixtures(file):
     """
     Read the content of the JSON file.
     """
