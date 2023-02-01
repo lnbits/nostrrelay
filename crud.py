@@ -30,25 +30,24 @@ async def create_event(relay_id: str, e: NostrEvent):
 
 
 async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
-    values: List[Any] = []
-    query = "SELECT id, pubkey, created_at, kind, content, sig FROM nostrrelay.events"
-    if len(filter.e) or len(filter.p):
-        query += " INNER JOIN nostrrelay.event_tags ON nostrrelay.events.id = nostrrelay.event_tags.event_id WHERE"
-        if len(filter.e):
-            values += filter.e
-            e_s = ",".join(["?"] * len(filter.e))
-            query += f" nostrrelay.event_tags.value in ({e_s}) AND nostrrelay.event_tags.name = 'e'"
+    values: List[Any] = [relay_id]
+    query = "SELECT id, pubkey, created_at, kind, content, sig FROM nostrrelay.events "
+    
+    inner_joins = []
+    where = ["nostrrelay.events.relay_id = ?"]
+    if len(filter.e):
+        values += filter.e
+        e_s = ",".join(["?"] * len(filter.e))
+        inner_joins.append("INNER JOIN nostrrelay.event_tags e_tags ON nostrrelay.events.id = e_tags.event_id")
+        where.append(f" (e_tags.value in ({e_s}) AND e_tags.name = 'e')")
 
-        if len(filter.p):
-            values += filter.p
-            p_s = ",".join(["?"] * len(filter.p))
-            and_op = " AND " if len(filter.e) else ""
-            query += f"{and_op} nostrrelay.event_tags.value in ({p_s}) AND nostrrelay.event_tags.name = 'p'"
-        query += " AND nostrrelay.events.relay_id = ?"
-    else:
-        query += " WHERE nostrrelay.events.relay_id = ?"
+    if len(filter.p):
+        values += filter.p
+        p_s = ",".join(["?"] * len(filter.p))
+        inner_joins.append("INNER JOIN nostrrelay.event_tags p_tags ON nostrrelay.events.id = p_tags.event_id")
+        where.append(f" p_tags.value in ({p_s}) AND p_tags.name = 'p'")
+    query += " ".join(inner_joins)+ " WHERE " + " AND ".join(where)
 
-    values.append(relay_id)
 
     if len(filter.ids) != 0:
         ids = ",".join(["?"] * len(filter.ids))
