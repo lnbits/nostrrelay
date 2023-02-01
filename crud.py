@@ -18,7 +18,6 @@ async def create_event(relay_id: str, e: NostrEvent):
             sig
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT (id) DO NOTHING
         """,
         (relay_id, e.id, e.pubkey, e.created_at, e.kind, e.content, e.sig),
     )
