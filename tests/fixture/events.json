@@ -25,18 +25,6 @@
             }
         },
         {
-            "name": "kind 1, emoticon",
-            "data": {
-                "kind": 1,
-                "content": "😁",
-                "tags": [],
-                "created_at": 1675241147,
-                "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
-                "id": "906bf8746456ae8583f4def33b8fddca785cecab44ecfa6205a0be97c2576b74",
-                "sig": "67465c16101f8436a402a7369522fb1138838c012895c8752e942eca2ddf520b2938a508bc5236f633f1d6b4dc61eb19f7271555ca523b8043b65a793d3b208e"
-            }
-        },
-        {
             "name": "kind 1, reply, e & p tags",
             "data": {
                 "kind": 1,
@@ -201,5 +189,32 @@
             }
         }
     ],
-    "invalid": []
+    "invalid": [
+        {
+            "name": "invalid event id",
+            "exception": "Invalid event id. Expected: '380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acf3440269e3bd2486f6' got '380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acaaaaaaaaaaaaaaaaaa'",
+            "data": {
+                "id": "380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acaaaaaaaaaaaaaaaaaa",
+                "pubkey": "ae9d97d1627f6d02376cd0ce0ceed716d573deca355649d8e03a9323aaaa2491",
+                "created_at": 1675242172,
+                "kind": 0,
+                "tags": [],
+                "content": "{\"name\":\"chrome-snort\",\"display_name\":\"the ugly\",\"about\":\"meeeee\",\"website\":\"lnbits.com\",\"lud16\":\"nostr@lnbits.com\"}",
+                "sig": "2e3da396e6eb32962b31d490cefe422c02c5fa8a48a60f3ece27e1dcea374978b4a78b110e78dcff3859a6036287aceba1801df8877fc15266996d41235b7c4f"
+            }
+        },
+        {
+            "name": "invalid signature",
+            "exception": "Invalid signature: 'b1791d17052cef2a65f487ecd976952a721680da9cda4e0f11f4ea04425b1e0a273b27233a4fc50b9d98ebdf1d0722e52634dbaaaaaaaaaaaaaaaaaaaaaaaaaa' for event '3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96'",
+            "data": {
+                "kind": 1,
+                "content": "i126",
+                "tags": [],
+                "created_at": 1675239988,
+                "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
+                "id": "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96",
+                "sig": "b1791d17052cef2a65f487ecd976952a721680da9cda4e0f11f4ea04425b1e0a273b27233a4fc50b9d98ebdf1d0722e52634dbaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+        }
+    ]
 }
