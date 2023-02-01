@@ -85,6 +85,16 @@ async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
     return events
 
 
+async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
+    row = await db.fetchone("SELECT * FROM nostrrelay.events WHERE relay_id = ? AND id = ?", (relay_id, id,))
+    if not row:
+        return None
+
+    event = NostrEvent.from_row(row)
+    event.tags = await get_event_tags(relay_id, id)
+    return event
+
+
 async def create_event_tags(
     relay_id: str, event_id: str, tag_name: str, tag_value: str, extra_values: Optional[str]
 ):
