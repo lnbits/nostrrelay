@@ -56,6 +56,7 @@ async def test_valid_event_crud(valid_events: List[EventFixture]):
         filter = NostrFilter(ids=[f.data.id])
         events = await get_events(relay_id, filter)
         assert len(events) == 1, f"Expected one filter event '{f.name}'"
+        assert events[0].json() != json.dumps(f.data.json()), f"FIlter event is different for fixture '{f.name}'"
 
     author = "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
     event_id = "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96"
