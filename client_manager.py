@@ -1,4 +1,5 @@
 import json
+import asyncio
 from typing import Any, Callable, List, Union
 
 from fastapi import WebSocket
@@ -22,7 +23,8 @@ class NostrClientManager:
     async def broadcast_event(self, source: "NostrClientConnection", event: NostrEvent):
         for client in self.clients:
             if client != source:
-                await client.notify_event(event)
+                sent = await client.notify_event(event)
+                print("### sent", sent, event.id)
 
 
 class NostrClientConnection:
@@ -46,11 +48,16 @@ class NostrClientConnection:
             except Exception as e:
                 logger.warning(e)
 
-    async def notify_event(self, event: NostrEvent):
+    async def notify_event(self, event: NostrEvent) -> bool:
         for filter in self.filters:
             if filter.matches(event):
                 resp = event.serialize_response(filter.subscription_id)
-                await self.websocket.send_text(json.dumps(resp))
+                for i in range(0, 100):
+                    await self.websocket.send_text(json.dumps(resp))
+                    await asyncio.sleep(1)
+                return True
+        return False
+                
 
     async def __handle_message(self, data: List) -> Union[None, List]:
         if len(data) < 2:
