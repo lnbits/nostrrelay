@@ -79,13 +79,13 @@ fixtures = {
         ],
         "subscribe_reactions_to_me": [
             "REQ",
-            "sub0",
+            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
             {
-                "kinds": [7],
-                "authors": [
+                "kinds": [1, 7, 6, 4],
+                "#p": [
                     "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
                 ],
-                "limit": 50,
+                "limit": 400,
             },
         ],
     },
@@ -239,32 +239,44 @@ async def test_xxx():
 
     await alice_wire_meta_and_post01(ws_alice, fixtures)
 
-    # print("### ws_alice.sent_messages", ws_alice.sent_messages)
-    # # print("### ws_alice.received_messages", ws_alice.received_messages)
-    # print("### ws_bob.sent_messages", ws_bob.sent_messages)
-    # print("### ws_bob.received_messages", ws_bob.received_messages)
-
     await bob_wire_meta_and_folow_alice(ws_bob, fixtures)
 
-    await alice_post_02_bob_is_notified(ws_alice, ws_bob)
+    await alice_wire_post02_and_bob_is_notified(ws_alice, ws_bob, fixtures)
 
-        # await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post_01"]))
-    # await ws_bob.wire_mock_message(
-    #     json.dumps(fixtures["bob"]["like_alice_post_01"])
-    # )
+    ws_alice.sent_messages.clear()
+    ws_bob.sent_messages.clear()
 
-    # await ws_alice.wire_mock_message(
-    #     json.dumps(fixtures["alice"]["subscribe_reactions_to_me"])
-    # )
+    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post_01"]))
+    await asyncio.sleep(0.1)
+    await ws_alice.wire_mock_message(
+        json.dumps(fixtures["alice"]["subscribe_reactions_to_me"])
+    )
+    await asyncio.sleep(0.1)
+
+    assert (
+        len(ws_alice.sent_messages) == 2
+    ), "Alice: Expected 2 confirmations to be sent"
+
+    assert ws_alice.sent_messages[0] == json.dumps(
+        [
+            "EVENT",
+            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
+            fixtures["bob"]["like_post_01"][1],
+        ]
+    ), "Alice: must receive 'like' notification"
+
+    assert ws_alice.sent_messages[1] == json.dumps(
+        ["EOSE", "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345"]
+    ), "Alice: stored notifications done"
+
+    print("### ws_alice.sent_messages", ws_alice.sent_messages)
+    print("### ws_bob.sent_messages", ws_bob.sent_messages)
+    # await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post_02"]))
     # await asyncio.sleep(0.5)
-    # await ws_bob.wire_mock_message(
-    #     json.dumps(fixtures["bob"]["like_alice_post_02"])
-    # )
 
     await asyncio.sleep(0.5)
 
     await asyncio.sleep(1)
-
 
 
 async def alice_wire_meta_and_post01(ws_alice: MockWebSocket, fixtures):
@@ -303,7 +315,7 @@ async def bob_wire_meta_and_folow_alice(ws_bob: MockWebSocket, fixtures):
     ), "Bob: Wrong confirmation for meta"
     assert ws_bob.sent_messages[1] == json.dumps(
         ["EVENT", "profile", fixtures["alice"]["meta"][1]]
-    ), "Bob: Wrong confirmation for Alice's meta"
+    ), "Bob: Wrong response for Alice's meta"
     assert ws_bob.sent_messages[2] == json.dumps(
         ["EOSE", "profile"]
     ), "Bob: Wrong End Of Streaming Event for profile"
@@ -314,14 +326,15 @@ async def bob_wire_meta_and_folow_alice(ws_bob: MockWebSocket, fixtures):
         ["EOSE", "sub0"]
     ), "Bob: Wrong End Of Streaming Event for sub0"
 
-async def alice_post_02_bob_is_notified(ws_alice, ws_bob):
+
+async def alice_wire_post02_and_bob_is_notified(
+    ws_alice: MockWebSocket, ws_bob: MockWebSocket, fixtures
+):
     ws_bob.sent_messages.clear()
     ws_alice.sent_messages.clear()
-    await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post02"]))
 
+    await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post02"]))
     await asyncio.sleep(0.5)
-    print("### ws_alice.sent_messages", ws_alice.sent_messages)
-    print("### ws_bob.sent_messages", ws_bob.sent_messages)
 
     assert ws_alice.sent_messages[0] == json.dumps(
         fixtures["alice"]["post02_response_ok"]
