@@ -40,7 +40,7 @@ class NostrEvent(BaseModel):
 
     def serialize_json(self) -> str:
         e = self.serialize()
-        return json.dumps(e, separators=(",", ":"))
+        return json.dumps(e, separators=(",", ":"), ensure_ascii=False)
 
     @property
     def event_id(self) -> str:
