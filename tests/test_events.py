@@ -60,24 +60,27 @@ async def test_valid_event_crud(valid_events: List[EventFixture]):
 
     author = "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
     event_id = "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96"
-    events_by_author = await get_events(relay_id, NostrFilter(authors=[author]))
-    assert len(events_by_author) == 5, f"Failed to filter by authors"
+    reply_event_id = "6b2b6cb9c72caaf3dfbc5baa5e68d75ac62f38ec011b36cc83832218c36e4894"
+    
+    await filter_by_author(relay_id, author)
 
+    await filter_by_tag_p(relay_id, author)
 
-    # filter by tag 'p'
-    filter = NostrFilter() # todo: check why constructor does not work for fields with aliases (#e, #p)
+    await filter_by_tag_e(relay_id, event_id)
+
+    await filter_by_tag_e_and_p(relay_id, author, event_id, reply_event_id)
+
+    await filter_by_tag_e_p_and_author(relay_id, author, event_id, reply_event_id)
+
+async def filter_by_tag_e_p_and_author(relay_id, author, event_id, reply_event_id):
+    filter = NostrFilter(authors=[author])
     filter.p.append(author)
-    events_related_to_author = await get_events(relay_id, filter)
-    assert len(events_related_to_author) == 5, f"Failed to filter by tag 'p'"
-
-    # filter by tag 'e'
-    filter = NostrFilter()
     filter.e.append(event_id)
     events_related_to_event = await get_events(relay_id, filter)
-    assert len(events_related_to_event) == 2, f"Failed to filter by tag 'e'"
+    assert len(events_related_to_event) == 1, f"Failed to filter by 'author' and tags 'e' & 'p'"
+    assert events_related_to_event[0].id == reply_event_id, f"Failed to find the right event by 'author' and tags 'e' & 'p'"
 
-    # filter by tag 'e' & 'p'
-    reply_event_id = "6b2b6cb9c72caaf3dfbc5baa5e68d75ac62f38ec011b36cc83832218c36e4894"
+async def filter_by_tag_e_and_p(relay_id, author, event_id, reply_event_id):
     filter = NostrFilter()
     filter.p.append(author)
     filter.e.append(event_id)
@@ -85,14 +88,23 @@ async def test_valid_event_crud(valid_events: List[EventFixture]):
     assert len(events_related_to_event) == 1, f"Failed to filter by tags 'e' & 'p'"
     assert events_related_to_event[0].id == reply_event_id, f"Failed to find the right event by tags 'e' & 'p'"
 
-    # filter by tag 'e' & 'p' and author
-    reply_event_id = "6b2b6cb9c72caaf3dfbc5baa5e68d75ac62f38ec011b36cc83832218c36e4894"
-    filter = NostrFilter(authors=[author])
-    filter.p.append(author)
+async def filter_by_tag_e(relay_id, event_id):
+    filter = NostrFilter()
     filter.e.append(event_id)
     events_related_to_event = await get_events(relay_id, filter)
-    assert len(events_related_to_event) == 1, f"Failed to filter by 'author' and tags 'e' & 'p'"
-    assert events_related_to_event[0].id == reply_event_id, f"Failed to find the right event by 'author' and tags 'e' & 'p'"
+    assert len(events_related_to_event) == 2, f"Failed to filter by tag 'e'"
+
+async def filter_by_tag_p(relay_id, author):
+    filter = NostrFilter() # todo: check why constructor does not work for fields with aliases (#e, #p)
+    filter.p.append(author)
+    events_related_to_author = await get_events(relay_id, filter)
+    assert len(events_related_to_author) == 5, f"Failed to filter by tag 'p'"
+
+async def filter_by_author(relay_id, author):
+    events_by_author = await get_events(relay_id, NostrFilter(authors=[author]))
+    assert len(events_by_author) == 5, f"Failed to filter by authors"
+
+
 
         
 
