@@ -223,6 +223,21 @@ async def test_xxx():
 
     await asyncio.sleep(1)
 
+    await alice_wire_meta_and_post01(ws_alice, fixtures)
+
+    
+
+    print("### ws_alice.sent_messages", ws_alice.sent_messages)
+    # print("### ws_alice.received_messages", ws_alice.received_messages)
+    print("### ws_bob.sent_messages", ws_bob.sent_messages)
+    print("### ws_bob.received_messages", ws_bob.received_messages)
+
+    await bob_wire_meta_and_folow_alice(ws_bob, fixtures)
+
+    await asyncio.sleep(1)
+
+
+async def alice_wire_meta_and_post01(ws_alice: MockWebSocket, fixtures):
     await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["meta"]))
     await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post01"]))
     await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post01"]))
@@ -240,20 +255,20 @@ async def test_xxx():
         fixtures["alice"]["post01_response_duplicate"]
     ), "Alice: Expected failure for double posting"
 
+async def bob_wire_meta_and_folow_alice(ws_bob: MockWebSocket, fixtures):
     await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["meta"]))
     await ws_bob.wire_mock_message(
         json.dumps(fixtures["bob"]["request_meta_alice"])
     )
+    await ws_bob.wire_mock_message(
+        json.dumps(fixtures["bob"]["request_posts_alice"])
+    )
+
     await asyncio.sleep(0.5)
 
-    print("### ws_alice.sent_messages", ws_alice.sent_messages)
-    # print("### ws_alice.received_messages", ws_alice.received_messages)
-    print("### ws_bob.sent_messages", ws_bob.sent_messages)
-    print("### ws_bob.received_messages", ws_bob.received_messages)
-
     assert (
-        len(ws_bob.sent_messages) == 3
-    ), "Bob: Expected 3 confirmations to be sent"
+        len(ws_bob.sent_messages) == 5
+    ), "Bob: Expected 5 confirmations to be sent"
     assert ws_bob.sent_messages[0] == json.dumps(
         fixtures["bob"]["meta_response"]
     ), "Bob: Wrong confirmation for meta"
@@ -262,6 +277,10 @@ async def test_xxx():
     ), "Bob: Wrong confirmation for Alice's meta"
     assert ws_bob.sent_messages[2] == json.dumps(
         ["EOSE", "profile"]
-    ), "Bob: Wrong End Of Straming Event"
-
-    await asyncio.sleep(1)
+    ), "Bob: Wrong End Of Streaming Event for profile"
+    assert ws_bob.sent_messages[3] == json.dumps(
+        ["EVENT", "sub0", fixtures["alice"]["post01"][1]]
+    ), "Bob: Wrong posts for Alice"
+    assert ws_bob.sent_messages[4] == json.dumps(
+        ["EOSE", "sub0"]
+    ), "Bob: Wrong End Of Streaming Event for sub0"
