@@ -1,7 +1,7 @@
 import json
-import pytest
-
 from typing import List, Optional
+
+import pytest
 from loguru import logger
 from pydantic import BaseModel
 
