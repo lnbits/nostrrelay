@@ -49,14 +49,8 @@ async def test_valid_event_crud(valid_events: List[EventFixture]):
 
     # insert all events before doing an query
     for f in valid_events:   
-        event = await get_event(relay_id, f.data.id)
-        assert event, f"Failed to restore event (id='{f.data.id}')"
-        assert event.json() != json.dumps(f.data.json()), f"Restored event is different for fixture '{f.name}'"
-
-        filter = NostrFilter(ids=[f.data.id])
-        events = await get_events(relay_id, filter)
-        assert len(events) == 1, f"Expected one filter event '{f.name}'"
-        assert events[0].json() != json.dumps(f.data.json()), f"FIlter event is different for fixture '{f.name}'"
+        await get_by_id(relay_id, f.data, f.name)
+        await filter_by_id(relay_id, f.data, f.name)
 
     author = "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
     event_id = "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96"
@@ -71,6 +65,17 @@ async def test_valid_event_crud(valid_events: List[EventFixture]):
     await filter_by_tag_e_and_p(relay_id, author, event_id, reply_event_id)
 
     await filter_by_tag_e_p_and_author(relay_id, author, event_id, reply_event_id)
+
+async def get_by_id(relay_id:str, data: NostrEvent, test_name: str):
+    event = await get_event(relay_id, data.id)
+    assert event, f"Failed to restore event (id='{data.id}')"
+    assert event.json() != json.dumps(data.json()), f"Restored event is different for fixture '{test_name}'"
+
+async def filter_by_id(relay_id, data: NostrEvent, test_name: str):
+    filter = NostrFilter(ids=[data.id])
+    events = await get_events(relay_id, filter)
+    assert len(events) == 1, f"Expected one filter event '{test_name}'"
+    assert events[0].json() != json.dumps(data.json()), f"FIlter event is different for fixture '{test_name}'"
 
 async def filter_by_tag_e_p_and_author(relay_id, author, event_id, reply_event_id):
     filter = NostrFilter(authors=[author])
