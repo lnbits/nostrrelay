@@ -1,7 +1,7 @@
 import json
-from typing import List, Optional
-
 import pytest
+
+from typing import List, Optional
 from loguru import logger
 from pydantic import BaseModel
 
@@ -49,10 +49,11 @@ async def test_valid_event_crud(valid_events: List[EventFixture]):
     reply_event_id = "6b2b6cb9c72caaf3dfbc5baa5e68d75ac62f38ec011b36cc83832218c36e4894"
     all_events = [f.data for f in valid_events]
 
+    # insert all events in DB before doing an query
     for e in all_events:
         await create_event(RELAY_ID, e)
 
-    # insert all events before doing an query
+
     for f in valid_events:   
         await get_by_id(f.data, f.name)
         await filter_by_id(all_events, f.data, f.name)
