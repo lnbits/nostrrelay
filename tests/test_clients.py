@@ -71,6 +71,12 @@ fixtures = {
                 "sig": "012fc88407b0cfb967e80d1117acf6cf03410f6810039543d2290eef64e246d82ad130d08814b2564cee68e77dd0e99ea539e7a9751ef2e0914e7d93f345094e",
             },
         ],
+        "post02_response_ok": [
+            "ok",
+            "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
+            True,
+            "",
+        ],
         "subscribe_reactions_to_me": [
             "REQ",
             "sub0",
@@ -123,20 +129,28 @@ fixtures = {
                 "limit": 50,
             },
         ],
-        "alice_post_01": [
+        "like_post_01": [
             "EVENT",
-            "sub0",
             {
-                "id": "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675332284,
-                "kind": 1,
-                "tags": [],
-                "content": "Alice post 02",
-                "sig": "012fc88407b0cfb967e80d1117acf6cf03410f6810039543d2290eef64e246d82ad130d08814b2564cee68e77dd0e99ea539e7a9751ef2e0914e7d93f345094e",
+                "id": "700da4df9029a049ddecd1c586b778f434afb55e56c3016d94334108e3829db7",
+                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+                "created_at": 1675350162,
+                "kind": 7,
+                "tags": [
+                    [
+                        "e",
+                        "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
+                    ],
+                    [
+                        "p",
+                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+                    ],
+                ],
+                "content": "❤️",
+                "sig": "3522d670f2e28bd63d32184aa9617df360684e5bc4b7c791b53c5401437e1bf91d1d335f016076fdee9afa99046dc9cc06a39738b25ff9a1562ac7321e3dca2e",
             },
         ],
-        "like_alice_post_02": [
+        "like_post_02": [
             "EVENT",
             {
                 "id": "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
@@ -225,19 +239,37 @@ async def test_xxx():
 
     await alice_wire_meta_and_post01(ws_alice, fixtures)
 
-    
-
-    print("### ws_alice.sent_messages", ws_alice.sent_messages)
-    # print("### ws_alice.received_messages", ws_alice.received_messages)
-    print("### ws_bob.sent_messages", ws_bob.sent_messages)
-    print("### ws_bob.received_messages", ws_bob.received_messages)
+    # print("### ws_alice.sent_messages", ws_alice.sent_messages)
+    # # print("### ws_alice.received_messages", ws_alice.received_messages)
+    # print("### ws_bob.sent_messages", ws_bob.sent_messages)
+    # print("### ws_bob.received_messages", ws_bob.received_messages)
 
     await bob_wire_meta_and_folow_alice(ws_bob, fixtures)
+
+    await alice_post_02_bob_is_notified(ws_alice, ws_bob)
+
+        # await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post_01"]))
+    # await ws_bob.wire_mock_message(
+    #     json.dumps(fixtures["bob"]["like_alice_post_01"])
+    # )
+
+    # await ws_alice.wire_mock_message(
+    #     json.dumps(fixtures["alice"]["subscribe_reactions_to_me"])
+    # )
+    # await asyncio.sleep(0.5)
+    # await ws_bob.wire_mock_message(
+    #     json.dumps(fixtures["bob"]["like_alice_post_02"])
+    # )
+
+    await asyncio.sleep(0.5)
 
     await asyncio.sleep(1)
 
 
+
 async def alice_wire_meta_and_post01(ws_alice: MockWebSocket, fixtures):
+    ws_alice.sent_messages.clear()
+
     await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["meta"]))
     await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post01"]))
     await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post01"]))
@@ -255,20 +287,17 @@ async def alice_wire_meta_and_post01(ws_alice: MockWebSocket, fixtures):
         fixtures["alice"]["post01_response_duplicate"]
     ), "Alice: Expected failure for double posting"
 
+
 async def bob_wire_meta_and_folow_alice(ws_bob: MockWebSocket, fixtures):
+    ws_bob.sent_messages.clear()
+
     await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["meta"]))
-    await ws_bob.wire_mock_message(
-        json.dumps(fixtures["bob"]["request_meta_alice"])
-    )
-    await ws_bob.wire_mock_message(
-        json.dumps(fixtures["bob"]["request_posts_alice"])
-    )
+    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["request_meta_alice"]))
+    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["request_posts_alice"]))
 
     await asyncio.sleep(0.5)
 
-    assert (
-        len(ws_bob.sent_messages) == 5
-    ), "Bob: Expected 5 confirmations to be sent"
+    assert len(ws_bob.sent_messages) == 5, "Bob: Expected 5 confirmations to be sent"
     assert ws_bob.sent_messages[0] == json.dumps(
         fixtures["bob"]["meta_response"]
     ), "Bob: Wrong confirmation for meta"
@@ -284,3 +313,19 @@ async def bob_wire_meta_and_folow_alice(ws_bob: MockWebSocket, fixtures):
     assert ws_bob.sent_messages[4] == json.dumps(
         ["EOSE", "sub0"]
     ), "Bob: Wrong End Of Streaming Event for sub0"
+
+async def alice_post_02_bob_is_notified(ws_alice, ws_bob):
+    ws_bob.sent_messages.clear()
+    ws_alice.sent_messages.clear()
+    await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post02"]))
+
+    await asyncio.sleep(0.5)
+    print("### ws_alice.sent_messages", ws_alice.sent_messages)
+    print("### ws_bob.sent_messages", ws_bob.sent_messages)
+
+    assert ws_alice.sent_messages[0] == json.dumps(
+        fixtures["alice"]["post02_response_ok"]
+    ), "Alice: Wrong confirmation for post02"
+    assert ws_bob.sent_messages[0] == json.dumps(
+        ["EVENT", "sub0", fixtures["alice"]["post02"][1]]
+    ), "Bob: Wrong notification for post02"
