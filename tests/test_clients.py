@@ -96,6 +96,12 @@ fixtures = {
                 "sig": "52b142eb5bf95e46424d8f146a0efcfd1be35ec2ae446152ccc875bc82eee66bef6df1af9a4456ec8984540ac4e21905544b5291334e2b18a24e534b788b2d81",
             },
         ],
+        "meta_response": [
+            "ok",
+            "a3591f44f9f12e8d745a79c19affc1f9ea267a716981116835ddb7b327096be5",
+            True,
+            "",
+        ],
         "request_meta_alice": [
             "REQ",
             "profile",
@@ -104,19 +110,6 @@ fixtures = {
                 "authors": [
                     "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
                 ],
-            },
-        ],
-        "meta_alice": [
-            "EVENT",
-            "profile",
-            {
-                "id": "9d4883c31d6ae3d80fd8882a248cc193800a096d87bd55d5c1df8a237e78ca09",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675332095,
-                "kind": 0,
-                "tags": [],
-                "content": '{"name":"Alice"}',
-                "sig": "95c30b6bbc70f3777d2b2b47ae3961e196eae0df72f3ae301ff1009cdabf9c50bb0eb7825891c842fc6ca5cb268342cc486850a6127ab40df871bd3e1fd0b0d7",
             },
         ],
         "request_posts_alice": [
@@ -192,7 +185,8 @@ fixtures = {
 class MockWebSocket(WebSocket):
     def __init__(self):
         self.sent_messages = []
-        self.received_messages: asyncio.Queue[str] = asyncio.Queue(0)
+        self.received_messages = []
+        self.fake_wire: asyncio.Queue[str] = asyncio.Queue(0)
         pass
 
     async def accept(self):
@@ -200,51 +194,74 @@ class MockWebSocket(WebSocket):
 
     async def receive_text(self) -> str:
         # print("### mock receive_text")
-        return await self.received_messages.get()
+        data = await self.fake_wire.get()
+        self.received_messages.append(data)
+        return data
 
     async def send_text(self, data: str):
         self.sent_messages.append(data)
         # print("### mock send_text", data)
 
-    async def mock_new_message(self, data: str):
-        # print("#### mock_new_message", data)
-        await self.received_messages.put(data)
+    async def wire_mock_message(self, data: str):
+        # print("#### wire_mock_message", data)
+        await self.fake_wire.put(data)
 
 
 @pytest.mark.asyncio
 async def test_xxx():
     client_manager = NostrClientManager()
 
-    websocket_alice = MockWebSocket()
-    client_alice = NostrClientConnection(websocket=websocket_alice)
+    ws_alice = MockWebSocket()
+    client_alice = NostrClientConnection(websocket=ws_alice)
     client_manager.add_client(client_alice)
     asyncio.create_task(client_alice.start())
 
-    websocket_bob = MockWebSocket()
-    client_bob = NostrClientConnection(websocket=websocket_bob)
+    ws_bob = MockWebSocket()
+    client_bob = NostrClientConnection(websocket=ws_bob)
     client_manager.add_client(client_bob)
     asyncio.create_task(client_bob.start())
 
     await asyncio.sleep(1)
 
-    await websocket_alice.mock_new_message(json.dumps(fixtures["alice"]["meta"]))
-    await websocket_alice.mock_new_message(json.dumps(fixtures["alice"]["post01"]))
-    await websocket_alice.mock_new_message(json.dumps(fixtures["alice"]["post01"]))
-    await asyncio.sleep(0.1)
+    await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["meta"]))
+    await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post01"]))
+    await ws_alice.wire_mock_message(json.dumps(fixtures["alice"]["post01"]))
+    await asyncio.sleep(0.5)
     assert (
-        len(websocket_alice.sent_messages) == 3
-    ), "Expected 3 confirmations to be sent"
-    assert websocket_alice.sent_messages[0] == json.dumps(
+        len(ws_alice.sent_messages) == 3
+    ), "Alice: Expected 3 confirmations to be sent"
+    assert ws_alice.sent_messages[0] == json.dumps(
         fixtures["alice"]["meta_response"]
-    ), "Wrong confirmation for meta"
-    assert websocket_alice.sent_messages[1] == json.dumps(
+    ), "Alice: Wrong confirmation for meta"
+    assert ws_alice.sent_messages[1] == json.dumps(
         fixtures["alice"]["post01_response_ok"]
-    ), "Wrong confirmation for post01"
-    assert websocket_alice.sent_messages[2] == json.dumps(
+    ), "Alice: Wrong confirmation for post01"
+    assert ws_alice.sent_messages[2] == json.dumps(
         fixtures["alice"]["post01_response_duplicate"]
-    ), "Expected failure for double posting"
+    ), "Alice: Expected failure for double posting"
 
-    print("### websocket_alice.sent_messages", websocket_alice.sent_messages)
-    print("### websocket_bob.sent_messages", websocket_bob.sent_messages)
+    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["meta"]))
+    await ws_bob.wire_mock_message(
+        json.dumps(fixtures["bob"]["request_meta_alice"])
+    )
+    await asyncio.sleep(0.5)
+
+    print("### ws_alice.sent_messages", ws_alice.sent_messages)
+    # print("### ws_alice.received_messages", ws_alice.received_messages)
+    print("### ws_bob.sent_messages", ws_bob.sent_messages)
+    print("### ws_bob.received_messages", ws_bob.received_messages)
+
+    assert (
+        len(ws_bob.sent_messages) == 3
+    ), "Bob: Expected 3 confirmations to be sent"
+    assert ws_bob.sent_messages[0] == json.dumps(
+        fixtures["bob"]["meta_response"]
+    ), "Bob: Wrong confirmation for meta"
+    assert ws_bob.sent_messages[1] == json.dumps(
+        ["EVENT", "profile", fixtures["alice"]["meta"][1]]
+    ), "Bob: Wrong confirmation for Alice's meta"
+    assert ws_bob.sent_messages[2] == json.dumps(
+        ["EOSE", "profile"]
+    ), "Bob: Wrong End Of Straming Event"
 
     await asyncio.sleep(1)

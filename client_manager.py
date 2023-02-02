@@ -38,13 +38,14 @@ class NostrClientConnection:
         await self.websocket.accept()
         while True:
             json_data = await self.websocket.receive_text()
+            print('### received', json_data)
             try:
                 data = json.loads(json_data)
 
                 resp = await self.__handle_message(data)
-                if resp:
-                    for r in resp:
-                        await self.websocket.send_text(json.dumps(r))
+                for r in resp:
+                    print('### sent query', json.dumps(r))
+                    await self.websocket.send_text(json.dumps(r))
             except Exception as e:
                 logger.warning(e)
 
@@ -52,29 +53,28 @@ class NostrClientConnection:
         for filter in self.filters:
             if filter.matches(event):
                 resp = event.serialize_response(filter.subscription_id)
-                for i in range(0, 100):
-                    await self.websocket.send_text(json.dumps(resp))
-                    await asyncio.sleep(1)
+                print('### sent notify', json.dumps(resp))
+                await self.websocket.send_text(json.dumps(resp))
                 return True
         return False
                 
 
-    async def __handle_message(self, data: List) -> Union[None, List]:
+    async def __handle_message(self, data: List) -> List:
         if len(data) < 2:
-            return None
+            return []
 
         message_type = data[0]
         if message_type == NostrEventType.EVENT:
             await self.__handle_event(NostrEvent.parse_obj(data[1]))
-            return None
+            return []
         if message_type == NostrEventType.REQ:
             if len(data) != 3:
-                return None
+                return []
             return await self.__handle_request(data[1], NostrFilter.parse_obj(data[2]))
         if message_type == NostrEventType.CLOSE:
             self.__handle_close(data[1])
 
-        return None
+        return []
 
     async def __handle_event(self, e: "NostrEvent"):
         resp_nip20: List[Any] = ["ok", e.id]
@@ -84,7 +84,7 @@ class NostrClientConnection:
             await self.broadcast_event(self, e)
             resp_nip20 += [True, ""]
         except Exception as ex:
-            resp_nip20 += [False, f"error: {ex}"]
+            resp_nip20 += [False, f"error: failed to create event"]
 
         await self.websocket.send_text(json.dumps(resp_nip20))
 
