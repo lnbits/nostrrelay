@@ -20,6 +20,11 @@ class NostrRelay(BaseModel):
     def from_row(cls, row: Row) -> "NostrRelay":
         return cls(**dict(row))
 
+class NostrEventType(str, Enum):
+    EVENT = "EVENT"
+    REQ = "REQ"
+    CLOSE = "CLOSE"
+
 
 class NostrEvent(BaseModel):
     id: str
@@ -109,16 +114,9 @@ class NostrFilter(BaseModel):
         if len(filter_tags) == 0:
             return True
 
-        #filter has tag
         event_tag_values = [t[1] for t in event_tags if t[0] == tag_name]
         
         common_tags = [event_tag for event_tag in event_tag_values if event_tag in filter_tags]
         if len(common_tags) == 0:
             return False
         return True
-
-
-class NostrEventType(str, Enum):
-    EVENT = "EVENT"
-    REQ = "REQ"
-    CLOSE = "CLOSE"
