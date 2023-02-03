@@ -29,7 +29,74 @@ async def create_event(relay_id: str, e: NostrEvent):
         await create_event_tags(relay_id, e.id, name, value, extra)
 
 
-async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
+async def get_events(relay_id: str, filter: NostrFilter, include_tags = True) -> List[NostrEvent]:
+    values, query = build_select_events_query(relay_id, filter)
+
+    rows = await db.fetchall(query, tuple(values))
+
+    events = []
+    for row in rows:
+        event = NostrEvent.from_row(row)
+        if include_tags:
+            event.tags = await get_event_tags(relay_id, event.id)
+            events.append(event)
+
+    return events
+
+
+async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
+    row = await db.fetchone("SELECT * FROM nostrrelay.events WHERE relay_id = ? AND id = ?", (relay_id, id,))
+    if not row:
+        return None
+
+    event = NostrEvent.from_row(row)
+    event.tags = await get_event_tags(relay_id, id)
+    return event
+
+async def delete_events(relay_id: str, ids: List[str]) -> None:
+    ids = ",".join(["?"] * len(ids))
+    values = [relay_id] + ids
+    await db.execute("DELETE FROM FROM nostrrelay.events WHERE relay_id = ? AND id IN ({ids})", tuple(values))
+
+
+async def create_event_tags(
+    relay_id: str, event_id: str, tag_name: str, tag_value: str, extra_values: Optional[str]
+):
+    await db.execute(
+        """
+        INSERT INTO nostrrelay.event_tags (
+            relay_id,
+            event_id,
+            name,
+            value,
+            extra
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (relay_id, event_id, tag_name, tag_value, extra_values),
+    )
+
+
+async def get_event_tags(
+    relay_id: str, event_id: str
+) -> List[List[str]]:
+    rows = await db.fetchall(
+        "SELECT * FROM nostrrelay.event_tags WHERE relay_id = ? and event_id = ?",
+        (relay_id, event_id),
+    )
+
+    tags: List[List[str]] = []
+    for row in rows:
+        tag = [row["name"], row["value"]]
+        extra = row["extra"]
+        if extra:
+            tag += json.loads(extra)
+        tags.append(tag)
+
+    return tags
+
+
+def build_select_events_query(relay_id:str, filter:NostrFilter):
     values: List[Any] = [relay_id]
     query = "SELECT id, pubkey, created_at, kind, content, sig FROM nostrrelay.events "
     
@@ -71,60 +138,4 @@ async def get_events(relay_id: str, filter: NostrFilter) -> List[NostrEvent]:
     query += " ORDER BY created_at DESC"
     if filter.limit and type(filter.limit) == int and filter.limit > 0:
         query += f" LIMIT {filter.limit}"
-
-    rows = await db.fetchall(query, tuple(values))
-
-    events = []
-    for row in rows:
-        event = NostrEvent.from_row(row)
-        event.tags = await get_event_tags(relay_id, event.id)
-        events.append(event)
-
-    return events
-
-
-async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
-    row = await db.fetchone("SELECT * FROM nostrrelay.events WHERE relay_id = ? AND id = ?", (relay_id, id,))
-    if not row:
-        return None
-
-    event = NostrEvent.from_row(row)
-    event.tags = await get_event_tags(relay_id, id)
-    return event
-
-
-async def create_event_tags(
-    relay_id: str, event_id: str, tag_name: str, tag_value: str, extra_values: Optional[str]
-):
-    await db.execute(
-        """
-        INSERT INTO nostrrelay.event_tags (
-            relay_id,
-            event_id,
-            name,
-            value,
-            extra
-        )
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (relay_id, event_id, tag_name, tag_value, extra_values),
-    )
-
-
-async def get_event_tags(
-    relay_id: str, event_id: str
-) -> List[List[str]]:
-    rows = await db.fetchall(
-        "SELECT * FROM nostrrelay.event_tags WHERE relay_id = ? and event_id = ?",
-        (relay_id, event_id),
-    )
-
-    tags: List[List[str]] = []
-    for row in rows:
-        tag = [row["name"], row["value"]]
-        extra = row["extra"]
-        if extra:
-            tag += json.loads(extra)
-        tags.append(tag)
-
-    return tags
+    return values, query
