@@ -48,6 +48,9 @@ class NostrEvent(BaseModel):
         id = hashlib.sha256(data.encode()).hexdigest()
         return id
 
+    def is_delete_event(self) -> bool:
+        return self.kind == 5
+
     def check_signature(self):
         event_id = self.event_id
         if self.id != event_id:

@@ -1,5 +1,5 @@
 import asyncio
-from json import dumps
+from json import dumps, loads
 
 import pytest
 from fastapi import WebSocket
@@ -55,6 +55,9 @@ async def test_alice_and_bob():
     await bob_writes_to_alice(ws_alice, ws_bob)
 
     await alice_writes_to_bob(ws_alice, ws_bob)
+
+    await alice_deletes_post01__bob_is_notified(ws_alice, ws_bob)
+
 
 def init_clients():
     client_manager = NostrClientManager()
@@ -230,7 +233,7 @@ async def bob_writes_to_alice(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
     ), "Alice: Wrong direct message received"
 
 
-async def alice_writes_to_bob(ws_alice, ws_bob):
+async def alice_writes_to_bob(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
     ws_alice.sent_messages.clear()
     ws_bob.sent_messages.clear()
 
@@ -262,3 +265,46 @@ async def alice_writes_to_bob(ws_alice, ws_bob):
     assert ws_bob.sent_messages[1] == dumps(
         ["EOSE", "notifications:d685447c43c7c18dbbea61923cf0b63e1ab46bed"]
     ), "Bob: Received all stored events"
+
+async def alice_deletes_post01__bob_is_notified(ws_alice: MockWebSocket, ws_bob:MockWebSocket):
+    ws_bob.sent_messages.clear()
+    await ws_bob.wire_mock_data(bob["request_posts_alice"])
+    await asyncio.sleep(0.1)
+    assert (
+        len(ws_bob.sent_messages) == 3
+    ), "Bob: Expected two posts from Alice plus and EOSE"
+
+    ws_alice.sent_messages.clear()
+    ws_bob.sent_messages.clear()
+
+    await ws_bob.wire_mock_data(bob["subscribe_to_delete_from_alice"])
+    await asyncio.sleep(0.1)
+    await ws_alice.wire_mock_data(alice["delete_post01"])
+    await asyncio.sleep(0.1)
+
+    assert (
+        len(ws_alice.sent_messages) == 1
+    ), "Alice: Expected confirmation for delete post01"
+    assert ws_alice.sent_messages[0] == dumps(
+        alice["delete_post01_response"]
+    ), "Alice: Wrong confirmation for delete post01"
+
+    assert len(ws_bob.sent_messages) == 2, "Bob: Expects 2 messages for delete post01"
+    assert ws_bob.sent_messages[0] == dumps(
+        ["EOSE", "notifications:delete"]
+    ), "Bob: Expect no delete notification on subscribe"
+    assert loads(ws_bob.sent_messages[1]) == [
+        "EVENT",
+        "notifications:delete",
+        alice["delete_post01"][1],
+    ], "Bob: Expect delete notification later on"
+
+    ws_bob.sent_messages.clear()
+    await ws_bob.wire_mock_data(bob["request_posts_alice"])
+    await asyncio.sleep(0.1)
+    assert (
+        len(ws_bob.sent_messages) == 2
+    ), "Bob: Expected one posts from Alice plus and EOSE"
+
+
+ 

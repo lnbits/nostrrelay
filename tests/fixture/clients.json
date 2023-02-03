@@ -98,6 +98,38 @@
             "28c96b6e80681c18a690e0e0dc6ca4e72b9d291d1d2576bc8949a07bb4bee225",
             true,
             ""
+        ],
+        "delete_post01": [
+            "EVENT",
+            {
+                "kind": 5,
+                "content": "deleted",
+                "tags": [
+                    [
+                        "e",
+                        "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85"
+                    ],
+                    [
+                        "e",
+                        "mock-id",
+                        ""
+                    ],
+                    [
+                        "e",
+                        "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea"
+                    ]
+                ],
+                "created_at": 1675427798,
+                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+                "id": "2751f2ee0f894268c61300c5b1a1a434f49a33a467a6f4516f10a82a1848f093",
+                "sig": "8e972ba7f1ce9d11ba5d49fdd48db4a92ea999790eb604e6a7f01868a26a70a8e96e1f9e104d8f77a5aa7f29e94119e33117b4cc8a5ff9e50ec8c23eeccd94e9"
+            }
+        ],
+        "delete_post01_response": [
+            "ok",
+            "2751f2ee0f894268c61300c5b1a1a434f49a33a467a6f4516f10a82a1848f093",
+            true,
+            ""
         ]
     },
     "bob": {
@@ -251,6 +283,19 @@
                 ],
                 "#p": [
                     "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
+                ],
+                "limit": 400
+            }
+        ],
+        "subscribe_to_delete_from_alice": [
+            "REQ",
+            "notifications:delete",
+            {
+                "kinds": [
+                    5
+                ],
+                "authors": [
+                    "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
                 ],
                 "limit": 400
             }
