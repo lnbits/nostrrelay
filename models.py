@@ -20,6 +20,16 @@ class NostrRelay(BaseModel):
     def from_row(cls, row: Row) -> "NostrRelay":
         return cls(**dict(row))
 
+class NostrRelayInfo(BaseModel):
+  name: Optional[str] 
+  description: Optional[str] 
+  pubkey: Optional[str] 
+  contact: Optional[str] = "https://t.me/lnbits"
+  supported_nips: List[str] = ["NIP01", "NIP09", "NIP11"]
+  software: Optional[str] = "LNbist"
+  version: Optional[str]
+
+
 class NostrEventType(str, Enum):
     EVENT = "EVENT"
     REQ = "REQ"
