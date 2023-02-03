@@ -97,6 +97,7 @@ class NostrFilter(BaseModel):
     kinds: List[int] = []
     e: List[str] = Field([], alias="#e")
     p: List[str] = Field([], alias="#p")
+    tags: List[List[str]] = []
     since: Optional[int]
     until: Optional[int]
     limit: Optional[int]
@@ -133,3 +134,16 @@ class NostrFilter(BaseModel):
         if len(common_tags) == 0:
             return False
         return True
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "NostrFilter":
+        print('### from_json', data)
+        
+        tags = list(map(chr, range(ord('a'), ord('z')+1)))
+        tags.remove("e")
+        tags.remove("p")
+
+        filter = NostrFilter.parse_obj(data)
+        filter.tags = [[t, data[t]] for t in tags if f"#{t}" in data]
+        print('### filter', filter)
+        return filter

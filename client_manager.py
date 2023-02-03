@@ -66,7 +66,7 @@ class NostrClientConnection:
         if message_type == NostrEventType.REQ:
             if len(data) != 3:
                 return []
-            return await self.__handle_request(data[1], NostrFilter.parse_obj(data[2]))
+            return await self.__handle_request(data[1], NostrFilter.from_dict(data[2]))
         if message_type == NostrEventType.CLOSE:
             self.__handle_close(data[1])
 

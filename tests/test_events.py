@@ -70,6 +70,8 @@ async def test_valid_event_crud(valid_events: List[EventFixture]):
 
     await filter_by_tag_e_p_and_author(all_events, author, event_id, reply_event_id)
 
+    await filter_by_generic_tag_d(all_events, "chats/null/lastOpened")
+
 async def get_by_id(data: NostrEvent, test_name: str):
     event = await get_event(RELAY_ID, data.id)
     assert event, f"Failed to restore event (id='{data.id}')"
@@ -116,6 +118,16 @@ async def filter_by_tag_e(all_events: List[NostrEvent],  event_id):
 
     filtered_events = [e for e in all_events if filter.matches(e)]
     assert len(filtered_events) == 2, f"Failed to filter by tag 'e'"
+
+async def filter_by_generic_tag_d(all_events: List[NostrEvent],  replaceable_event):
+    filter = NostrFilter()
+    filter.tags.append(["d", replaceable_event])
+
+    # events_related_to_event = await get_events(RELAY_ID, filter)
+    # assert len(events_related_to_event) == 2, f"Failed to query by tag 'e'"
+
+    filtered_events = [e for e in all_events if filter.matches(e)]
+    assert len(filtered_events) == 1, f"Failed to filter by tag 'd'"
 
 async def filter_by_tag_e_and_p(all_events: List[NostrEvent],  author, event_id, reply_event_id):
     filter = NostrFilter()
