@@ -4,7 +4,7 @@ from typing import Any, Callable, List
 from fastapi import WebSocket
 from loguru import logger
 
-from .crud import create_event, delete_events, get_events
+from .crud import create_event, delete_events, get_event, get_events
 from .models import NostrEvent, NostrEventType, NostrFilter
 
 
@@ -81,8 +81,12 @@ class NostrClientConnection:
             if e.is_delete_event():
                 await self.__delete_event(e)
             resp_nip20 += [True, ""]
-        except Exception as ex:
-            resp_nip20 += [False, f"error: failed to create event"]
+        except ValueError:
+            resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
+        except Exception:
+            event = await get_event("111", e.id)
+            # todo: handle NIP20 in detail
+            resp_nip20 += [event != None, f"error: failed to create event"]
 
         await self.websocket.send_text(json.dumps(resp_nip20))
 

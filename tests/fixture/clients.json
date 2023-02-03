@@ -39,7 +39,7 @@
         "post01_response_duplicate": [
             "ok",
             "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-            false,
+            true,
             "error: failed to create event"
         ],
         "post02": [
