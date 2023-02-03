@@ -16,6 +16,7 @@ async def m001_initial(db):
         f"""
         CREATE TABLE nostrrelay.events (
             relay_id TEXT NOT NULL,
+            deleted BOOLEAN DEFAULT false,
             id TEXT PRIMARY KEY,
             pubkey TEXT NOT NULL,
             created_at {db.big_int} NOT NULL,

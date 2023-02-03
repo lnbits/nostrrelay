@@ -39,7 +39,7 @@ async def get_events(relay_id: str, filter: NostrFilter, include_tags = True) ->
         event = NostrEvent.from_row(row)
         if include_tags:
             event.tags = await get_event_tags(relay_id, event.id)
-            events.append(event)
+        events.append(event)
 
     return events
 
@@ -53,10 +53,12 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
     event.tags = await get_event_tags(relay_id, id)
     return event
 
-async def delete_events(relay_id: str, ids: List[str]) -> None:
-    ids = ",".join(["?"] * len(ids))
-    values = [relay_id] + ids
-    await db.execute("DELETE FROM FROM nostrrelay.events WHERE relay_id = ? AND id IN ({ids})", tuple(values))
+async def delete_events(relay_id: str, id_list: List[str] = []):
+    if len(id_list) == 0:
+        return None
+    ids = ",".join(["?"] * len(id_list))
+    values = [relay_id] + id_list
+    await db.execute(f"UPDATE nostrrelay.events SET deleted=true WHERE relay_id = ? AND id IN ({ids})", tuple(values))
 
 
 async def create_event_tags(
@@ -101,7 +103,7 @@ def build_select_events_query(relay_id:str, filter:NostrFilter):
     query = "SELECT id, pubkey, created_at, kind, content, sig FROM nostrrelay.events "
     
     inner_joins = []
-    where = ["nostrrelay.events.relay_id = ?"]
+    where = ["deleted=false AND nostrrelay.events.relay_id = ?"]
     if len(filter.e):
         values += filter.e
         e_s = ",".join(["?"] * len(filter.e))
