@@ -243,31 +243,8 @@ async def test_xxx():
 
     await alice_wire_post02_and_bob_is_notified(ws_alice, ws_bob, fixtures)
 
-    ws_alice.sent_messages.clear()
-    ws_bob.sent_messages.clear()
-
-    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post_01"]))
-    await asyncio.sleep(0.1)
-    await ws_alice.wire_mock_message(
-        json.dumps(fixtures["alice"]["subscribe_reactions_to_me"])
-    )
-    await asyncio.sleep(0.1)
-
-    assert (
-        len(ws_alice.sent_messages) == 2
-    ), "Alice: Expected 2 confirmations to be sent"
-
-    assert ws_alice.sent_messages[0] == json.dumps(
-        [
-            "EVENT",
-            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
-            fixtures["bob"]["like_post_01"][1],
-        ]
-    ), "Alice: must receive 'like' notification"
-
-    assert ws_alice.sent_messages[1] == json.dumps(
-        ["EOSE", "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345"]
-    ), "Alice: stored notifications done"
+    
+    await bob_reacts_to_posts_alice_receives_notifications(ws_alice, ws_bob, fixtures)
 
     print("### ws_alice.sent_messages", ws_alice.sent_messages)
     print("### ws_bob.sent_messages", ws_bob.sent_messages)
@@ -342,3 +319,31 @@ async def alice_wire_post02_and_bob_is_notified(
     assert ws_bob.sent_messages[0] == json.dumps(
         ["EVENT", "sub0", fixtures["alice"]["post02"][1]]
     ), "Bob: Wrong notification for post02"
+
+
+async def bob_reacts_to_posts_alice_receives_notifications(ws_alice: MockWebSocket, ws_bob: MockWebSocket, fixtures):
+    ws_alice.sent_messages.clear()
+    ws_bob.sent_messages.clear()
+
+    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post_01"]))
+    await asyncio.sleep(0.1)
+    await ws_alice.wire_mock_message(
+        json.dumps(fixtures["alice"]["subscribe_reactions_to_me"])
+    )
+    await asyncio.sleep(0.1)
+
+    assert (
+        len(ws_alice.sent_messages) == 2
+    ), "Alice: Expected 2 confirmations to be sent"
+
+    assert ws_alice.sent_messages[0] == json.dumps(
+        [
+            "EVENT",
+            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
+            fixtures["bob"]["like_post_01"][1],
+        ]
+    ), "Alice: must receive 'like' notification"
+
+    assert ws_alice.sent_messages[1] == json.dumps(
+        ["EOSE", "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345"]
+    ), "Alice: receive stored notifications done"
