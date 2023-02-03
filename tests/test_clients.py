@@ -129,7 +129,7 @@ fixtures = {
                 "limit": 50,
             },
         ],
-        "like_post_01": [
+        "like_post01": [
             "EVENT",
             {
                 "id": "700da4df9029a049ddecd1c586b778f434afb55e56c3016d94334108e3829db7",
@@ -150,7 +150,7 @@ fixtures = {
                 "sig": "3522d670f2e28bd63d32184aa9617df360684e5bc4b7c791b53c5401437e1bf91d1d335f016076fdee9afa99046dc9cc06a39738b25ff9a1562ac7321e3dca2e",
             },
         ],
-        "like_post_02": [
+        "like_post02": [
             "EVENT",
             {
                 "id": "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
@@ -171,7 +171,13 @@ fixtures = {
                 "sig": "90fa8093088ed9280277f10a97c41d68d9f51d24254f7b27c28f5d84ac25426f1bfc217bca0c6712a9965164b07db219ee7e583b94c4d26f00aee87344c3f17a",
             },
         ],
-        "comment_on_alice_post_01": [
+        "like_post02_response": [
+            "ok",
+            "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
+            True,
+            "",
+        ],
+        "comment_on_alice_post01": [
             "EVENT",
             {
                 "id": "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
@@ -191,6 +197,12 @@ fixtures = {
                 "content": "bob comment 01",
                 "sig": "f9bb53e2adc27f3a49ec42d681833742e28d734327107ebba3076be226340503048116947a75274e5262fa03aa0430da6fe697e46e19342639ef208e5690d8c5",
             },
+        ],
+        "comment_on_alice_post01_response": [
+            "ok",
+            "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
+            True,
+            "",
         ],
     },
 }
@@ -243,15 +255,16 @@ async def test_xxx():
 
     await alice_wire_post02_and_bob_is_notified(ws_alice, ws_bob, fixtures)
 
-    
-    await bob_reacts_to_posts_alice_receives_notifications(ws_alice, ws_bob, fixtures)
+    await bob_likes_posts_alice_subscribes_and_receives_notifications(
+        ws_alice, ws_bob, fixtures
+    )
+
+    await bob_likes_and_comments___alice_receives_notifications(ws_alice, ws_bob)
 
     print("### ws_alice.sent_messages", ws_alice.sent_messages)
     print("### ws_bob.sent_messages", ws_bob.sent_messages)
-    # await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post_02"]))
+    # await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post02"]))
     # await asyncio.sleep(0.5)
-
-    await asyncio.sleep(0.5)
 
     await asyncio.sleep(1)
 
@@ -321,11 +334,13 @@ async def alice_wire_post02_and_bob_is_notified(
     ), "Bob: Wrong notification for post02"
 
 
-async def bob_reacts_to_posts_alice_receives_notifications(ws_alice: MockWebSocket, ws_bob: MockWebSocket, fixtures):
+async def bob_likes_posts_alice_subscribes_and_receives_notifications(
+    ws_alice: MockWebSocket, ws_bob: MockWebSocket, fixtures
+):
     ws_alice.sent_messages.clear()
     ws_bob.sent_messages.clear()
 
-    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post_01"]))
+    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post01"]))
     await asyncio.sleep(0.1)
     await ws_alice.wire_mock_message(
         json.dumps(fixtures["alice"]["subscribe_reactions_to_me"])
@@ -340,10 +355,50 @@ async def bob_reacts_to_posts_alice_receives_notifications(ws_alice: MockWebSock
         [
             "EVENT",
             "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
-            fixtures["bob"]["like_post_01"][1],
+            fixtures["bob"]["like_post01"][1],
         ]
     ), "Alice: must receive 'like' notification"
 
     assert ws_alice.sent_messages[1] == json.dumps(
         ["EOSE", "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345"]
     ), "Alice: receive stored notifications done"
+
+
+async def bob_likes_and_comments___alice_receives_notifications(
+    ws_alice: MockWebSocket, ws_bob: MockWebSocket, fixtures
+):
+    ws_alice.sent_messages.clear()
+    ws_bob.sent_messages.clear()
+
+    await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post02"]))
+    await ws_bob.wire_mock_message(
+        json.dumps(fixtures["bob"]["comment_on_alice_post01"])
+    )
+    await asyncio.sleep(0.5)
+
+    assert (
+        len(ws_bob.sent_messages) == 2
+    ), "Bob: Expected 2 confirmations to be sent (for like & comment)"
+    assert ws_bob.sent_messages[0] == json.dumps(
+        fixtures["bob"]["like_post02_response"]
+    ), "Bob: Wrong confirmation for like on post02"
+    assert ws_bob.sent_messages[1] == json.dumps(
+        fixtures["bob"]["comment_on_alice_post01_response"]
+    ), "Bob: Wrong confirmation for comment on post01"
+    assert (
+        len(ws_alice.sent_messages) == 2
+    ), "Alice: Expected 2 notifications to be sent (for like & comment)"
+    assert ws_alice.sent_messages[0] == json.dumps(
+        [
+            "EVENT",
+            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
+            fixtures["bob"]["like_post02"][1],
+        ]
+    ), "Alice: Wrong notification for like on post02"
+    assert ws_alice.sent_messages[1] == json.dumps(
+        [
+            "EVENT",
+            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
+            fixtures["bob"]["comment_on_alice_post01"][1],
+        ]
+    ), "Alice: Wrong notification for comment on post01"
