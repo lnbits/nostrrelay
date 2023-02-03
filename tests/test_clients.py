@@ -259,14 +259,12 @@ async def test_xxx():
         ws_alice, ws_bob, fixtures
     )
 
-    await bob_likes_and_comments___alice_receives_notifications(ws_alice, ws_bob)
+    await bob_likes_and_comments___alice_receives_notifications(
+        ws_alice, ws_bob, fixtures
+    )
 
     print("### ws_alice.sent_messages", ws_alice.sent_messages)
     print("### ws_bob.sent_messages", ws_bob.sent_messages)
-    # await ws_bob.wire_mock_message(json.dumps(fixtures["bob"]["like_post02"]))
-    # await asyncio.sleep(0.5)
-
-    await asyncio.sleep(1)
 
 
 async def alice_wire_meta_and_post01(ws_alice: MockWebSocket, fixtures):
