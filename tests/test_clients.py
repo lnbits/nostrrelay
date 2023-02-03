@@ -40,15 +40,17 @@ class MockWebSocket(WebSocket):
 async def test_alice_and_bob():
     ws_alice, ws_bob = init_clients()
 
-    await alice_wire_meta_and_post01(ws_alice)
+    await alice_wires_meta_and_post01(ws_alice)
 
-    await bob_wire_meta_and_folow_alice(ws_bob)
+    await bob_wires_meta_and_folows_alice(ws_bob)
 
-    await alice_wire_post02_and_bob_is_notified(ws_alice, ws_bob)
+    await alice_wires_post02_____bob_is_notified(ws_alice, ws_bob)
 
-    await bob_likes_posts_alice_subscribes_and_receives_notifications(ws_alice, ws_bob)
+    await bob_likes_post01_____alice_subscribes_and_receives_notifications(
+        ws_alice, ws_bob
+    )
 
-    await bob_likes_and_comments___alice_receives_notifications(ws_alice, ws_bob)
+    await bob_likes_and_comments_____alice_receives_notifications(ws_alice, ws_bob)
 
 
 def init_clients():
@@ -66,7 +68,7 @@ def init_clients():
     return ws_alice, ws_bob
 
 
-async def alice_wire_meta_and_post01(ws_alice: MockWebSocket):
+async def alice_wires_meta_and_post01(ws_alice: MockWebSocket):
     ws_alice.sent_messages.clear()
 
     await ws_alice.wire_mock_data(alice["meta"])
@@ -90,7 +92,7 @@ async def alice_wire_meta_and_post01(ws_alice: MockWebSocket):
     await asyncio.sleep(0.1)
 
 
-async def bob_wire_meta_and_folow_alice(ws_bob: MockWebSocket):
+async def bob_wires_meta_and_folows_alice(ws_bob: MockWebSocket):
     ws_bob.sent_messages.clear()
 
     await ws_bob.wire_mock_data(bob["meta"])
@@ -117,14 +119,14 @@ async def bob_wire_meta_and_folow_alice(ws_bob: MockWebSocket):
     ), "Bob: Wrong End Of Streaming Event for sub0"
 
 
-async def alice_wire_post02_and_bob_is_notified(
+async def alice_wires_post02_____bob_is_notified(
     ws_alice: MockWebSocket, ws_bob: MockWebSocket
 ):
     ws_bob.sent_messages.clear()
     ws_alice.sent_messages.clear()
 
     await ws_alice.wire_mock_data(alice["post02"])
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(0.1)
 
     assert ws_alice.sent_messages[0] == dumps(
         alice["post02_response_ok"]
@@ -134,7 +136,7 @@ async def alice_wire_post02_and_bob_is_notified(
     ), "Bob: Wrong notification for post02"
 
 
-async def bob_likes_posts_alice_subscribes_and_receives_notifications(
+async def bob_likes_post01_____alice_subscribes_and_receives_notifications(
     ws_alice: MockWebSocket, ws_bob: MockWebSocket
 ):
     ws_alice.sent_messages.clear()
@@ -162,7 +164,7 @@ async def bob_likes_posts_alice_subscribes_and_receives_notifications(
     ), "Alice: receive stored notifications done"
 
 
-async def bob_likes_and_comments___alice_receives_notifications(
+async def bob_likes_and_comments_____alice_receives_notifications(
     ws_alice: MockWebSocket, ws_bob: MockWebSocket
 ):
     ws_alice.sent_messages.clear()
