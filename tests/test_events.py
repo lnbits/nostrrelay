@@ -6,9 +6,10 @@ from loguru import logger
 from pydantic import BaseModel
 
 from lnbits.extensions.nostrrelay.crud import create_event, get_event, get_events
-from lnbits.extensions.nostrrelay.models import NostrEvent, NostrFilter
 
-FIXTURES_PATH = "tests/extensions/nostrrelay/fixture"
+from lnbits.extensions.nostrrelay.models import NostrEvent, NostrFilter
+from .helpers import get_fixtures
+
 RELAY_ID = "r1"
 
 class EventFixture(BaseModel):
@@ -142,11 +143,3 @@ async def filter_by_tag_e_p_and_author(all_events: List[NostrEvent], author, eve
     assert filtered_events[0].id == reply_event_id, f"Failed to filter the right event by 'author' and tags 'e' & 'p'"
 
 
-def get_fixtures(file):
-    """
-    Read the content of the JSON file.
-    """
-
-    with open(f"{FIXTURES_PATH}/{file}.json") as f:
-        raw_data = json.load(f)
-    return raw_data

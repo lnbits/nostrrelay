@@ -8,210 +8,13 @@ from lnbits.extensions.nostrrelay.client_manager import (
     NostrClientConnection,
     NostrClientManager,
 )
+from .helpers import get_fixtures
 
-
-def simple_urandom():
-    # print('### simple_urandom', x)
-    return 3
-
-
-fixtures = {
-    "alice": {
-        "meta": [
-            "EVENT",
-            {
-                "id": "9d4883c31d6ae3d80fd8882a248cc193800a096d87bd55d5c1df8a237e78ca09",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675332095,
-                "kind": 0,
-                "tags": [],
-                "content": '{"name":"Alice"}',
-                "sig": "95c30b6bbc70f3777d2b2b47ae3961e196eae0df72f3ae301ff1009cdabf9c50bb0eb7825891c842fc6ca5cb268342cc486850a6127ab40df871bd3e1fd0b0d7",
-            },
-        ],
-        "meta_response": [
-            "ok",
-            "9d4883c31d6ae3d80fd8882a248cc193800a096d87bd55d5c1df8a237e78ca09",
-            True,
-            "",
-        ],
-        "post01": [
-            "EVENT",
-            {
-                "id": "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675332224,
-                "kind": 1,
-                "tags": [],
-                "content": "Alice - post 01",
-                "sig": "8d27c9f818ff194b491de1dc7d52d2d26916d87189ed1330315c4ff5509a986c80f34c2202302f8fe246c0b3f4e2f79103c000cbd6ca65bbe3921e14f30cb35b",
-            },
-        ],
-        "post01_response_ok": [
-            "ok",
-            "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-            True,
-            "",
-        ],
-        "post01_response_duplicate": [
-            "ok",
-            "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-            False,
-            "error: failed to create event",
-        ],
-        "post02": [
-            "EVENT",
-            {
-                "id": "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675332284,
-                "kind": 1,
-                "tags": [],
-                "content": "Alice post 02",
-                "sig": "012fc88407b0cfb967e80d1117acf6cf03410f6810039543d2290eef64e246d82ad130d08814b2564cee68e77dd0e99ea539e7a9751ef2e0914e7d93f345094e",
-            },
-        ],
-        "post02_response_ok": [
-            "ok",
-            "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
-            True,
-            "",
-        ],
-        "subscribe_reactions_to_me": [
-            "REQ",
-            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
-            {
-                "kinds": [1, 7, 6, 4],
-                "#p": [
-                    "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                ],
-                "limit": 400,
-            },
-        ],
-    },
-    "bob": {
-        "meta": [
-            "EVENT",
-            {
-                "id": "a3591f44f9f12e8d745a79c19affc1f9ea267a716981116835ddb7b327096be5",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675332410,
-                "kind": 0,
-                "tags": [],
-                "content": '{"name":"Bob"}',
-                "sig": "52b142eb5bf95e46424d8f146a0efcfd1be35ec2ae446152ccc875bc82eee66bef6df1af9a4456ec8984540ac4e21905544b5291334e2b18a24e534b788b2d81",
-            },
-        ],
-        "meta_response": [
-            "ok",
-            "a3591f44f9f12e8d745a79c19affc1f9ea267a716981116835ddb7b327096be5",
-            True,
-            "",
-        ],
-        "request_meta_alice": [
-            "REQ",
-            "profile",
-            {
-                "kinds": [0],
-                "authors": [
-                    "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                ],
-            },
-        ],
-        "request_posts_alice": [
-            "REQ",
-            "sub0",
-            {
-                "kinds": [1],
-                "authors": [
-                    "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                ],
-                "limit": 50,
-            },
-        ],
-        "like_post01": [
-            "EVENT",
-            {
-                "id": "700da4df9029a049ddecd1c586b778f434afb55e56c3016d94334108e3829db7",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675350162,
-                "kind": 7,
-                "tags": [
-                    [
-                        "e",
-                        "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-                    ],
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                    ],
-                ],
-                "content": "❤️",
-                "sig": "3522d670f2e28bd63d32184aa9617df360684e5bc4b7c791b53c5401437e1bf91d1d335f016076fdee9afa99046dc9cc06a39738b25ff9a1562ac7321e3dca2e",
-            },
-        ],
-        "like_post02": [
-            "EVENT",
-            {
-                "id": "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675332450,
-                "kind": 7,
-                "tags": [
-                    [
-                        "e",
-                        "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
-                    ],
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                    ],
-                ],
-                "content": "❤️",
-                "sig": "90fa8093088ed9280277f10a97c41d68d9f51d24254f7b27c28f5d84ac25426f1bfc217bca0c6712a9965164b07db219ee7e583b94c4d26f00aee87344c3f17a",
-            },
-        ],
-        "like_post02_response": [
-            "ok",
-            "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
-            True,
-            "",
-        ],
-        "comment_on_alice_post01": [
-            "EVENT",
-            {
-                "id": "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675332468,
-                "kind": 1,
-                "tags": [
-                    [
-                        "e",
-                        "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-                    ],
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                    ],
-                ],
-                "content": "bob comment 01",
-                "sig": "f9bb53e2adc27f3a49ec42d681833742e28d734327107ebba3076be226340503048116947a75274e5262fa03aa0430da6fe697e46e19342639ef208e5690d8c5",
-            },
-        ],
-        "comment_on_alice_post01_response": [
-            "ok",
-            "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
-            True,
-            "",
-        ],
-    },
-}
-
+fixtures = get_fixtures("clients")
 
 class MockWebSocket(WebSocket):
     def __init__(self):
         self.sent_messages = []
-        self.received_messages = []
         self.fake_wire: asyncio.Queue[str] = asyncio.Queue(0)
         pass
 
@@ -219,22 +22,19 @@ class MockWebSocket(WebSocket):
         await asyncio.sleep(0.1)
 
     async def receive_text(self) -> str:
-        # print("### mock receive_text")
         data = await self.fake_wire.get()
-        self.received_messages.append(data)
         return data
 
     async def send_text(self, data: str):
         self.sent_messages.append(data)
-        # print("### mock send_text", data)
 
     async def wire_mock_message(self, data: str):
-        # print("#### wire_mock_message", data)
         await self.fake_wire.put(data)
 
 
 @pytest.mark.asyncio
-async def test_xxx():
+async def test_alice_and_bob():
+
     client_manager = NostrClientManager()
 
     ws_alice = MockWebSocket()
@@ -247,7 +47,7 @@ async def test_xxx():
     client_manager.add_client(client_bob)
     asyncio.create_task(client_bob.start())
 
-    await asyncio.sleep(1)
+    await asyncio.sleep(0.1)
 
     await alice_wire_meta_and_post01(ws_alice, fixtures)
 
