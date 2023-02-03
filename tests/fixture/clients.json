@@ -92,6 +92,12 @@
                 "content": "BwstXDkQJAHnLOrWFzBRDHdMoF4hoXSCwgmR+K2uw237yss/i639rpR2iOIYJP4z?iv=5pTRQh6NBKfe1hyhwh2WEw==",
                 "sig": "5da31b8a51dcc9fc9665db6199084696b705fc415e1be684b82fe39f3cbd271c2d707fd5a532232205a016e99ed1ef12abdacb52d139d7f5746cb693de71e5aa"
             }
+        ],
+        "direct_message01_response": [
+            "ok",
+            "28c96b6e80681c18a690e0e0dc6ca4e72b9d291d1d2576bc8949a07bb4bee225",
+            true,
+            ""
         ]
     },
     "bob": {
@@ -235,6 +241,19 @@
             "15f6e6bd6cb538167d4430ea6bd7c0cfb99b400ca3e8879a114e90f74b3f20b2",
             true,
             ""
+        ],
+        "subscribe_to_direct_messages": [
+            "REQ",
+            "notifications:d685447c43c7c18dbbea61923cf0b63e1ab46bed",
+            {
+                "kinds": [
+                    4
+                ],
+                "#p": [
+                    "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
+                ],
+                "limit": 400
+            }
         ]
     }
 }

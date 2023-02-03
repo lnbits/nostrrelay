@@ -54,6 +54,7 @@ async def test_alice_and_bob():
 
     await bob_writes_to_alice(ws_alice, ws_bob)
 
+    await alice_writes_to_bob(ws_alice, ws_bob)
 
 def init_clients():
     client_manager = NostrClientManager()
@@ -210,7 +211,7 @@ async def bob_writes_to_alice(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
 
     await ws_bob.wire_mock_data(bob["direct_message01"])
     await asyncio.sleep(0.1)
-    
+
     assert (
         len(ws_bob.sent_messages) == 1
     ), "Bob: Expected confirmation for direct message"
@@ -227,3 +228,37 @@ async def bob_writes_to_alice(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
             bob["direct_message01"][1],
         ]
     ), "Alice: Wrong direct message received"
+
+
+async def alice_writes_to_bob(ws_alice, ws_bob):
+    ws_alice.sent_messages.clear()
+    ws_bob.sent_messages.clear()
+
+    await ws_alice.wire_mock_data(alice["direct_message01"])
+    await asyncio.sleep(0.1)
+
+    assert (
+        len(ws_alice.sent_messages) == 1
+    ), "Alice: Expected confirmation for direct message"
+    assert ws_alice.sent_messages[0] == dumps(
+        alice["direct_message01_response"]
+    ), "Alice: Wrong confirmation for direct message"
+    assert len(ws_bob.sent_messages) == 0, "Bob: no subscription, no message"
+
+    await ws_bob.wire_mock_data(bob["subscribe_to_direct_messages"])
+    await asyncio.sleep(0.5)
+
+    assert (
+        len(ws_bob.sent_messages) == 2
+    ), "Bob: Receive message and EOSE after subscribe"
+
+    assert ws_bob.sent_messages[0] == dumps(
+        [
+            "EVENT",
+            "notifications:d685447c43c7c18dbbea61923cf0b63e1ab46bed",
+            alice["direct_message01"][1],
+        ]
+    ), "Bob: Finaly receives direct message from Alice"
+    assert ws_bob.sent_messages[1] == dumps(
+        ["EOSE", "notifications:d685447c43c7c18dbbea61923cf0b63e1ab46bed"]
+    ), "Bob: Received all stored events"
