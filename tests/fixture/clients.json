@@ -13,7 +13,7 @@
             }
         ],
         "meta_response": [
-            "ok",
+            "OK",
             "9d4883c31d6ae3d80fd8882a248cc193800a096d87bd55d5c1df8a237e78ca09",
             true,
             ""
@@ -31,13 +31,13 @@
             }
         ],
         "post01_response_ok": [
-            "ok",
+            "OK",
             "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
             true,
             ""
         ],
         "post01_response_duplicate": [
-            "ok",
+            "OK",
             "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
             true,
             "error: failed to create event"
@@ -55,7 +55,7 @@
             }
         ],
         "post02_response_ok": [
-            "ok",
+            "OK",
             "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
             true,
             ""
@@ -94,7 +94,7 @@
             }
         ],
         "direct_message01_response": [
-            "ok",
+            "OK",
             "28c96b6e80681c18a690e0e0dc6ca4e72b9d291d1d2576bc8949a07bb4bee225",
             true,
             ""
@@ -126,7 +126,7 @@
             }
         ],
         "delete_post01_response": [
-            "ok",
+            "OK",
             "2751f2ee0f894268c61300c5b1a1a434f49a33a467a6f4516f10a82a1848f093",
             true,
             ""
@@ -146,7 +146,7 @@
             }
         ],
         "meta_response": [
-            "ok",
+            "OK",
             "a3591f44f9f12e8d745a79c19affc1f9ea267a716981116835ddb7b327096be5",
             true,
             ""
@@ -219,7 +219,7 @@
             }
         ],
         "like_post02_response": [
-            "ok",
+            "OK",
             "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
             true,
             ""
@@ -246,7 +246,7 @@
             }
         ],
         "comment_on_alice_post01_response": [
-            "ok",
+            "OK",
             "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
             true,
             ""
@@ -269,7 +269,7 @@
             }
         ],
         "direct_message01_response": [
-            "ok",
+            "OK",
             "15f6e6bd6cb538167d4430ea6bd7c0cfb99b400ca3e8879a114e90f74b3f20b2",
             true,
             ""

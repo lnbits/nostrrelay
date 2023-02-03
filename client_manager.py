@@ -73,7 +73,7 @@ class NostrClientConnection:
         return []
 
     async def __handle_event(self, e: NostrEvent):
-        resp_nip20: List[Any] = ["ok", e.id]
+        resp_nip20: List[Any] = ["OK", e.id]
         try:
             e.check_signature()
             await create_event("111", e)
