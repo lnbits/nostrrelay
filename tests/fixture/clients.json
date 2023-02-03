@@ -75,6 +75,23 @@
                 ],
                 "limit": 400
             }
+        ],
+        "direct_message01": [
+            "EVENT",
+            {
+                "id": "28c96b6e80681c18a690e0e0dc6ca4e72b9d291d1d2576bc8949a07bb4bee225",
+                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+                "created_at": 1675412967,
+                "kind": 4,
+                "tags": [
+                    [
+                        "p",
+                        "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
+                    ]
+                ],
+                "content": "BwstXDkQJAHnLOrWFzBRDHdMoF4hoXSCwgmR+K2uw237yss/i639rpR2iOIYJP4z?iv=5pTRQh6NBKfe1hyhwh2WEw==",
+                "sig": "5da31b8a51dcc9fc9665db6199084696b705fc415e1be684b82fe39f3cbd271c2d707fd5a532232205a016e99ed1ef12abdacb52d139d7f5746cb693de71e5aa"
+            }
         ]
     },
     "bob": {
@@ -193,6 +210,29 @@
         "comment_on_alice_post01_response": [
             "ok",
             "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
+            true,
+            ""
+        ],
+        "direct_message01": [
+            "EVENT",
+            {
+                "id": "15f6e6bd6cb538167d4430ea6bd7c0cfb99b400ca3e8879a114e90f74b3f20b2",
+                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+                "created_at": 1675412687,
+                "kind": 4,
+                "tags": [
+                    [
+                        "p",
+                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+                    ]
+                ],
+                "content": "jjBSyp36t555ywERY2fI4A==?iv=+8bg2vsltrXewAywxw9m6w==",
+                "sig": "091f4e8e5c497099bfe6af58126e022bc8babe648b8157c39f51e5d3906bfddf01f2f6d1a3ed36f94fbf07b009008fd448fbb8ce35b60260517aa0124a6c5c39"
+            }
+        ],
+        "direct_message01_response": [
+            "ok",
+            "15f6e6bd6cb538167d4430ea6bd7c0cfb99b400ca3e8879a114e90f74b3f20b2",
             true,
             ""
         ]

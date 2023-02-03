@@ -52,6 +52,8 @@ async def test_alice_and_bob():
 
     await bob_likes_and_comments_____alice_receives_notifications(ws_alice, ws_bob)
 
+    await bob_writes_to_alice(ws_alice, ws_bob)
+
 
 def init_clients():
     client_manager = NostrClientManager()
@@ -200,3 +202,28 @@ async def bob_likes_and_comments_____alice_receives_notifications(
             bob["comment_on_alice_post01"][1],
         ]
     ), "Alice: Wrong notification for comment on post01"
+
+
+async def bob_writes_to_alice(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
+    ws_alice.sent_messages.clear()
+    ws_bob.sent_messages.clear()
+
+    await ws_bob.wire_mock_data(bob["direct_message01"])
+    await asyncio.sleep(0.1)
+    
+    assert (
+        len(ws_bob.sent_messages) == 1
+    ), "Bob: Expected confirmation for direct message"
+    assert ws_bob.sent_messages[0] == dumps(
+        bob["direct_message01_response"]
+    ), "Bob: Wrong confirmation for direct message"
+    assert (
+        len(ws_alice.sent_messages) == 1
+    ), "Alice: Expected confirmation for direct message"
+    assert ws_alice.sent_messages[0] == dumps(
+        [
+            "EVENT",
+            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
+            bob["direct_message01"][1],
+        ]
+    ), "Alice: Wrong direct message received"
