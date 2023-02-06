@@ -6,8 +6,14 @@ async def m001_initial(db):
         """
         CREATE TABLE nostrrelay.relays (
             id TEXT PRIMARY KEY,
-            wallet TEXT NOT NULL,
-            name TEXT NOT NULL
+            name TEXT NOT NULL,
+            description TEXT,
+            pubkey TEXT,
+            contact TEXT,
+            supported_nips TEXT,
+            software TEXT,
+            version TEXT,
+            meta TEXT NOT NULL DEFAULT '{}'
         );
         """
     )
