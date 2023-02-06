@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from typing import List, Optional
-
+from pydantic.types import UUID4
 from fastapi import Depends, Query, WebSocket
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
@@ -47,7 +47,11 @@ async def api_nostrrelay_info():
 
 @nostrrelay_ext.post("/api/v1/relay")
 async def api_create_relay(data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)) -> NostrRelay:
-    
+    if len(data.id):
+        await check_admin(UUID4(wallet.wallet.user))
+    else:
+        data.id = urlsafe_short_hash()[:8]
+
     try:
         relay = await create_relay(wallet.wallet.user, data)
         return relay
