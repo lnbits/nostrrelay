@@ -20,14 +20,15 @@ class NostrRelay(BaseModel):
     def from_row(cls, row: Row) -> "NostrRelay":
         return cls(**dict(row))
 
+
 class NostrRelayInfo(BaseModel):
-  name: Optional[str] 
-  description: Optional[str] 
-  pubkey: Optional[str] 
-  contact: Optional[str] = "https://t.me/lnbits"
-  supported_nips: List[str] = ["NIP01", "NIP09", "NIP11", "NIP15", "NIP20"]
-  software: Optional[str] = "LNbist"
-  version: Optional[str]
+    name: Optional[str]
+    description: Optional[str]
+    pubkey: Optional[str]
+    contact: Optional[str] = "https://t.me/lnbits"
+    supported_nips: List[str] = ["NIP01", "NIP09", "NIP11", "NIP15", "NIP20"]
+    software: Optional[str] = "LNbist"
+    version: Optional[str]
 
 
 class NostrEventType(str, Enum):
@@ -80,7 +81,6 @@ class NostrEvent(BaseModel):
         if not valid_signature:
             raise ValueError(f"Invalid signature: '{self.sig}' for event '{self.id}'")
 
-
     def serialize_response(self, subscription_id):
         return [NostrEventType.EVENT, subscription_id, dict(self)]
 
@@ -128,8 +128,21 @@ class NostrFilter(BaseModel):
             return True
 
         event_tag_values = [t[1] for t in event_tags if t[0] == tag_name]
-        
-        common_tags = [event_tag for event_tag in event_tag_values if event_tag in filter_tags]
+
+        common_tags = [
+            event_tag for event_tag in event_tag_values if event_tag in filter_tags
+        ]
         if len(common_tags) == 0:
             return False
         return True
+
+    def is_empty(self):
+        return (
+            len(self.ids) == 0
+            and len(self.authors) == 0
+            and len(self.kinds) == 0
+            and len(self.e) == 0
+            and len(self.p) == 0
+            and (not self.since)
+            and (not self.until)
+        )

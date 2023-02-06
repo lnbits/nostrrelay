@@ -4,7 +4,7 @@ from typing import Any, Callable, List
 from fastapi import WebSocket
 from loguru import logger
 
-from .crud import create_event, mark_events_deleted, get_event, get_events
+from .crud import create_event, get_event, get_events, mark_events_deleted
 from .models import NostrEvent, NostrEventType, NostrFilter
 
 

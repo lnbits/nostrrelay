@@ -54,11 +54,11 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
     return event
 
 async def mark_events_deleted(relay_id: str,  filter: NostrFilter):
-    if len(filter.ids) == 0:
+    if filter.is_empty():
         return None
-    ids = ",".join(["?"] * len(filter.ids))
-    values = [relay_id] + filter.ids
-    await db.execute(f"UPDATE nostrrelay.events SET deleted=true WHERE relay_id = ? AND id IN ({ids})", tuple(values))
+    _, where, values = build_where_clause(relay_id, filter)
+
+    await db.execute(f"""UPDATE nostrrelay.events SET deleted=true WHERE {" AND ".join(where)}""", tuple(values))
 
 
 async def create_event_tags(
@@ -109,6 +109,7 @@ def build_select_events_query(relay_id:str, filter:NostrFilter):
         ORDER BY created_at DESC
         """
 
+    # todo: check range
     if filter.limit and filter.limit > 0:
         query += f" LIMIT {filter.limit}"
 
