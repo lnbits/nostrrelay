@@ -28,7 +28,7 @@ from .crud import (
 from .models import NostrRelay
 
 client_manager = NostrClientManager()
-
+active_relays: List[str] = []
 
 @nostrrelay_ext.websocket("/{relay_id}")
 async def websocket_endpoint(relay_id: str, websocket: WebSocket):
@@ -43,18 +43,18 @@ async def websocket_endpoint(relay_id: str, websocket: WebSocket):
 
 @nostrrelay_ext.get("/{relay_id}", status_code=HTTPStatus.OK)
 async def api_nostrrelay_info(relay_id: str):
-    headers = {
-        "Access-Control-Allow-Origin": "*", 
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "GET"
-    }
     relay = await get_public_relay(relay_id)
     if not relay:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail="Relay not found",
         )
-    return JSONResponse(content=relay, headers=headers)
+
+    return JSONResponse(content=relay, headers={
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Methods": "GET"
+    })
 
 
 
