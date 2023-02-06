@@ -1,27 +1,115 @@
 {% extends "base.html" %} {% from "macros.jinja" import window_vars with context
 %} {% block page %}
 <div class="row q-col-gutter-md">
-  <div class="col-12 col-md-8 col-lg-7 q-gutter-y-md">
+  <div class="col-12 col-md-7 q-gutter-y-md">
     <q-card>
       <q-card-section>
-        <q-btn unelevated color="primary" @click="enableRelay"
-          ><div v-if="enabled">Disable relay</div>
-          <div v-else>Enable relay</div></q-btn
-        >
+        {% raw %}
+        <q-btn unelevated color="primary" @click="openCreateRelayDialog()"
+          >New relay
+        </q-btn>
       </q-card-section>
     </q-card>
 
     <q-card>
       <q-card-section>
-        <h6>WebSocket Chat</h6>
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col">
+            <h5 class="text-subtitle1 q-my-none">Relays</h5>
+          </div>
 
-        <input type="text" id="messageText" autocomplete="off" />
+          <div class="col q-pr-lg">
+            <q-input
+              borderless
+              dense
+              debounce="300"
+              v-model="filter"
+              placeholder="Search"
+              class="float-right"
+            >
+              <template v-slot:append>
+                <q-icon name="search"></q-icon>
+              </template>
+            </q-input>
+          </div>
+          <div class="col-auto">
+            <q-btn outline color="grey" label="...">
+              <q-menu auto-close>
+                <q-list style="min-width: 100px">
+                  <q-item clickable>
+                    <q-item-section @click="exportrelayCSV"
+                      >Export to CSV</q-item-section
+                    >
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </div>
+        </div>
+        <q-table
+          flat
+          dense
+          :data="relayLinks"
+          row-key="id"
+          :columns="relaysTable.columns"
+          :pagination.sync="relaysTable.pagination"
+          :filter="filter"
+        >
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td auto-width>
+                <q-btn
+                  size="sm"
+                  color="accent"
+                  round
+                  dense
+                  @click="props.row.expanded= !props.row.expanded"
+                  :icon="props.row.expanded? 'remove' : 'add'"
+                />
+              </q-td>
 
-        <q-btn unelevated color="primary" @click="sendMessage()"
-          ><div>Send</div>
-        </q-btn>
-
-        <ul id="messages"></ul>
+              <q-td auto-width> {{props.row.name}} </q-td>
+              <q-td key="description" :props="props" :class="">
+                {{props.row.description}}
+              </q-td>
+              <q-td key="type" :props="props" :class="">
+                <div>{{getRelayTypeLabel(props.row.type)}}</div>
+              </q-td>
+              <q-td key="amount" :props="props" :class="">
+                <div>{{props.row.amount}}</div>
+              </q-td>
+            </q-tr>
+            <q-tr v-if="props.row.expanded" :props="props">
+              <q-td colspan="100%">
+                <div class="row items-center q-mt-md q-mb-lg">
+                  <div class="col-2 q-pr-lg">ID:</div>
+                  <div class="col-4 q-pr-lg">{{props.row.id}}</div>
+                  <div class="col-6 q-pr-lg">
+                    <q-btn
+                      unelevated
+                      color="pink"
+                      icon="cancel"
+                      class="float-right"
+                      @click="deleteRelay(props.row.id)"
+                      >Delete Relay</q-btn
+                    >
+                  </div>
+                </div>
+                <div class="row items-center q-mt-md q-mb-lg">
+                  <div class="col-2 q-pr-lg"></div>
+                  <div class="col-10 q-pr-lg">
+                    <relay-items
+                      :relay-id="props.row.id"
+                      :adminkey="g.user.wallets[0].adminkey"
+                      :inkey="g.user.wallets[0].inkey"
+                    ></relay-items>
+                  </div>
+                </div>
+              </q-td>
+            </q-tr>
+          </template>
+          {% endraw %}
+        </q-table>
       </q-card-section>
     </q-card>
   </div>
@@ -30,79 +118,91 @@
     <q-card>
       <q-card-section>
         <h6 class="text-subtitle1 q-my-none">
-          {{SITE_TITLE}} NostrRelay extension
+          {{SITE_TITLE}} Nostr Relay Extension
         </h6>
       </q-card-section>
-      <q-card-section>
-        <p>
-          Thiago's Point of Sale is a secure, mobile-ready, instant and
-          shareable point of sale terminal (PoS) for merchants. The PoS is
-          linked to your LNbits wallet but completely air-gapped so users can
-          ONLY create invoices. To share the NostrRelay hit the hash on the
-          terminal.
-        </p>
-        <small
-          >Created by
-          <a
-            class="text-secondary"
-            href="https://pypi.org/user/dcs/"
-            target="_blank"
-            >DCs</a
-          >,
-          <a
-            class="text-secondary"
-            href="https://github.com/benarc"
-            target="_blank"
-            >Ben Arc</a
-          >.</small
-        >
+      <q-card-section class="q-pa-none">
+        <q-separator></q-separator>
+        <q-list> {% include "nostrrelay/_api_docs.html" %} </q-list>
       </q-card-section>
     </q-card>
   </div>
+
+  <q-dialog v-model="formDialogRelay.show" position="top">
+    <q-card class="q-pa-lg q-pt-xl lnbits__dialog-card">
+      <q-form @submit="sendFormDataRelay" class="q-gutter-md">
+        <q-input
+          filled
+          dense
+          v-model.trim="formDialogRelay.data.name"
+          type="text"
+          label="*Name"
+        ></q-input>
+        <q-input
+          filled
+          dense
+          v-model.trim="formDialogRelay.data.description"
+          type="text"
+          label="Description"
+        ></q-input>
+
+        <q-select
+          filled
+          dense
+          emit-value
+          v-model="formDialogRelay.data.type"
+          :options="relayTypes"
+          label="Relay Type"
+          class="q-mt-lg"
+        >
+        </q-select>
+
+        <q-input
+          filled
+          dense
+          v-model.trim="formDialogRelay.data.amount"
+          type="number"
+          label="*Amount (how many sats it costs to vote)"
+        ></q-input>
+
+        <q-select
+          filled
+          dense
+          emit-value
+          v-model="formDialogRelay.data.wallet"
+          :options="g.user.walletOptions"
+          label="Wallet *"
+        >
+        </q-select>
+        <q-toggle
+          v-model="formDialogRelay.showAdvanced"
+          label="Show advanced options"
+        ></q-toggle>
+        <div v-if="formDialogRelay.showAdvanced" class="row">
+          <div class="col">xxx</div>
+        </div>
+        <div class="row q-mt-lg">
+          <q-btn
+            unelevated
+            color="primary"
+            :disable="!formDialogRelay.data.name || 
+            !formDialogRelay.data.type ||
+            !formDialogRelay.data.wallet ||
+            !formDialogRelay.data.amount"
+            type="submit"
+            >Create Relay</q-btn
+          >
+          <q-btn v-close-popup flat color="grey" class="q-ml-auto"
+            >Cancel</q-btn
+          >
+        </div>
+      </q-form>
+    </q-card>
+  </q-dialog>
 </div>
 {% endblock %} {% block scripts %} {{ window_vars(user) }}
-<script>
-  new Vue({
-    el: '#vue',
-    mixins: [windowMixin],
-    data: function () {
-      return {
-        enabled: false,
-        ws: null
-      }
-    },
-    methods: {
-      enableRelay: function () {
-        // var self = this
-        // LNbits.api
-        //   .request(
-        //     'GET',
-        //     '/nostrrelay/api/v1/nostrrelays?all_wallets=true',
-        //     this.g.user.wallets[0].inkey
-        //   )
-        //   .then(function (response) {
-        //     self.nostrrelays = response.data.map(function (obj) {
-        //       return mapNostrRelay(obj)
-        //     })
-        //   })
-        this.enabled = !this.enabled
-      },
-      sendMessage: function (event) {
-        var input = document.getElementById('messageText')
-        this.ws.send(input.value)
-        input.value = ''
-      }
-    },
-    created: function () {
-      this.ws = new WebSocket('ws://localhost:5000/nostrrelay/client')
-      this.ws.onmessage = function (event) {
-        var messages = document.getElementById('messages')
-        var message = document.createElement('li')
-        var content = document.createTextNode(event.data)
-        message.appendChild(content)
-        messages.appendChild(message)
-      }
-    }
-  })
-</script>
+<script src="{{ url_for('nostrrelay_static', path='js/utils.js') }}"></script>
+<script src="{{ url_for('nostrrelay_static', path='components/relay-details/relay-details.js') }}"></script>
+<script src="{{ url_for('nostrrelay_static', path='js/index.js') }}"></script>
+
 {% endblock %}
