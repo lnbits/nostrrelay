@@ -1,10 +1,11 @@
 from http import HTTPStatus
 from typing import List, Optional
-from pydantic.types import UUID4
+
 from fastapi import Depends, Query, WebSocket
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from loguru import logger
+from pydantic.types import UUID4
 
 from lnbits.decorators import (
     WalletTypeInfo,
@@ -16,15 +17,22 @@ from lnbits.helpers import urlsafe_short_hash
 
 from . import nostrrelay_ext
 from .client_manager import NostrClientConnection, NostrClientManager
-from .crud import create_relay, delete_relay, get_relay, get_relays, update_relay
+from .crud import (
+    create_relay,
+    delete_relay,
+    get_public_relay,
+    get_relay,
+    get_relays,
+    update_relay,
+)
 from .models import NostrRelay
 
 client_manager = NostrClientManager()
 
 
-@nostrrelay_ext.websocket("/client")
-async def websocket_endpoint(websocket: WebSocket):
-    client = NostrClientConnection(websocket=websocket)
+@nostrrelay_ext.websocket("/{relay_id}")
+async def websocket_endpoint(relay_id: str, websocket: WebSocket):
+    client = NostrClientConnection(relay_id=relay_id, websocket=websocket)
     client_manager.add_client(client)
     try:
         await client.start()
@@ -33,15 +41,20 @@ async def websocket_endpoint(websocket: WebSocket):
         client_manager.remove_client(client)
 
 
-@nostrrelay_ext.get("/client", status_code=HTTPStatus.OK)
-async def api_nostrrelay_info():
+@nostrrelay_ext.get("/{relay_id}", status_code=HTTPStatus.OK)
+async def api_nostrrelay_info(relay_id: str):
     headers = {
         "Access-Control-Allow-Origin": "*", 
         "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Methods": "GET"
     }
-    info = NostrRelay()
-    return JSONResponse(content=dict(info), headers=headers)
+    relay = await get_public_relay(relay_id)
+    if not relay:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Relay not found",
+        )
+    return JSONResponse(content=relay, headers=headers)
 
 
 

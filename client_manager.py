@@ -34,8 +34,9 @@ class NostrClientManager:
 class NostrClientConnection:
     broadcast_event: Callable
 
-    def __init__(self, websocket: WebSocket):
+    def __init__(self, relay_id: str, websocket: WebSocket):
         self.websocket = websocket
+        self.relay_id = relay_id
         self.filters: List[NostrFilter] = []
 
     async def start(self):
@@ -83,9 +84,9 @@ class NostrClientConnection:
             e.check_signature()
             if e.is_replaceable_event():
                 await delete_events(
-                    "111", NostrFilter(kinds=[e.kind], authors=[e.pubkey])
+                    self.relay_id, NostrFilter(kinds=[e.kind], authors=[e.pubkey])
                 )
-            await create_event("111", e)
+            await create_event(self.relay_id, e)
             await self.broadcast_event(self, e)
             if e.is_delete_event():
                 await self.__handle_delete_event(e)
@@ -93,7 +94,7 @@ class NostrClientConnection:
         except ValueError:
             resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
         except Exception:
-            event = await get_event("111", e.id)
+            event = await get_event(self.relay_id, e.id)
             # todo: handle NIP20 in detail
             resp_nip20 += [event != None, f"error: failed to create event"]
 
@@ -103,15 +104,15 @@ class NostrClientConnection:
         # NIP 09
         filter = NostrFilter(authors=[event.pubkey])
         filter.ids = [t[1] for t in event.tags if t[0] == "e"]
-        events_to_delete = await get_events("111", filter, False)
+        events_to_delete = await get_events(self.relay_id, filter, False)
         ids = [e.id for e in events_to_delete if not e.is_delete_event()]
-        await mark_events_deleted("111", NostrFilter(ids=ids))
+        await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
 
     async def __handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
         filter.subscription_id = subscription_id
         self.remove_filter(subscription_id)
         self.filters.append(filter)
-        events = await get_events("111", filter)
+        events = await get_events(self.relay_id, filter)
         serialized_events = [
             event.serialize_response(subscription_id) for event in events
         ]

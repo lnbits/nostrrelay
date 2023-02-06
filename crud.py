@@ -46,18 +46,18 @@ async def get_relays(user_id: str) -> List[NostrRelay]:
 async def get_public_relay(relay_id: str) -> Optional[dict]:
     row = await db.fetchone("""SELECT * FROM nostrrelay.relays WHERE id = ?""", (relay_id,))
 
-    if row:
-        relay = NostrRelay.parse_obj({"id": row["id"], **json.loads(row["meta"])})
+    if not row:
+        return None
 
-        return {
-            "id": relay.id,
-            "name": relay.name,
-            "description":relay.description,
-            "pubkey":relay.pubkey,
-            "contact":relay.contact,
-            "supported_nips":relay.supported_nips,
-            }
-    return None
+    relay = NostrRelay.from_row(row)
+    return {
+        "id": relay.id,
+        "name": relay.name,
+        "description":relay.description,
+        "pubkey":relay.pubkey,
+        "contact":relay.contact,
+        "supported_nips":relay.supported_nips,
+    }
 
 
 async def delete_relay(user_id: str, relay_id: str):
