@@ -18,6 +18,24 @@
             true,
             ""
         ],
+        "meta_update": [
+            "EVENT",
+            {
+                "id": "2928f73760ac3a60affdf51d04169680472a8594b4584f087f497dcf6a28d12a",
+                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+                "created_at": 1675673494,
+                "kind": 0,
+                "tags": [],
+                "content": "{\"name\":\"Alice\",\"about\":\"Uses Hamstr\"}",
+                "sig": "938313418d6d8b16b43213b3347c64925cbc1846e4447b4d878be9b865fe4b78f276ac399ea6b0aa81ed88fb18c992f2fae9e4f70c35c49202e576c54a0dc89c"
+            }
+        ],
+        "meta_update_response": [
+            "OK",
+            "2928f73760ac3a60affdf51d04169680472a8594b4584f087f497dcf6a28d12a",
+            true,
+            ""
+        ],
         "post01": [
             "EVENT",
             {

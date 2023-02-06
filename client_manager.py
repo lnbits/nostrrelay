@@ -4,7 +4,13 @@ from typing import Any, Callable, List
 from fastapi import WebSocket
 from loguru import logger
 
-from .crud import create_event, get_event, get_events, mark_events_deleted
+from .crud import (
+    create_event,
+    delete_events,
+    get_event,
+    get_events,
+    mark_events_deleted,
+)
 from .models import NostrEvent, NostrEventType, NostrFilter
 
 
@@ -36,7 +42,7 @@ class NostrClientConnection:
         await self.websocket.accept()
         while True:
             json_data = await self.websocket.receive_text()
-            print('### received: ', json_data)
+            print("### received: ", json_data)
             try:
                 data = json.loads(json_data)
 
@@ -53,7 +59,6 @@ class NostrClientConnection:
                 await self.websocket.send_text(json.dumps(resp))
                 return True
         return False
-                
 
     async def __handle_message(self, data: List) -> List:
         if len(data) < 2:
@@ -76,10 +81,12 @@ class NostrClientConnection:
         resp_nip20: List[Any] = ["OK", e.id]
         try:
             e.check_signature()
+            if e.is_meta_event():
+                await delete_events("111", NostrFilter(kinds=[0], authors=[e.pubkey]))
             await create_event("111", e)
             await self.broadcast_event(self, e)
             if e.is_delete_event():
-                await self.__delete_event(e)
+                await self.__handle_delete_event(e)
             resp_nip20 += [True, ""]
         except ValueError:
             resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
@@ -90,7 +97,7 @@ class NostrClientConnection:
 
         await self.websocket.send_text(json.dumps(resp_nip20))
 
-    async def __delete_event(self, event: NostrEvent):
+    async def __handle_delete_event(self, event: NostrEvent):
         # NIP 09
         filter = NostrFilter(authors=[event.pubkey])
         filter.ids = [t[1] for t in event.tags if t[0] == "e"]

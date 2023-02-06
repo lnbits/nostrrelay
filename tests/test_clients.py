@@ -1,7 +1,8 @@
 import asyncio
-from json import dumps, loads
-
 import pytest
+
+from json import dumps, loads
+from copy import deepcopy
 from fastapi import WebSocket
 
 from lnbits.extensions.nostrrelay.client_manager import (
@@ -80,10 +81,11 @@ async def alice_wires_meta_and_post01(ws_alice: MockWebSocket):
     await ws_alice.wire_mock_data(alice["meta"])
     await ws_alice.wire_mock_data(alice["post01"])
     await ws_alice.wire_mock_data(alice["post01"])
+    await ws_alice.wire_mock_data(alice["meta_update"])
     await asyncio.sleep(0.5)
 
     assert (
-        len(ws_alice.sent_messages) == 3
+        len(ws_alice.sent_messages) == 4
     ), "Alice: Expected 3 confirmations to be sent"
     assert ws_alice.sent_messages[0] == dumps(
         alice["meta_response"]
@@ -94,6 +96,9 @@ async def alice_wires_meta_and_post01(ws_alice: MockWebSocket):
     assert ws_alice.sent_messages[2] == dumps(
         alice["post01_response_duplicate"]
     ), "Alice: Expected failure for double posting"
+    assert ws_alice.sent_messages[3] == dumps(
+        alice["meta_update_response"]
+    ), "Alice: Expected confirmation for meta update"
 
     await asyncio.sleep(0.1)
 
@@ -112,8 +117,8 @@ async def bob_wires_meta_and_folows_alice(ws_bob: MockWebSocket):
         bob["meta_response"]
     ), "Bob: Wrong confirmation for meta"
     assert ws_bob.sent_messages[1] == dumps(
-        ["EVENT", "profile", alice["meta"][1]]
-    ), "Bob: Wrong response for Alice's meta"
+        ["EVENT", "profile", alice["meta_update"][1]]
+    ), "Bob: Wrong response for Alice's meta (updated version)"
     assert ws_bob.sent_messages[2] == dumps(
         ["EOSE", "profile"]
     ), "Bob: Wrong End Of Streaming Event for profile"
@@ -266,7 +271,10 @@ async def alice_writes_to_bob(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
         ["EOSE", "notifications:d685447c43c7c18dbbea61923cf0b63e1ab46bed"]
     ), "Bob: Received all stored events"
 
-async def alice_deletes_post01__bob_is_notified(ws_alice: MockWebSocket, ws_bob:MockWebSocket):
+
+async def alice_deletes_post01__bob_is_notified(
+    ws_alice: MockWebSocket, ws_bob: MockWebSocket
+):
     ws_bob.sent_messages.clear()
     await ws_bob.wire_mock_data(bob["request_posts_alice"])
     await asyncio.sleep(0.1)
@@ -305,6 +313,3 @@ async def alice_deletes_post01__bob_is_notified(ws_alice: MockWebSocket, ws_bob:
     assert (
         len(ws_bob.sent_messages) == 2
     ), "Bob: Expected one posts from Alice plus and EOSE"
-
-
- 

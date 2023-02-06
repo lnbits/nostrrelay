@@ -60,6 +60,14 @@ async def mark_events_deleted(relay_id: str,  filter: NostrFilter):
 
     await db.execute(f"""UPDATE nostrrelay.events SET deleted=true WHERE {" AND ".join(where)}""", tuple(values))
 
+async def delete_events(relay_id: str,  filter: NostrFilter):
+    if filter.is_empty():
+        return None
+    _, where, values = build_where_clause(relay_id, filter)
+
+    query = f"""DELETE from nostrrelay.events WHERE {" AND ".join(where)}"""
+    await db.execute(query, tuple(values))
+
 
 async def create_event_tags(
     relay_id: str, event_id: str, tag_name: str, tag_value: str, extra_values: Optional[str]
@@ -109,7 +117,7 @@ def build_select_events_query(relay_id:str, filter:NostrFilter):
         ORDER BY created_at DESC
         """
 
-    # todo: check range
+    # todo: check & enforce range
     if filter.limit and filter.limit > 0:
         query += f" LIMIT {filter.limit}"
 
