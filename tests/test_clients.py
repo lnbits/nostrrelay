@@ -1,8 +1,8 @@
 import asyncio
-import pytest
-
-from json import dumps, loads
 from copy import deepcopy
+from json import dumps, loads
+
+import pytest
 from fastapi import WebSocket
 
 from lnbits.extensions.nostrrelay.client_manager import (
@@ -44,6 +44,8 @@ async def test_alice_and_bob():
     await alice_wires_meta_and_post01(ws_alice)
 
     await bob_wires_meta_and_folows_alice(ws_bob)
+
+    await bob_wires_contact_list(ws_alice, ws_bob)
 
     await alice_wires_post02_____bob_is_notified(ws_alice, ws_bob)
 
@@ -128,6 +130,41 @@ async def bob_wires_meta_and_folows_alice(ws_bob: MockWebSocket):
     assert ws_bob.sent_messages[4] == dumps(
         ["EOSE", "sub0"]
     ), "Bob: Wrong End Of Streaming Event for sub0"
+
+
+async def bob_wires_contact_list(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
+    ws_alice.sent_messages.clear()
+    ws_bob.sent_messages.clear()
+
+    await ws_bob.wire_mock_data(bob["contact_list_create"])
+    await ws_bob.wire_mock_data(bob["contact_list_update"])
+    await asyncio.sleep(0.1)
+    await ws_alice.wire_mock_data(alice["subscribe_to_bob_contact_list"])
+    await asyncio.sleep(0.1)
+
+
+    print("### ws_alice.sent_message", ws_alice.sent_messages)
+    print("### ws_bob.sent_message", ws_bob.sent_messages)
+
+    assert (
+        len(ws_bob.sent_messages) == 2
+    ), "Bob: Expected 1 confirmation for create contact list"
+    assert ws_bob.sent_messages[0] == dumps(
+        bob["contact_list_create_response"]
+    ), "Bob: Wrong confirmation for contact list create"
+    assert ws_bob.sent_messages[1] == dumps(
+        bob["contact_list_update_response"]
+    ), "Bob: Wrong confirmation for contact list update"
+
+    assert (
+        len(ws_alice.sent_messages) == 2
+    ), "Alice: Expected 3 messages for Bob's contact list"
+    assert ws_alice.sent_messages[0] == dumps(
+        ["EVENT", "contact", bob["contact_list_update"][1]]
+    ), "Alice: Expected to receive the updated contact list (two items)"
+    assert ws_alice.sent_messages[1] == dumps(
+        ["EOSE", "contact"]
+    ), "Alice: Wrong End Of Streaming Event for contact list"
 
 
 async def alice_wires_post02_____bob_is_notified(

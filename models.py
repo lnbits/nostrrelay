@@ -59,9 +59,9 @@ class NostrEvent(BaseModel):
         id = hashlib.sha256(data.encode()).hexdigest()
         return id
 
-    def is_meta_event(self) -> bool:
-        return self.kind == 0
-    
+    def is_replaceable_event(self) -> bool:
+        return self.kind in [0, 3]
+
     def is_delete_event(self) -> bool:
         return self.kind == 5
 

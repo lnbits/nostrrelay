@@ -81,8 +81,10 @@ class NostrClientConnection:
         resp_nip20: List[Any] = ["OK", e.id]
         try:
             e.check_signature()
-            if e.is_meta_event():
-                await delete_events("111", NostrFilter(kinds=[0], authors=[e.pubkey]))
+            if e.is_replaceable_event():
+                await delete_events(
+                    "111", NostrFilter(kinds=[e.kind], authors=[e.pubkey])
+                )
             await create_event("111", e)
             await self.broadcast_event(self, e)
             if e.is_delete_event():

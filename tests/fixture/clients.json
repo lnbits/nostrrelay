@@ -148,6 +148,18 @@
             "2751f2ee0f894268c61300c5b1a1a434f49a33a467a6f4516f10a82a1848f093",
             true,
             ""
+        ],
+        "subscribe_to_bob_contact_list": [
+            "REQ",
+            "contact",
+            {
+                "kinds": [
+                    3
+                ],
+                "authors": [
+                    "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
+                ]
+            }
         ]
     },
     "bob": {
@@ -317,6 +329,56 @@
                 ],
                 "limit": 400
             }
+        ],
+        "contact_list_create": [
+            "EVENT",
+            {
+                "id": "141ddb3008ed1cc35fa09ff88d3b82da0351c6166c566e6220293136aa902a62",
+                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+                "created_at": 1675350109,
+                "kind": 3,
+                "tags": [
+                    [
+                        "p",
+                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+                    ]
+                ],
+                "content": "",
+                "sig": "740972ce0335fe6be7194c995e407e440b4194e49ee2775a19dc36eb5e9d8302ea8d0ab93cdc11eb345a9f8bae32c14bcbd4b7f3fe9b97d197b8426dba139847"
+            }
+        ],
+        "contact_list_create_response": [
+            "OK",
+            "141ddb3008ed1cc35fa09ff88d3b82da0351c6166c566e6220293136aa902a62",
+            true,
+            ""
+        ],
+        "contact_list_update": [
+            "EVENT",
+            {
+                "id": "1439f08983433295bc54d24b8c3cda2fa137d86636535a408d2d9a7bac5f0c40",
+                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+                "created_at": 1675444161,
+                "kind": 3,
+                "tags": [
+                    [
+                        "p",
+                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+                    ],
+                    [
+                        "p",
+                        "8d21cd7c3f204cbb8aaf7708445b49e6cef7da23a550f9a27d21b1122c0cb4e9"
+                    ]
+                ],
+                "content": "",
+                "sig": "648230464f6b79063da76c1c9d06cd290c65f95fca4bac2e055f84f003847a4b9a2e144b4d77ec9f2f5289d477353a21494548d1b1fbf8795602c8914a062d50"
+            }
+        ],
+        "contact_list_update_response": [
+            "OK",
+            "1439f08983433295bc54d24b8c3cda2fa137d86636535a408d2d9a7bac5f0c40",
+            true,
+            ""
         ]
     }
 }
