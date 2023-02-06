@@ -20,6 +20,17 @@ async def create_relay(user_id: str, r: NostrRelay) -> NostrRelay:
     assert relay, "Created relay cannot be retrieved"
     return relay
 
+async def update_relay(user_id: str, r: NostrRelay) -> NostrRelay:
+    await db.execute(
+        """
+        UPDATE nostrrelay.relays
+        SET (name, description, pubkey, contact, active) = (?, ?, ?, ?, ?)
+        WHERE user_id = ? AND id = ?
+        """,
+        (r.name, r.description, r.pubkey, r.contact, r.active, user_id, r.id),
+    )
+    
+    return r
 
 async def get_relay(user_id: str, relay_id: str) -> Optional[NostrRelay]:
     row = await db.fetchone("""SELECT * FROM nostrrelay.relays WHERE user_id = ? AND id = ?""", (user_id, relay_id,))
@@ -27,7 +38,7 @@ async def get_relay(user_id: str, relay_id: str) -> Optional[NostrRelay]:
     return NostrRelay.from_row(row) if row else None
 
 async def get_relays(user_id: str) -> List[NostrRelay]:
-    rows = await db.fetchall("""SELECT * FROM nostrrelay.relays WHERE user_id = ?""", (user_id,))
+    rows = await db.fetchall("""SELECT * FROM nostrrelay.relays WHERE user_id = ? ORDER BY id ASC""", (user_id,))
 
     return [NostrRelay.from_row(row) for row in rows]
 

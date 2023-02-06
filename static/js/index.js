@@ -12,32 +12,29 @@ const relays = async () => {
         relayLinks: [],
         formDialogRelay: {
           show: false,
-          showAdvanced: false,
           data: {
+            id: '',
             name: '',
             description: '',
             pubkey: '',
-            contact: '',
-            contact: '',
-            wallet: ''
+            contact: ''
           }
         },
 
         relaysTable: {
           columns: [
             {
-              name: 'id',
-              align: 'left',
-              label: 'ID',
-              field: 'id'
-            },
-            {
               name: '',
               align: 'left',
               label: '',
               field: ''
             },
-
+            {
+              name: 'id',
+              align: 'left',
+              label: 'ID',
+              field: 'id'
+            },
             {
               name: 'name',
               align: 'left',
@@ -106,7 +103,6 @@ const relays = async () => {
 
       createRelay: async function (data) {
         try {
-          console.log('### createRelay', data)
           const resp = await LNbits.api.request(
             'POST',
             '/nostrrelay/api/v1/relay',
@@ -120,10 +116,41 @@ const relays = async () => {
           LNbits.utils.notifyApiError(error)
         }
       },
+      showToggleRelayDialog: function (relay) {
+        console.log('### showToggleRelayDialog', relay)
+        if (relay.active) {
+          this.toggleRelay(relay)
+          return
+        }
+        LNbits.utils
+          .confirmDialog('Are you sure you want to deactivate this relay?')
+          .onOk(async () => {
+            this.toggleRelay(relay)
+          })
+          .onCancel(async () => {
+            console.log('#### onCancel')
+            relay.active = !relay.active
+          })
+      },
+      toggleRelay: async function (relay) {
+        console.log('### toggleRelay', relay)
+        try {
+          const response = await LNbits.api.request(
+            'PUT',
+            '/nostrrelay/api/v1/relay/' + relay.id,
+            this.g.user.wallets[0].adminkey,
+            relay
+          )
+        } catch (error) {
+          LNbits.utils.notifyApiError(error)
+        }
+      },
 
       deleteRelay: function (relayId) {
         LNbits.utils
-          .confirmDialog('Are you sure you want to delete this survet?')
+          .confirmDialog(
+            'All data will be lost! Are you sure you want to delete this relay?'
+          )
           .onOk(async () => {
             try {
               const response = await LNbits.api.request(

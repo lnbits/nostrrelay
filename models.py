@@ -14,6 +14,7 @@ class NostrRelay(BaseModel):
     description: Optional[str]
     pubkey: Optional[str]
     contact: Optional[str] = "https://t.me/lnbits"
+    active: bool = False
     supported_nips: List[str] = ["NIP01", "NIP09", "NIP11", "NIP15", "NIP20"]
     software: Optional[str] = "LNbist"
     version: Optional[str]

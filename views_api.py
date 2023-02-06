@@ -16,7 +16,7 @@ from lnbits.helpers import urlsafe_short_hash
 
 from . import nostrrelay_ext
 from .client_manager import NostrClientConnection, NostrClientManager
-from .crud import create_relay, delete_relay, get_relay, get_relays
+from .crud import create_relay, delete_relay, get_relay, get_relays, update_relay
 from .models import NostrRelay
 
 client_manager = NostrClientManager()
@@ -46,7 +46,7 @@ async def api_nostrrelay_info():
 
 
 @nostrrelay_ext.post("/api/v1/relay")
-async def api_create_survey(data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)) -> NostrRelay:
+async def api_create_relay(data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)) -> NostrRelay:
     
     try:
         relay = await create_relay(wallet.wallet.user, data)
@@ -57,6 +57,34 @@ async def api_create_survey(data: NostrRelay, wallet: WalletTypeInfo = Depends(r
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot create relay",
+        )
+
+@nostrrelay_ext.put("/api/v1/relay/{relay_id}")
+async def api_update_relay(relay_id: str, data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)) -> NostrRelay:
+    if relay_id != data.id:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Cannot change the relay id",
+        )
+
+    try:
+        relay = await get_relay(wallet.wallet.user, data.id)
+        if not relay:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Relay not found",
+            )
+        updated_relay = NostrRelay.parse_obj({**dict(relay), **dict(data)})
+        updated_relay = await update_relay(wallet.wallet.user, updated_relay)
+        return updated_relay
+
+    except HTTPException as ex:
+        raise ex
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot update relay",
         )
 
 
