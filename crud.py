@@ -53,7 +53,7 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
     event.tags = await get_event_tags(relay_id, id)
     return event
 
-async def delete_events(relay_id: str, id_list: List[str] = []):
+async def mark_events_deleted(relay_id: str, id_list: List[str] = []):
     if len(id_list) == 0:
         return None
     ids = ",".join(["?"] * len(id_list))
@@ -99,22 +99,26 @@ async def get_event_tags(
 
 
 def build_select_events_query(relay_id:str, filter:NostrFilter):
-    values, where_clause = build_where_clause(relay_id, filter)
+    inner_joins, where, values = build_where_clause(relay_id, filter)
+
     query = f"""
         SELECT id, pubkey, created_at, kind, content, sig 
-        FROM nostrrelay.events {where_clause} 
+        FROM nostrrelay.events 
+        {" ".join(inner_joins)} 
+        WHERE { " AND ".join(where)}
         ORDER BY created_at DESC
         """
 
-    if filter.limit and type(filter.limit) == int and filter.limit > 0:
+    if filter.limit and filter.limit > 0:
         query += f" LIMIT {filter.limit}"
 
     return values, query
 
 def build_where_clause(relay_id:str, filter:NostrFilter):
-    values: List[Any] = [relay_id]
     inner_joins = []
     where = ["deleted=false", "nostrrelay.events.relay_id = ?"]
+    values: List[Any] = [relay_id]
+
     if len(filter.e):
         values += filter.e
         e_s = ",".join(["?"] * len(filter.e))
@@ -145,10 +149,10 @@ def build_where_clause(relay_id:str, filter:NostrFilter):
     if filter.since:
         where.append("reated_at >= ?")
         values += [filter.since]
-        
+
     if filter.until:
         where.append("created_at <= ?")
         values += [filter.until]
     
-    query = " ".join(inner_joins)+ " WHERE " + " AND ".join(where)
-    return values, query
+
+    return inner_joins, where, values

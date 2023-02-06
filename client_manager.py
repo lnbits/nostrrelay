@@ -4,7 +4,7 @@ from typing import Any, Callable, List
 from fastapi import WebSocket
 from loguru import logger
 
-from .crud import create_event, delete_events, get_event, get_events
+from .crud import create_event, mark_events_deleted, get_event, get_events
 from .models import NostrEvent, NostrEventType, NostrFilter
 
 
@@ -96,7 +96,7 @@ class NostrClientConnection:
         filter.ids = [t[1] for t in event.tags if t[0] == "e"]
         events_to_delete = await get_events("111", filter, False)
         ids = [e.id for e in events_to_delete if not e.is_delete_event()]
-        await delete_events("111", ids)
+        await mark_events_deleted("111", ids)
 
     async def __handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
         filter.subscription_id = subscription_id
