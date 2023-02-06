@@ -99,11 +99,22 @@ async def get_event_tags(
 
 
 def build_select_events_query(relay_id:str, filter:NostrFilter):
+    values, where_clause = build_where_clause(relay_id, filter)
+    query = f"""
+        SELECT id, pubkey, created_at, kind, content, sig 
+        FROM nostrrelay.events {where_clause} 
+        ORDER BY created_at DESC
+        """
+
+    if filter.limit and type(filter.limit) == int and filter.limit > 0:
+        query += f" LIMIT {filter.limit}"
+
+    return values, query
+
+def build_where_clause(relay_id:str, filter:NostrFilter):
     values: List[Any] = [relay_id]
-    query = "SELECT id, pubkey, created_at, kind, content, sig FROM nostrrelay.events "
-    
     inner_joins = []
-    where = ["deleted=false AND nostrrelay.events.relay_id = ?"]
+    where = ["deleted=false", "nostrrelay.events.relay_id = ?"]
     if len(filter.e):
         values += filter.e
         e_s = ",".join(["?"] * len(filter.e))
@@ -115,29 +126,29 @@ def build_select_events_query(relay_id:str, filter:NostrFilter):
         p_s = ",".join(["?"] * len(filter.p))
         inner_joins.append("INNER JOIN nostrrelay.event_tags p_tags ON nostrrelay.events.id = p_tags.event_id")
         where.append(f" p_tags.value in ({p_s}) AND p_tags.name = 'p'")
-    query += " ".join(inner_joins)+ " WHERE " + " AND ".join(where)
-
 
     if len(filter.ids) != 0:
         ids = ",".join(["?"] * len(filter.ids))
-        query += f" AND id IN ({ids})"
+        where.append(f"id IN ({ids})")
         values += filter.ids
+
     if len(filter.authors) != 0:
         authors = ",".join(["?"] * len(filter.authors))
-        query += f" AND pubkey IN ({authors})"
+        where.append(f"pubkey IN ({authors})")
         values += filter.authors
+
     if len(filter.kinds) != 0:
         kinds = ",".join(["?"] * len(filter.kinds))
-        query += f" AND kind IN ({kinds})"
+        where.append(f"kind IN ({kinds})")
         values += filter.kinds
-    if filter.since:
-        query += " AND created_at >= ?"
-        values += [filter.since]
-    if filter.until:
-        query += " AND created_at <= ?"
-        values += [filter.until]
 
-    query += " ORDER BY created_at DESC"
-    if filter.limit and type(filter.limit) == int and filter.limit > 0:
-        query += f" LIMIT {filter.limit}"
+    if filter.since:
+        where.append("reated_at >= ?")
+        values += [filter.since]
+        
+    if filter.until:
+        where.append("created_at <= ?")
+        values += [filter.until]
+    
+    query = " ".join(inner_joins)+ " WHERE " + " AND ".join(where)
     return values, query
