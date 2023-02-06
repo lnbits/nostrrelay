@@ -53,11 +53,11 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
     event.tags = await get_event_tags(relay_id, id)
     return event
 
-async def mark_events_deleted(relay_id: str, id_list: List[str] = []):
-    if len(id_list) == 0:
+async def mark_events_deleted(relay_id: str,  filter: NostrFilter):
+    if len(filter.ids) == 0:
         return None
-    ids = ",".join(["?"] * len(id_list))
-    values = [relay_id] + id_list
+    ids = ",".join(["?"] * len(filter.ids))
+    values = [relay_id] + filter.ids
     await db.execute(f"UPDATE nostrrelay.events SET deleted=true WHERE relay_id = ? AND id IN ({ids})", tuple(values))
 
 

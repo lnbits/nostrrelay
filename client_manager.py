@@ -96,7 +96,7 @@ class NostrClientConnection:
         filter.ids = [t[1] for t in event.tags if t[0] == "e"]
         events_to_delete = await get_events("111", filter, False)
         ids = [e.id for e in events_to_delete if not e.is_delete_event()]
-        await mark_events_deleted("111", ids)
+        await mark_events_deleted("111", NostrFilter(ids=ids))
 
     async def __handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
         filter.subscription_id = subscription_id
