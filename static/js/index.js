@@ -16,8 +16,9 @@ const relays = async () => {
           data: {
             name: '',
             description: '',
-            type: '',
-            amount: '',
+            pubkey: '',
+            contact: '',
+            contact: '',
             wallet: ''
           }
         },

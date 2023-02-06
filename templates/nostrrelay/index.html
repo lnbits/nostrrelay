@@ -98,11 +98,11 @@
                 <div class="row items-center q-mt-md q-mb-lg">
                   <div class="col-2 q-pr-lg"></div>
                   <div class="col-10 q-pr-lg">
-                    <relay-items
+                    <relay-details
                       :relay-id="props.row.id"
                       :adminkey="g.user.wallets[0].adminkey"
                       :inkey="g.user.wallets[0].inkey"
-                    ></relay-items>
+                    ></relay-details>
                   </div>
                 </div>
               </q-td>
@@ -130,7 +130,18 @@
 
   <q-dialog v-model="formDialogRelay.show" position="top">
     <q-card class="q-pa-lg q-pt-xl lnbits__dialog-card">
+      <q-card-section>
+        <div class="text-h6">New Relay</div>
+      </q-card-section>
       <q-form @submit="sendFormDataRelay" class="q-gutter-md">
+        <q-input
+          v-if="g.user.admin"
+          filled
+          dense
+          v-model.trim="formDialogRelay.data.id"
+          type="text"
+          label="*Id"
+        ></q-input>
         <q-input
           filled
           dense
@@ -145,50 +156,41 @@
           type="text"
           label="Description"
         ></q-input>
-
-        <q-select
-          filled
-          dense
-          emit-value
-          v-model="formDialogRelay.data.type"
-          :options="relayTypes"
-          label="Relay Type"
-          class="q-mt-lg"
-        >
-        </q-select>
-
         <q-input
           filled
           dense
-          v-model.trim="formDialogRelay.data.amount"
-          type="number"
-          label="*Amount (how many sats it costs to vote)"
+          v-model.trim="formDialogRelay.data.pubkey"
+          type="text"
+          label="Relay Public Key"
         ></q-input>
-
-        <q-select
+        <q-input
           filled
           dense
-          emit-value
-          v-model="formDialogRelay.data.wallet"
-          :options="g.user.walletOptions"
-          label="Wallet *"
-        >
-        </q-select>
+          v-model.trim="formDialogRelay.data.contact"
+          type="text"
+          label="Contact"
+        ></q-input>
+
         <q-toggle
           v-model="formDialogRelay.showAdvanced"
           label="Show advanced options"
         ></q-toggle>
-        <div v-if="formDialogRelay.showAdvanced" class="row">
-          <div class="col">xxx</div>
+        <div v-if="formDialogRelay.showAdvanced">
+          <q-select
+            filled
+            dense
+            emit-value
+            v-model="formDialogRelay.data.wallet"
+            :options="g.user.walletOptions"
+            label="Wallet *"
+          >
+          </q-select>
         </div>
         <div class="row q-mt-lg">
           <q-btn
             unelevated
             color="primary"
-            :disable="!formDialogRelay.data.name || 
-            !formDialogRelay.data.type ||
-            !formDialogRelay.data.wallet ||
-            !formDialogRelay.data.amount"
+            :disable="!formDialogRelay.data.name"
             type="submit"
             >Create Relay</q-btn
           >

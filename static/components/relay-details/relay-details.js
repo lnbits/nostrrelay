@@ -21,11 +21,9 @@ async function relayDetails(path) {
     methods: {
       satBtc(val, showUnit = true) {
         return satOrBtc(val, showUnit, this.satsDenominated)
-      },
+      }
     },
 
-    created: async function () {
-      
-    }
+    created: async function () {}
   })
 }
