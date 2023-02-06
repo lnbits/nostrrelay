@@ -53,6 +53,12 @@ class NostrClientManager:
             self.active_relays.append(relay_id)
         else:
             self.active_relays = [r for r in self.active_relays if r != relay_id]
+            await self.stop_clients_for_relay(relay_id)
+
+    async def stop_clients_for_relay(self, relay_id: str):
+        for client in self.clients:
+            if client.relay_id == relay_id:
+                await client.stop(reason=f"Relay '{relay_id}' has been deactivated.")
 
 
 class NostrClientConnection:
@@ -76,6 +82,14 @@ class NostrClientConnection:
                     await self.websocket.send_text(json.dumps(r))
             except Exception as e:
                 logger.warning(e)
+
+    async def stop(self, reason: Optional[str]):
+        try:
+            message = reason if reason else "Server closed webocket"
+            await self.websocket.send_text(json.dumps(["NOTICE", message]))
+            await self.websocket.close()
+        except:
+            pass
 
     async def notify_event(self, event: NostrEvent) -> bool:
         for filter in self.filters:
