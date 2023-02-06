@@ -10,25 +10,19 @@ from secp256k1 import PublicKey
 
 class NostrRelay(BaseModel):
     id: str
-    wallet: str
     name: str
-    currency: str
-    tip_options: Optional[str]
-    tip_wallet: Optional[str]
-
-    @classmethod
-    def from_row(cls, row: Row) -> "NostrRelay":
-        return cls(**dict(row))
-
-
-class NostrRelayInfo(BaseModel):
-    name: Optional[str]
     description: Optional[str]
     pubkey: Optional[str]
     contact: Optional[str] = "https://t.me/lnbits"
     supported_nips: List[str] = ["NIP01", "NIP09", "NIP11", "NIP15", "NIP20"]
     software: Optional[str] = "LNbist"
     version: Optional[str]
+    # meta: Optional[str]
+
+    @classmethod
+    def from_row(cls, row: Row) -> "NostrRelay":
+        return cls(**dict(row))
+
 
 
 class NostrEventType(str, Enum):

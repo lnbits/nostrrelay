@@ -22,29 +22,22 @@ const relays = async () => {
             wallet: ''
           }
         },
-        relayTypes: [
-          {
-            id: 'rating',
-            label: 'Rating (rate one item from a list)'
-          },
-          {
-            id: 'poll',
-            label: 'Poll (choose one item from a list)'
-          },
-          {
-            id: 'likes',
-            label: 'Likes (like or dislike an item)'
-          }
-        ],
 
         relaysTable: {
           columns: [
+            {
+              name: 'id',
+              align: 'left',
+              label: 'ID',
+              field: 'id'
+            },
             {
               name: '',
               align: 'left',
               label: '',
               field: ''
             },
+
             {
               name: 'name',
               align: 'left',
@@ -58,16 +51,16 @@ const relays = async () => {
               field: 'description'
             },
             {
-              name: 'type',
+              name: 'pubkey',
               align: 'left',
-              label: 'Type',
-              field: 'type'
+              label: 'Public Key',
+              field: 'pubkey'
             },
             {
-              name: 'amount',
+              name: 'contact',
               align: 'left',
-              label: 'Amount',
-              field: 'amount'
+              label: 'Contact',
+              field: 'contact'
             }
           ],
           pagination: {
@@ -79,17 +72,14 @@ const relays = async () => {
     methods: {
       getDefaultRelayData: function () {
         return {
+          id: '',
           name: '',
           description: '',
-          type: this.relayTypes[0],
-          amount: '100',
-          wallet: ''
+          pubkey: '',
+          contact: ''
         }
       },
-      getRelayTypeLabel: function (relayType) {
-        const type = this.relayTypes.find(s => (s.id = relayType))
-        return type ? type.label : '?'
-      },
+
       openCreateRelayDialog: function () {
         this.formDialogRelay.data = this.getDefaultRelayData()
         this.formDialogRelay.show = true
@@ -98,7 +88,7 @@ const relays = async () => {
         try {
           const {data} = await LNbits.api.request(
             'GET',
-            '/reviews/api/v1/survey',
+            '/nostrrelay/api/v1/relay',
             this.g.user.wallets[0].inkey
           )
           this.relayLinks = data.map(c =>
@@ -116,10 +106,10 @@ const relays = async () => {
 
       createRelay: async function (data) {
         try {
-          data.type = data.type.id
+          console.log('### createRelay', data)
           const resp = await LNbits.api.request(
             'POST',
-            '/reviews/api/v1/survey',
+            '/nostrrelay/api/v1/relay',
             this.g.user.wallets[0].adminkey,
             data
           )
@@ -138,7 +128,7 @@ const relays = async () => {
             try {
               const response = await LNbits.api.request(
                 'DELETE',
-                '/reviews/api/v1/survey/' + relayId,
+                '/nostrrelay/api/v1/relay/' + relayId,
                 this.g.user.wallets[0].adminkey
               )
 

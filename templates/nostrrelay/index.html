@@ -69,14 +69,15 @@
               </q-td>
 
               <q-td auto-width> {{props.row.name}} </q-td>
-              <q-td key="description" :props="props" :class="">
+              <q-td key="id" :props="props"> {{props.row.id}} </q-td>
+              <q-td key="description" :props="props">
                 {{props.row.description}}
               </q-td>
-              <q-td key="type" :props="props" :class="">
-                <div>{{getRelayTypeLabel(props.row.type)}}</div>
+              <q-td key="contact" :props="props">
+                <div>{{props.row.contact}}</div>
               </q-td>
-              <q-td key="amount" :props="props" :class="">
-                <div>{{props.row.amount}}</div>
+              <q-td key="pubkey" :props="props">
+                <div>{{props.row.pubkey}}</div>
               </q-td>
             </q-tr>
             <q-tr v-if="props.row.expanded" :props="props">

@@ -1,12 +1,23 @@
 from http import HTTPStatus
+from typing import List, Optional
 
-from fastapi import Query, WebSocket
+from fastapi import Depends, Query, WebSocket
+from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from loguru import logger
 
+from lnbits.decorators import (
+    WalletTypeInfo,
+    check_admin,
+    require_admin_key,
+    require_invoice_key,
+)
+from lnbits.helpers import urlsafe_short_hash
+
 from . import nostrrelay_ext
 from .client_manager import NostrClientConnection, NostrClientManager
-from .models import NostrRelayInfo
+from .crud import create_relay, delete_relay, get_relay, get_relays
+from .models import NostrRelay
 
 client_manager = NostrClientManager()
 
@@ -29,14 +40,61 @@ async def api_nostrrelay_info():
         "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Methods": "GET"
     }
-    info = NostrRelayInfo()
+    info = NostrRelay()
     return JSONResponse(content=dict(info), headers=headers)
 
 
-@nostrrelay_ext.get("/api/v1/enable", status_code=HTTPStatus.OK)
-async def api_nostrrelay(enable: bool = Query(True)):
-    return await enable_relay(enable)
+
+@nostrrelay_ext.post("/api/v1/relay")
+async def api_create_survey(data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)) -> NostrRelay:
+    
+    try:
+        relay = await create_relay(wallet.wallet.user, data)
+        return relay
+
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot create relay",
+        )
 
 
-async def enable_relay(enable: bool):
-    return enable
+@nostrrelay_ext.get("/api/v1/relay")
+async def api_get_relays(wallet: WalletTypeInfo = Depends(require_invoice_key)) -> List[NostrRelay]:
+    try:
+        return await get_relays(wallet.wallet.user)
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot fetch relays",
+        )
+
+@nostrrelay_ext.get("/api/v1/relay/{relay_id}")
+async def api_get_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_invoice_key)) -> Optional[NostrRelay]:
+    try:
+        relay = await get_relay(wallet.wallet.user, relay_id)
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot fetch relay",
+        )
+    if not relay:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Cannot find relay",
+        )
+    return relay
+
+@nostrrelay_ext.delete("/api/v1/relay/{relay_id}")
+async def api_delete_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)):
+    try:
+        await delete_relay(wallet.wallet.user, relay_id)
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot delete relay",
+        )

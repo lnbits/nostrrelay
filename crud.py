@@ -1,10 +1,59 @@
 import json
 from typing import Any, List, Optional
 
+from lnbits.helpers import urlsafe_short_hash
+
 from . import db
-from .models import NostrEvent, NostrFilter
+from .models import NostrEvent, NostrFilter, NostrRelay
+
+########################## RELAYS ####################
+
+async def create_relay(user_id: str, r: NostrRelay) -> NostrRelay:
+    await db.execute(
+        """
+        INSERT INTO nostrrelay.relays (user_id, id, name, description, pubkey, contact)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (user_id, r.id, r.name, r.description, r.pubkey, r.contact,),
+    )
+    relay = await get_relay(user_id, r.id)
+    assert relay, "Created relay cannot be retrieved"
+    return relay
 
 
+async def get_relay(user_id: str, relay_id: str) -> Optional[NostrRelay]:
+    row = await db.fetchone("""SELECT * FROM nostrrelay.relays WHERE user_id = ? AND id = ?""", (user_id, relay_id,))
+
+    return NostrRelay.from_row(row) if row else None
+
+async def get_relays(user_id: str) -> List[NostrRelay]:
+    rows = await db.fetchall("""SELECT * FROM nostrrelay.relays WHERE user_id = ?""", (user_id,))
+
+    return [NostrRelay.from_row(row) for row in rows]
+
+
+async def get_public_relay(relay_id: str) -> Optional[dict]:
+    row = await db.fetchone("""SELECT * FROM nostrrelay.relays WHERE id = ?""", (relay_id,))
+
+    if row:
+        relay = NostrRelay.parse_obj({"id": row["id"], **json.loads(row["meta"])})
+
+        return {
+            "id": relay.id,
+            "name": relay.name,
+            "description":relay.description,
+            "pubkey":relay.pubkey,
+            "contact":relay.contact,
+            "supported_nips":relay.supported_nips,
+            }
+    return None
+
+
+async def delete_relay(user_id: str, relay_id: str):
+   await db.execute("""DELETE FROM nostrrelay.relays WHERE user_id = ? AND id = ?""", (user_id, relay_id,))
+
+
+########################## EVENTS ####################
 async def create_event(relay_id: str, e: NostrEvent):
     await db.execute(
         """
@@ -28,7 +77,6 @@ async def create_event(relay_id: str, e: NostrEvent):
         extra = json.dumps(rest) if rest else None
         await create_event_tags(relay_id, e.id, name, value, extra)
 
-
 async def get_events(relay_id: str, filter: NostrFilter, include_tags = True) -> List[NostrEvent]:
     values, query = build_select_events_query(relay_id, filter)
 
@@ -42,7 +90,6 @@ async def get_events(relay_id: str, filter: NostrFilter, include_tags = True) ->
         events.append(event)
 
     return events
-
 
 async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
     row = await db.fetchone("SELECT * FROM nostrrelay.events WHERE relay_id = ? AND id = ?", (relay_id, id,))

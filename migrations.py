@@ -2,17 +2,17 @@ async def m001_initial(db):
     """
     Initial nostrrelays tables.
     """
+
     await db.execute(
         """
         CREATE TABLE nostrrelay.relays (
+            user_id TEXT NOT NULL,
             id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             description TEXT,
             pubkey TEXT,
             contact TEXT,
-            supported_nips TEXT,
-            software TEXT,
-            version TEXT,
+            active BOOLEAN DEFAULT false,
             meta TEXT NOT NULL DEFAULT '{}'
         );
         """
