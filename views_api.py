@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import Depends, Query, WebSocket
+from fastapi import Depends, WebSocket
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from loguru import logger
@@ -28,17 +28,19 @@ from .crud import (
 from .models import NostrRelay
 
 client_manager = NostrClientManager()
-active_relays: List[str] = []
 
 @nostrrelay_ext.websocket("/{relay_id}")
 async def websocket_endpoint(relay_id: str, websocket: WebSocket):
     client = NostrClientConnection(relay_id=relay_id, websocket=websocket)
-    client_manager.add_client(client)
+    if not (await client_manager.add_client(client)):
+        return
+
     try:
         await client.start()
     except Exception as e:
         logger.warning(e)
         client_manager.remove_client(client)
+
 
 
 @nostrrelay_ext.get("/{relay_id}", status_code=HTTPStatus.OK)
@@ -93,6 +95,7 @@ async def api_update_relay(relay_id: str, data: NostrRelay, wallet: WalletTypeIn
             )
         updated_relay = NostrRelay.parse_obj({**dict(relay), **dict(data)})
         updated_relay = await update_relay(wallet.wallet.user, updated_relay)
+        await client_manager.toggle_relay(relay_id, updated_relay.active)
         return updated_relay
 
     except HTTPException as ex:

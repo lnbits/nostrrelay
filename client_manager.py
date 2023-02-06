@@ -1,5 +1,5 @@
 import json
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Optional
 
 from fastapi import WebSocket
 from loguru import logger
@@ -7,6 +7,7 @@ from loguru import logger
 from .crud import (
     create_event,
     delete_events,
+    get_all_active_relays_ids,
     get_event,
     get_events,
     mark_events_deleted,
@@ -15,12 +16,18 @@ from .models import NostrEvent, NostrEventType, NostrFilter
 
 
 class NostrClientManager:
-    def __init__(self):
+    def __init__(self: "NostrClientManager"):
         self.clients: List["NostrClientConnection"] = []
+        self.active_relays: Optional[List[str]] = None
 
-    def add_client(self, client: "NostrClientConnection"):
+    async def add_client(self, client: "NostrClientConnection") -> bool:
+        allow_connect = await self.allow_client_to_connect(client.relay_id, client.websocket)
+        if not allow_connect:
+            return False
         setattr(client, "broadcast_event", self.broadcast_event)
         self.clients.append(client)
+
+        return True
 
     def remove_client(self, client: "NostrClientConnection"):
         self.clients.remove(client)
@@ -29,6 +36,23 @@ class NostrClientManager:
         for client in self.clients:
             if client != source:
                 await client.notify_event(event)
+
+    async def allow_client_to_connect(self, relay_id:str, websocket: WebSocket) -> bool:
+        if not self.active_relays:
+            self.active_relays = await get_all_active_relays_ids()
+
+        if relay_id not in self.active_relays:
+            await websocket.close(reason=f"Relay '{relay_id}' is not active")
+            return False
+        return True
+
+    async def toggle_relay(self, relay_id: str, active: bool):
+        if not self.active_relays:
+            self.active_relays = await get_all_active_relays_ids()
+        if active:
+            self.active_relays.append(relay_id)
+        else:
+            self.active_relays = [r for r in self.active_relays if r != relay_id]
 
 
 class NostrClientConnection:

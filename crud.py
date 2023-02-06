@@ -42,6 +42,9 @@ async def get_relays(user_id: str) -> List[NostrRelay]:
 
     return [NostrRelay.from_row(row) for row in rows]
 
+async def get_all_active_relays_ids() -> List[str]:
+    rows = await db.fetchall("SELECT id FROM nostrrelay.relays WHERE active = true",)
+    return [r["id"] for r in rows]
 
 async def get_public_relay(relay_id: str) -> Optional[dict]:
     row = await db.fetchone("""SELECT * FROM nostrrelay.relays WHERE id = ?""", (relay_id,))
