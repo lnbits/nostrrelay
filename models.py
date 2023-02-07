@@ -13,12 +13,20 @@ class NostrRelay(BaseModel):
     name: str
     description: Optional[str]
     pubkey: Optional[str]
-    contact: Optional[str] = "https://t.me/lnbits"
+    contact: Optional[str]
     active: bool = False
-    supported_nips: List[str] = ["NIP01", "NIP09", "NIP11", "NIP15", "NIP20"]
-    software: Optional[str] = "LNbist"
-    version: Optional[str]
+
     # meta: Optional[str]
+
+    @classmethod
+    def info(cls,) -> dict:
+        return {
+            "contact": "https://t.me/lnbits",
+            "supported_nips": [1, 9, 11, 15, 20],
+            "software": "LNbits",
+            "version": "",
+        }
+
 
     @classmethod
     def from_row(cls, row: Row) -> "NostrRelay":

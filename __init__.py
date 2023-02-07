@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 
 from lnbits.db import Database
 from lnbits.helpers import template_renderer
+from lnbits.settings import settings
 
 db = Database("ext_nostrrelay")
 
@@ -23,3 +24,10 @@ def nostrrelay_renderer():
 
 from .views import *  # noqa
 from .views_api import *  # noqa
+from .models import NostrRelay
+
+settings.lnbits_relay_information = {
+    "name": "LNbits Nostr Relay", 
+    "description": "Multiple relays are supported",
+    **NostrRelay.info()
+}

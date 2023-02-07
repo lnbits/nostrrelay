@@ -54,12 +54,12 @@ async def get_public_relay(relay_id: str) -> Optional[dict]:
 
     relay = NostrRelay.from_row(row)
     return {
+        **NostrRelay.info(),
         "id": relay.id,
         "name": relay.name,
         "description":relay.description,
         "pubkey":relay.pubkey,
-        "contact":relay.contact,
-        "supported_nips":relay.supported_nips,
+        "contact":relay.contact
     }
 
 
