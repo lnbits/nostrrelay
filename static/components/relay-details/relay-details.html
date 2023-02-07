@@ -3,7 +3,8 @@
     <q-tab name="info" label="Relay Info"></q-tab>
     <q-tab name="payment" label="Payment"></q-tab>
     <q-tab name="config" label="Config"></q-tab>
-    <q-tab name="access" label="Access Control"></q-tab>
+    <q-tab name="allowed" label="Allowed"></q-tab>
+    <q-tab name="blocked" label="Blocked"></q-tab>
   </q-tabs>
   <q-tab-panels v-model="tab">
     <q-tab-panel name="info">
@@ -156,8 +157,89 @@
     <q-tab-panel name="config">
       <span>zzz</span>
     </q-tab-panel>
-    <q-tab-panel name="access">
-      <span>qqq</span>
+    <q-tab-panel name="allowed">
+      <div v-if="relay">
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Allowed Public Key</div>
+          <div class="col-7 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="allowedPubkey"
+              type="text"
+            ></q-input>
+          </div>
+          <div class="col-2 q-pr-lg">
+            <q-btn
+              unelevated
+              color="secondary"
+              class="float-right"
+              @click="allowPublicKey()"
+              >Add</q-btn
+            >
+          </div>
+        </div>
+        <div
+          :key="p"
+          v-for="p in relay.config.allowedPublicKeys"
+          class="row q-mb-xs"
+        >
+          <div class="col-3 q-pr-lg"></div>
+          <div class="col-9 q-pr-lg">
+            {{p}}
+            <q-btn
+              size="sm"
+              unelevated
+              color="pink"
+              icon="cancel"
+              class="float-right"
+              @click="deleteAllowedPublicKey(p)"
+            ></q-btn>
+          </div>
+        </div>
+      </div>
+    </q-tab-panel>
+    <q-tab-panel name="blocked">
+      <div v-if="relay">
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Blocked Public Key</div>
+          <div class="col-7 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="blockedPubkey"
+              type="text"
+            ></q-input>
+          </div>
+          <div class="col-2 q-pr-lg">
+            <q-btn
+              unelevated
+              color="secondary"
+              class="float-right"
+              @click="blockPublicKey()"
+              >Add</q-btn
+            >
+          </div>
+        </div>
+        <div
+          :key="p"
+          v-for="p in relay.config.blockedPublicKeys"
+          class="row q-mb-xs"
+        >
+          <div class="col-3 q-pr-lg"></div>
+          <div class="col-9 q-pr-lg">
+            {{p}}
+            <q-btn
+              unelevated
+              size="sm"
+              color="pink"
+              icon="cancel"
+              class="float-right"
+              @click="deleteBlockedPublicKey(p)"
+            ></q-btn>
+          </div>
+        </div>
+      </div>
     </q-tab-panel>
   </q-tab-panels>
   <div class="row items-center q-mt-md q-mb-lg">

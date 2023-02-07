@@ -9,6 +9,8 @@ async function relayDetails(path) {
       return {
         tab: 'info',
         relay: null,
+        blockedPubkey: '',
+        allowedPubkey: '',
         formDialogItem: {
           show: false,
           data: {
@@ -59,7 +61,9 @@ async function relayDetails(path) {
             wallet: '',
             costToJoin: 0,
             freeStorage: 0,
-            storageCostPerKb: 0
+            storageCostPerKb: 0,
+            allowedPublicKeys: [],
+            blockedPublicKeys: []
           }
           this.relay = data
 
@@ -90,6 +94,23 @@ async function relayDetails(path) {
       togglePaidRelay: async function () {
         this.relay.config.wallet =
           this.relay.config.wallet || this.walletOptions[0].value
+      },
+      allowPublicKey: function () {
+        this.relay.config.allowedPublicKeys.push(this.allowedPubkey)
+        this.allowedPubkey = ''
+      },
+      blockPublicKey: function () {
+        this.relay.config.blockedPublicKeys.push(this.blockedPubkey)
+        this.blockedPubkey = ''
+      },
+      deleteAllowedPublicKey: function (pubKey) {
+        this.relay.config.allowedPublicKeys =
+          this.relay.config.allowedPublicKeys.filter(p => p !== pubKey)
+      },
+
+      deleteBlockedPublicKey: function (pubKey) {
+        this.relay.config.blockedPublicKeys =
+          this.relay.config.blockedPublicKeys.filter(p => p !== pubKey)
       }
     },
 
