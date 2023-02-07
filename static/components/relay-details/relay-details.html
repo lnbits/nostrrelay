@@ -155,7 +155,28 @@
       </div>
     </q-tab-panel>
     <q-tab-panel name="config">
-      <span>zzz</span>
+      <div v-if="relay">
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Max Filters (per client):</div>
+          <div class="col-3 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.config.maxFilters"
+              type="number"
+              min="0"
+            ></q-input>
+          </div>
+          <div class="col-6">
+            <q-badge
+              v-if="relay.config.maxFilters == 0"
+              color="green"
+              class="float-left"
+              ><span>Unlimited Filters</span>
+            </q-badge>
+          </div>
+        </div>
+      </div>
     </q-tab-panel>
     <q-tab-panel name="allowed">
       <div v-if="relay">

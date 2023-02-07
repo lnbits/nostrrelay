@@ -62,6 +62,7 @@ async function relayDetails(path) {
             costToJoin: 0,
             freeStorage: 0,
             storageCostPerKb: 0,
+            maxFilters: 0,
             allowedPublicKeys: [],
             blockedPublicKeys: []
           }
