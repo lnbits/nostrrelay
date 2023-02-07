@@ -157,7 +157,6 @@ const relays = async () => {
       },
 
       sendFormDataRelay: async function () {
-        console.log('### sendFormDataRelay')
         this.createRelay(this.formDialogRelay.data)
       },
 
@@ -165,6 +164,13 @@ const relays = async () => {
         this.relayLinks = _.reject(this.relayLinks, function (obj) {
           return obj.id === relayId
         })
+      },
+      handleRelayUpdated: function (relay) {
+        const index = this.relayLinks.findIndex(r => r.id === relay.id)
+        if (index !== -1) {
+          relay.expanded = true
+          this.relayLinks.splice(index, 1, relay)
+        }
       },
 
       exportrelayCSV: function () {
