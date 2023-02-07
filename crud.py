@@ -217,11 +217,11 @@ def build_where_clause(relay_id:str, filter:NostrFilter):
         values += filter.kinds
 
     if filter.since:
-        where.append("reated_at >= ?")
+        where.append("created_at >= ?")
         values += [filter.since]
 
     if filter.until:
-        where.append("created_at <= ?")
+        where.append("created_at < ?")
         values += [filter.until]
     
 
