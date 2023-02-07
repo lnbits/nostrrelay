@@ -36,6 +36,12 @@ const relays = async () => {
               field: 'id'
             },
             {
+              name: 'toggle',
+              align: 'left',
+              label: 'Active',
+              field: ''
+            },
+            {
               name: 'name',
               align: 'left',
               label: 'Name',
@@ -146,31 +152,15 @@ const relays = async () => {
         }
       },
 
-      deleteRelay: function (relayId) {
-        LNbits.utils
-          .confirmDialog(
-            'All data will be lost! Are you sure you want to delete this relay?'
-          )
-          .onOk(async () => {
-            try {
-              const response = await LNbits.api.request(
-                'DELETE',
-                '/nostrrelay/api/v1/relay/' + relayId,
-                this.g.user.wallets[0].adminkey
-              )
-
-              this.relayLinks = _.reject(this.relayLinks, function (obj) {
-                return obj.id === relayId
-              })
-            } catch (error) {
-              LNbits.utils.notifyApiError(error)
-            }
-          })
-      },
-
       sendFormDataRelay: async function () {
         console.log('### sendFormDataRelay')
         this.createRelay(this.formDialogRelay.data)
+      },
+
+      handleRelayDeleted: function (relayId) {
+        this.relayLinks = _.reject(this.relayLinks, function (obj) {
+          return obj.id === relayId
+        })
       },
 
       exportrelayCSV: function () {

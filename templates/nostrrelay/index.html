@@ -68,8 +68,8 @@
                 />
               </q-td>
 
-              <!-- <q-td key="id" :props="props"> {{props.row.id}} </q-td> -->
-              <q-td key="id" :props="props">
+              <q-td key="id" :props="props"> {{props.row.id}} </q-td>
+              <q-td key="toggle" :props="props">
                 <q-toggle
                   size="sm"
                   color="secodary"
@@ -90,26 +90,13 @@
             </q-tr>
             <q-tr v-if="props.row.expanded" :props="props">
               <q-td colspan="100%">
-                <div class="row items-center q-mt-md q-mb-lg">
-                  <div class="col-6 q-pr-lg"></div>
-                  <div class="col-6 q-pr-lg">
-                    <q-btn
-                      unelevated
-                      color="pink"
-                      icon="cancel"
-                      class="float-right"
-                      @click="deleteRelay(props.row.id)"
-                      >Delete Relay</q-btn
-                    >
-                  </div>
-                </div>
-                <div class="row items-center q-mt-md q-mb-lg">
-                  <div class="col-2 q-pr-lg"></div>
-                  <div class="col-10 q-pr-lg">
+                <div class="row items-center q-mb-lg">
+                  <div class="col-12">
                     <relay-details
                       :relay-id="props.row.id"
                       :adminkey="g.user.wallets[0].adminkey"
                       :inkey="g.user.wallets[0].inkey"
+                      @relay-deleted="handleRelayDeleted"
                     ></relay-details>
                   </div>
                 </div>
