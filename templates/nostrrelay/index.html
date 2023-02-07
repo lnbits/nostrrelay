@@ -68,7 +68,15 @@
                 />
               </q-td>
 
-              <q-td key="id" :props="props"> {{props.row.id}} </q-td>
+              <!-- <q-td key="id" :props="props"> {{props.row.id}} </q-td> -->
+              <q-td key="id" :props="props">
+                <q-toggle
+                  size="sm"
+                  color="secodary"
+                  v-model="props.row.active"
+                  @input="showToggleRelayDialog(props.row)"
+                ></q-toggle>
+              </q-td>
               <q-td auto-width> {{props.row.name}} </q-td>
               <q-td key="description" :props="props">
                 {{props.row.description}}
@@ -83,14 +91,7 @@
             <q-tr v-if="props.row.expanded" :props="props">
               <q-td colspan="100%">
                 <div class="row items-center q-mt-md q-mb-lg">
-                  <div class="col-6 q-pr-lg">
-                    <q-toggle
-                      :label="props.row.active ? 'Activated':  'Deactivated' "
-                      color="secodary"
-                      v-model="props.row.active"
-                      @input="showToggleRelayDialog(props.row)"
-                    ></q-toggle>
-                  </div>
+                  <div class="col-6 q-pr-lg"></div>
                   <div class="col-6 q-pr-lg">
                     <q-btn
                       unelevated
