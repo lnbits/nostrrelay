@@ -141,11 +141,15 @@ const relays = async () => {
       toggleRelay: async function (relay) {
         console.log('### toggleRelay', relay)
         try {
-          const response = await LNbits.api.request(
+          await LNbits.api.request(
             'PUT',
             '/nostrrelay/api/v1/relay/' + relay.id,
             this.g.user.wallets[0].adminkey,
-            relay
+            {
+              active: relay.active,
+              id: relay.id,
+              name: relay.name
+            }
           )
         } catch (error) {
           LNbits.utils.notifyApiError(error)
