@@ -109,7 +109,7 @@
           v-if="relay.config.isPaidRelay"
           class="row items-center no-wrap q-mb-md"
         >
-          <div class="col-3 q-pr-lg">Cost per Kilo Byte (sats):</div>
+          <div class="col-3 q-pr-lg">Storage cost per Kilo-Byte (sats):</div>
           <div class="col-3 q-pr-lg">
             <q-input
               filled
@@ -129,7 +129,7 @@
           </div>
         </div>
         <div
-          v-if="relay.config.isPaidRelay && relay.config.storageCostPerKb == 0"
+          v-if="relay.config.isPaidRelay && relay.config.storageCostPerKb != 0"
           class="row items-center no-wrap q-mb-md"
         >
           <div class="col-3 q-pr-lg">Free storage (kb):</div>
