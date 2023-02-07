@@ -8,6 +8,7 @@ async function relayDetails(path) {
     data: function () {
       return {
         tab: 'info',
+        relay: null,
         formDialogItem: {
           show: false,
           data: {
@@ -40,9 +41,23 @@ async function relayDetails(path) {
               LNbits.utils.notifyApiError(error)
             }
           })
+      },
+      getRelay: async function () {
+        try {
+          const {data} = await LNbits.api.request(
+            'GET',
+            '/nostrrelay/api/v1/relay/' + this.relayId,
+            this.inkey
+          )
+          this.relay = data
+        } catch (error) {
+          LNbits.utils.notifyApiError(error)
+        }
       }
     },
 
-    created: async function () {}
+    created: async function () {
+      await this.getRelay()
+    }
   })
 }

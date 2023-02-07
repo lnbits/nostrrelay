@@ -7,25 +7,54 @@
   </q-tabs>
   <q-tab-panels v-model="tab">
     <q-tab-panel name="info">
-      <div class="row items-center q-mt-md q-mb-lg">
-        <div class="col-6 q-pr-lg">
-          <q-btn
-            unelevated
-            color="secondary"
-            class="float-left"
-            @click="updateRelay()"
-            >Update Relay</q-btn
-          >
+      <div v-if="relay">
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Name:</div>
+          <div class="col-6 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.name"
+              type="text"
+            ></q-input>
+          </div>
+          <div class="col-3"></div>
         </div>
-        <div class="col-6">
-          <q-btn
-            unelevated
-            color="pink"
-            icon="cancel"
-            class="float-right"
-            @click="deleteRelay()"
-            >Delete Relay</q-btn
-          >
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Description:</div>
+          <div class="col-6 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.description"
+              type="text"
+            ></q-input>
+          </div>
+          <div class="col-3"></div>
+        </div>
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Relay Public Key:</div>
+          <div class="col-6 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.pubkey"
+              type="text"
+            ></q-input>
+          </div>
+          <div class="col-3"></div>
+        </div>
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Contact:</div>
+          <div class="col-6 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.contact"
+              type="text"
+            ></q-input>
+          </div>
+          <div class="col-3"></div>
         </div>
       </div>
     </q-tab-panel>
@@ -39,4 +68,25 @@
       <span>qqq</span>
     </q-tab-panel>
   </q-tab-panels>
+  <div class="row items-center q-mt-md q-mb-lg">
+    <div class="col-6 q-pr-lg">
+      <q-btn
+        unelevated
+        color="secondary"
+        class="float-left"
+        @click="updateRelay()"
+        >Update Relay</q-btn
+      >
+    </div>
+    <div class="col-6">
+      <q-btn
+        unelevated
+        color="pink"
+        icon="cancel"
+        class="float-right"
+        @click="deleteRelay()"
+        >Delete Relay</q-btn
+      >
+    </div>
+  </div>
 </div>
