@@ -1,23 +1,42 @@
 <div>
-  <div class="row items-center q-mt-md q-mb-lg">
-    <div class="col-6 q-pr-lg">
-      <q-btn
-        unelevated
-        color="secondary"
-        class="float-left"
-        @click="updateRelay()"
-        >Update Relay</q-btn
-      >
-    </div>
-    <div class="col-6">
-      <q-btn
-        unelevated
-        color="pink"
-        icon="cancel"
-        class="float-right"
-        @click="deleteRelay()"
-        >Delete Relay</q-btn
-      >
-    </div>
-  </div>
+  <q-tabs v-model="tab" no-caps class="bg-dark text-white shadow-2">
+    <q-tab name="info" label="Relay Info"></q-tab>
+    <q-tab name="payment" label="Payment"></q-tab>
+    <q-tab name="config" label="Config"></q-tab>
+    <q-tab name="access" label="Access Control"></q-tab>
+  </q-tabs>
+  <q-tab-panels v-model="tab">
+    <q-tab-panel name="info">
+      <div class="row items-center q-mt-md q-mb-lg">
+        <div class="col-6 q-pr-lg">
+          <q-btn
+            unelevated
+            color="secondary"
+            class="float-left"
+            @click="updateRelay()"
+            >Update Relay</q-btn
+          >
+        </div>
+        <div class="col-6">
+          <q-btn
+            unelevated
+            color="pink"
+            icon="cancel"
+            class="float-right"
+            @click="deleteRelay()"
+            >Delete Relay</q-btn
+          >
+        </div>
+      </div>
+    </q-tab-panel>
+    <q-tab-panel name="payment">
+      <span>yyyy</span>
+    </q-tab-panel>
+    <q-tab-panel name="config">
+      <span>zzz</span>
+    </q-tab-panel>
+    <q-tab-panel name="access">
+      <span>qqq</span>
+    </q-tab-panel>
+  </q-tab-panels>
 </div>

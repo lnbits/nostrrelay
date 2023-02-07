@@ -7,7 +7,7 @@ async function relayDetails(path) {
     props: ['relay-id', 'adminkey', 'inkey'],
     data: function () {
       return {
-        items: [],
+        tab: 'info',
         formDialogItem: {
           show: false,
           data: {
