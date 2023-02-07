@@ -4,7 +4,7 @@ async function relayDetails(path) {
     name: 'relay-details',
     template,
 
-    props: ['relay-id', 'adminkey', 'inkey'],
+    props: ['relay-id', 'adminkey', 'inkey', 'wallet-options'],
     data: function () {
       return {
         tab: 'info',
@@ -54,7 +54,16 @@ async function relayDetails(path) {
             '/nostrrelay/api/v1/relay/' + this.relayId,
             this.inkey
           )
+          data.config = {
+            isPaidRelay: true,
+            wallet: '',
+            costToJoin: 0,
+            freeStorage: 0,
+            storageCostPerKb: 0
+          }
           this.relay = data
+
+          console.log('###  this.relay', this.relay)
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
@@ -77,6 +86,10 @@ async function relayDetails(path) {
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
+      },
+      togglePaidRelay: async function () {
+        this.relay.config.wallet =
+          this.relay.config.wallet || this.walletOptions[0].value
       }
     },
 

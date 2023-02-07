@@ -59,7 +59,99 @@
       </div>
     </q-tab-panel>
     <q-tab-panel name="payment">
-      <span>yyyy</span>
+      <div v-if="relay">
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Require Payment:</div>
+          <div class="col-3 q-pr-lg">
+            <q-toggle
+              color="secodary"
+              v-model="relay.config.isPaidRelay"
+              @input="togglePaidRelay"
+            ></q-toggle>
+          </div>
+          <div class="col-6">
+            <q-select
+              v-if="relay.config.isPaidRelay"
+              filled
+              dense
+              emit-value
+              v-model="relay.config.wallet"
+              :options="walletOptions"
+              label="Wallet *"
+            >
+            </q-select>
+          </div>
+        </div>
+        <div
+          v-if="relay.config.isPaidRelay"
+          class="row items-center no-wrap q-mb-md"
+        >
+          <div class="col-3 q-pr-lg">Cost to join (sats):</div>
+          <div class="col-3 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.config.costToJoin"
+              type="number"
+              min="0"
+            ></q-input>
+          </div>
+          <div class="col-6">
+            <q-badge
+              v-if="relay.config.costToJoin == 0"
+              color="green"
+              class="float-left"
+              ><span>Free to join</span>
+            </q-badge>
+          </div>
+        </div>
+        <div
+          v-if="relay.config.isPaidRelay"
+          class="row items-center no-wrap q-mb-md"
+        >
+          <div class="col-3 q-pr-lg">Cost per Kilo Byte (sats):</div>
+          <div class="col-3 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.config.storageCostPerKb"
+              type="number"
+              min="0"
+            ></q-input>
+          </div>
+          <div class="col-6">
+            <q-badge
+              v-if="relay.config.storageCostPerKb == 0"
+              color="green"
+              class="float-left"
+              ><span>Unlimited storage</span>
+            </q-badge>
+          </div>
+        </div>
+        <div
+          v-if="relay.config.isPaidRelay && relay.config.storageCostPerKb == 0"
+          class="row items-center no-wrap q-mb-md"
+        >
+          <div class="col-3 q-pr-lg">Free storage (kb):</div>
+          <div class="col-3 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.config.freeStorage"
+              type="number"
+              min="0"
+            ></q-input>
+          </div>
+          <div class="col-6">
+            <q-badge
+              v-if="relay.config.freeStorage == 0"
+              color="orange"
+              class="float-left"
+              ><span>No free storage</span>
+            </q-badge>
+          </div>
+        </div>
+      </div>
     </q-tab-panel>
     <q-tab-panel name="config">
       <span>zzz</span>
