@@ -1,6 +1,7 @@
 import asyncio
-from copy import deepcopy
 from json import dumps, loads
+from typing import Optional
+from loguru import logger
 
 import pytest
 from fastapi import WebSocket
@@ -15,6 +16,8 @@ from .helpers import get_fixtures
 fixtures = get_fixtures("clients")
 alice = fixtures["alice"]
 bob = fixtures["bob"]
+
+RELAY_ID = "relay_01"
 
 
 class MockWebSocket(WebSocket):
@@ -36,10 +39,15 @@ class MockWebSocket(WebSocket):
     async def wire_mock_data(self, data: dict):
         await self.fake_wire.put(dumps(data))
 
+    async def close(
+        self, code: int = 1000, reason: Optional[str] = None
+    ) -> None:
+        logger.info(reason)
+
 
 @pytest.mark.asyncio
 async def test_alice_and_bob():
-    ws_alice, ws_bob = init_clients()
+    ws_alice, ws_bob = await init_clients()
 
     await alice_wires_meta_and_post01(ws_alice)
 
@@ -62,17 +70,19 @@ async def test_alice_and_bob():
     await alice_deletes_post01__bob_is_notified(ws_alice, ws_bob)
 
 
-def init_clients():
+async def init_clients():
     client_manager = NostrClientManager()
+    client_manager.active_relays = [RELAY_ID]
+    client_manager.toggle_relay(RELAY_ID, True)
 
     ws_alice = MockWebSocket()
-    client_alice = NostrClientConnection(websocket=ws_alice)
-    client_manager.add_client(client_alice)
+    client_alice = NostrClientConnection(relay_id=RELAY_ID, websocket=ws_alice)
+    await client_manager.add_client(client_alice)
     asyncio.create_task(client_alice.start())
 
     ws_bob = MockWebSocket()
-    client_bob = NostrClientConnection(websocket=ws_bob)
-    client_manager.add_client(client_bob)
+    client_bob = NostrClientConnection(relay_id=RELAY_ID, websocket=ws_bob)
+    await client_manager.add_client(client_bob)
     asyncio.create_task(client_bob.start())
     return ws_alice, ws_bob
 

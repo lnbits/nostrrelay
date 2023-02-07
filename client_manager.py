@@ -62,12 +62,12 @@ class NostrClientManager:
 
 
 class NostrClientConnection:
-    broadcast_event: Callable
 
     def __init__(self, relay_id: str, websocket: WebSocket):
         self.websocket = websocket
         self.relay_id = relay_id
         self.filters: List[NostrFilter] = []
+        self.broadcast_event: Optional[Callable] = None
 
     async def start(self):
         await self.websocket.accept()
