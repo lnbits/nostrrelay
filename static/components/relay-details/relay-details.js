@@ -56,16 +56,6 @@ async function relayDetails(path) {
             '/nostrrelay/api/v1/relay/' + this.relayId,
             this.inkey
           )
-          data.config = {
-            isPaidRelay: true,
-            wallet: '',
-            costToJoin: 0,
-            freeStorage: 0,
-            storageCostPerKb: 0,
-            maxFilters: 0,
-            allowedPublicKeys: [],
-            blockedPublicKeys: []
-          }
           this.relay = data
 
           console.log('###  this.relay', this.relay)

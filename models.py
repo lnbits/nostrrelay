@@ -8,6 +8,19 @@ from pydantic import BaseModel, Field
 from secp256k1 import PublicKey
 
 
+class RelayConfig(BaseModel):
+    is_paid_relay = Field(False, alias="isPaidRelay")
+    wallet = Field("")
+    cost_to_join = Field(0, alias="costToJoin")
+    free_storage = Field(0, alias="freeStorage")
+    storage_cost_per_kb = Field(0, alias="storageCostPerKb")
+    max_client_filters = Field(0, alias="maxClientFilters")
+    allowed_public_keys = Field([], alias="allowedPublicKeys")
+    blocked_public_keys = Field([], alias="blockedPublicKeys")
+
+    class Config:
+        allow_population_by_field_name = True
+
 class NostrRelay(BaseModel):
     id: str
     name: str
@@ -16,7 +29,14 @@ class NostrRelay(BaseModel):
     contact: Optional[str]
     active: bool = False
 
-    # meta: Optional[str]
+    config: "RelayConfig" = RelayConfig()
+
+
+    @classmethod
+    def from_row(cls, row: Row) -> "NostrRelay":
+        relay = cls(**dict(row))
+        relay.config = RelayConfig(**json.loads(row["meta"]))
+        return relay
 
     @classmethod
     def info(cls,) -> dict:
@@ -28,9 +48,6 @@ class NostrRelay(BaseModel):
         }
 
 
-    @classmethod
-    def from_row(cls, row: Row) -> "NostrRelay":
-        return cls(**dict(row))
 
 
 

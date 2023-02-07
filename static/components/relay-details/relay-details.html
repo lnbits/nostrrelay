@@ -162,14 +162,14 @@
             <q-input
               filled
               dense
-              v-model.trim="relay.config.maxFilters"
+              v-model.trim="relay.config.maxClientFilters"
               type="number"
               min="0"
             ></q-input>
           </div>
           <div class="col-6">
             <q-badge
-              v-if="relay.config.maxFilters == 0"
+              v-if="relay.config.maxClientFilters == 0"
               color="green"
               class="float-left"
               ><span>Unlimited Filters</span>

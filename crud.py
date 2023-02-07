@@ -11,10 +11,10 @@ from .models import NostrEvent, NostrFilter, NostrRelay
 async def create_relay(user_id: str, r: NostrRelay) -> NostrRelay:
     await db.execute(
         """
-        INSERT INTO nostrrelay.relays (user_id, id, name, description, pubkey, contact)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO nostrrelay.relays (user_id, id, name, description, pubkey, contact, meta)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
-        (user_id, r.id, r.name, r.description, r.pubkey, r.contact,),
+        (user_id, r.id, r.name, r.description, r.pubkey, r.contact, json.dumps(dict(r.config))),
     )
     relay = await get_relay(user_id, r.id)
     assert relay, "Created relay cannot be retrieved"
@@ -24,10 +24,10 @@ async def update_relay(user_id: str, r: NostrRelay) -> NostrRelay:
     await db.execute(
         """
         UPDATE nostrrelay.relays
-        SET (name, description, pubkey, contact, active) = (?, ?, ?, ?, ?)
+        SET (name, description, pubkey, contact, active, meta) = (?, ?, ?, ?, ?, ?)
         WHERE user_id = ? AND id = ?
         """,
-        (r.name, r.description, r.pubkey, r.contact, r.active, user_id, r.id),
+        (r.name, r.description, r.pubkey, r.contact, r.active, json.dumps(dict(r.config)), user_id, r.id),
     )
     
     return r
