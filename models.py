@@ -10,8 +10,10 @@ from secp256k1 import PublicKey
 
 class ClientConfig(BaseModel):
     max_client_filters = Field(0, alias="maxClientFilters")
+    limit_per_filter = Field(1000, alias="limitPerFilter")
     allowed_public_keys = Field([], alias="allowedPublicKeys")
     blocked_public_keys = Field([], alias="blockedPublicKeys")
+    
 
     def is_author_allowed(self, p: str) -> bool:
         if p in self.blocked_public_keys:
@@ -176,6 +178,10 @@ class NostrFilter(BaseModel):
             and (not self.since)
             and (not self.until)
         )
+
+    def enforce_limit(self, limit: int):
+        if not self.limit or self.limit > limit:
+            self.limit = limit
 
     def to_sql_components(self, relay_id: str) -> Tuple[List[str], List[str], List[Any]]:
         inner_joins: List[str] = []

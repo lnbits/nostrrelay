@@ -157,6 +157,32 @@
     <q-tab-panel name="config">
       <div v-if="relay">
         <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Limit per filter:</div>
+          <div class="col-3 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.config.limitPerFilter"
+              type="number"
+              min="0"
+            ></q-input>
+          </div>
+          <div class="col-6">
+            <q-badge
+              v-if="relay.config.limitPerFilter == 0"
+              color="green"
+              class="float-left"
+              ><span>No Limit</span>
+            </q-badge>
+            <q-badge v-else color="yellow" text-color="black" class="float-left"
+              ><span
+                >Maximum number of events to be returned in the initial query
+                (default 1000)</span
+              >
+            </q-badge>
+          </div>
+        </div>
+        <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Max Filters (per client):</div>
           <div class="col-3 q-pr-lg">
             <q-input

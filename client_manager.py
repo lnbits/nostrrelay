@@ -200,7 +200,8 @@ class NostrClientConnection:
         self.remove_filter(subscription_id)
         if self._can_add_filter():
             return [["NOTICE", f"Maximum number of filters ({self.client_config.max_client_filters}) exceeded."]]
-            
+
+        filter.enforce_limit(self.client_config.limit_per_filter)
         self.filters.append(filter)
         events = await get_events(self.relay_id, filter)
         serialized_events = [

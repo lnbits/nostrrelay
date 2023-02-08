@@ -96,7 +96,7 @@ async def create_event(relay_id: str, e: NostrEvent):
         await create_event_tags(relay_id, e.id, name, value, extra)
 
 async def get_events(relay_id: str, filter: NostrFilter, include_tags = True) -> List[NostrEvent]:
-    values, query = build_select_events_query(relay_id, filter)
+    query, values = build_select_events_query(relay_id, filter)
 
     rows = await db.fetchall(query, tuple(values))
 
@@ -191,4 +191,4 @@ def build_select_events_query(relay_id:str, filter:NostrFilter):
     if filter.limit and filter.limit > 0:
         query += f" LIMIT {filter.limit}"
 
-    return values, query
+    return query, values
