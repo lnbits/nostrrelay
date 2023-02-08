@@ -22,12 +22,11 @@ def nostrrelay_renderer():
     return template_renderer(["lnbits/extensions/nostrrelay/templates"])
 
 
-from .client_manager import NostrClientManager
 from .models import NostrRelay
 from .views import *  # noqa
 from .views_api import *  # noqa
 
-client_manager = NostrClientManager()
+
 
 settings.lnbits_relay_information = {
     "name": "LNbits Nostr Relay", 
