@@ -121,6 +121,10 @@ class NostrClientConnection:
                 return True
         return False
 
+    async def _broadcast_event(self, e: NostrEvent):
+        if self.broadcast_event:
+            await self.broadcast_event(self, e)
+
     async def _handle_message(self, data: List) -> List:
         if len(data) < 2:
             return []
@@ -140,31 +144,36 @@ class NostrClientConnection:
 
     async def _handle_event(self, e: NostrEvent):
         resp_nip20: List[Any] = ["OK", e.id]
+
+        if not self.client_config.is_author_allowed(e.pubkey):
+            resp_nip20 += [False, f"Public key '{e.pubkey}' is not allowed in relay '{self.relay_id}'!"]
+            await self.websocket.send_text(json.dumps(resp_nip20))
+            return None
+
         try:
             e.check_signature()
+        except ValueError as ex:
+            resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
+            await self.websocket.send_text(json.dumps(resp_nip20))
+            return None
 
-            if not self.client_config.is_author_allowed(e.pubkey):
-                raise ValueError(f"Public key '{e.pubkey}' is not allowed in relay '{self.relay_id}'!")
-            
+        try:
             if e.is_replaceable_event():
                 await delete_events(
                     self.relay_id, NostrFilter(kinds=[e.kind], authors=[e.pubkey])
                 )
             await create_event(self.relay_id, e)
-            if self.broadcast_event:
-                await self.broadcast_event(self, e)
+            await self._broadcast_event(e)
+
             if e.is_delete_event():
                 await self._handle_delete_event(e)
             resp_nip20 += [True, ""]
-        except ValueError as ex:
-            #todo: handle the other Value Errors
-            logger.debug(ex)
-            resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
         except Exception as ex:
             logger.debug(ex)
             event = await get_event(self.relay_id, e.id)
             # todo: handle NIP20 in detail
-            resp_nip20 += [event != None, f"error: failed to create event"]
+            message = "error: failed to create event"
+            resp_nip20 += [event != None, message]
 
         await self.websocket.send_text(json.dumps(resp_nip20))
 
