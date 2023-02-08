@@ -97,14 +97,14 @@ class NostrClientConnection:
 
                 resp = await self._handle_message(data)
                 for r in resp:
-                    await self.websocket.send_text(json.dumps(r))
+                    await self._send_msg(r)
             except Exception as e:
                 logger.warning(e)
 
     async def stop(self, reason: Optional[str]):
         message = reason if reason else "Server closed webocket"
         try:
-            await self.websocket.send_text(json.dumps(["NOTICE", message]))
+            await self._send_msg(["NOTICE", message])
         except:
             pass
 
@@ -117,7 +117,7 @@ class NostrClientConnection:
         for filter in self.filters:
             if filter.matches(event):
                 resp = event.serialize_response(filter.subscription_id)
-                await self.websocket.send_text(json.dumps(resp))
+                await self._send_msg(resp)
                 return True
         return False
 
@@ -147,14 +147,14 @@ class NostrClientConnection:
 
         if not self.client_config.is_author_allowed(e.pubkey):
             resp_nip20 += [False, f"Public key '{e.pubkey}' is not allowed in relay '{self.relay_id}'!"]
-            await self.websocket.send_text(json.dumps(resp_nip20))
+            await self._send_msg(resp_nip20)
             return None
 
         try:
             e.check_signature()
         except ValueError as ex:
             resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
-            await self.websocket.send_text(json.dumps(resp_nip20))
+            await self._send_msg(resp_nip20)
             return None
 
         try:
@@ -175,13 +175,16 @@ class NostrClientConnection:
             message = "error: failed to create event"
             resp_nip20 += [event != None, message]
 
-        await self.websocket.send_text(json.dumps(resp_nip20))
+        await self._send_msg(resp_nip20)
 
     @property
     def client_config(self) -> ClientConfig:
         if not self.get_client_config:
                 raise Exception("Client not ready!")
         return self.get_client_config()
+
+    async def _send_msg(self, data: List):
+        await self.websocket.send_text(json.dumps(data))
 
     async def _handle_delete_event(self, event: NostrEvent):
         # NIP 09
