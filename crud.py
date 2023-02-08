@@ -117,14 +117,14 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
 async def mark_events_deleted(relay_id: str,  filter: NostrFilter):
     if filter.is_empty():
         return None
-    _, where, values = build_where_clause(relay_id, filter)
+    _, where, values = filter.to_sql_components(relay_id)
 
     await db.execute(f"""UPDATE nostrrelay.events SET deleted=true WHERE {" AND ".join(where)}""", tuple(values))
 
 async def delete_events(relay_id: str,  filter: NostrFilter):
     if filter.is_empty():
         return None
-    _, where, values = build_where_clause(relay_id, filter)
+    _, where, values = filter.to_sql_components(relay_id)
 
     query = f"""DELETE from nostrrelay.events WHERE {" AND ".join(where)}"""
     await db.execute(query, tuple(values))
@@ -168,7 +168,7 @@ async def get_event_tags(
 
 
 def build_select_events_query(relay_id:str, filter:NostrFilter):
-    inner_joins, where, values = build_where_clause(relay_id, filter)
+    inner_joins, where, values = filter.to_sql_components(relay_id)
 
     query = f"""
         SELECT id, pubkey, created_at, kind, content, sig 
@@ -183,46 +183,3 @@ def build_select_events_query(relay_id:str, filter:NostrFilter):
         query += f" LIMIT {filter.limit}"
 
     return values, query
-
-def build_where_clause(relay_id:str, filter:NostrFilter):
-    inner_joins = []
-    where = ["deleted=false", "nostrrelay.events.relay_id = ?"]
-    values: List[Any] = [relay_id]
-
-    if len(filter.e):
-        values += filter.e
-        e_s = ",".join(["?"] * len(filter.e))
-        inner_joins.append("INNER JOIN nostrrelay.event_tags e_tags ON nostrrelay.events.id = e_tags.event_id")
-        where.append(f" (e_tags.value in ({e_s}) AND e_tags.name = 'e')")
-
-    if len(filter.p):
-        values += filter.p
-        p_s = ",".join(["?"] * len(filter.p))
-        inner_joins.append("INNER JOIN nostrrelay.event_tags p_tags ON nostrrelay.events.id = p_tags.event_id")
-        where.append(f" p_tags.value in ({p_s}) AND p_tags.name = 'p'")
-
-    if len(filter.ids) != 0:
-        ids = ",".join(["?"] * len(filter.ids))
-        where.append(f"id IN ({ids})")
-        values += filter.ids
-
-    if len(filter.authors) != 0:
-        authors = ",".join(["?"] * len(filter.authors))
-        where.append(f"pubkey IN ({authors})")
-        values += filter.authors
-
-    if len(filter.kinds) != 0:
-        kinds = ",".join(["?"] * len(filter.kinds))
-        where.append(f"kind IN ({kinds})")
-        values += filter.kinds
-
-    if filter.since:
-        where.append("created_at >= ?")
-        values += [filter.since]
-
-    if filter.until:
-        where.append("created_at < ?")
-        values += [filter.until]
-    
-
-    return inner_joins, where, values

@@ -2,7 +2,7 @@ import hashlib
 import json
 from enum import Enum
 from sqlite3 import Row
-from typing import List, Optional
+from typing import Any, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
 from secp256k1 import PublicKey
@@ -46,9 +46,6 @@ class NostrRelay(BaseModel):
             "software": "LNbits",
             "version": "",
         }
-
-
-
 
 
 class NostrEventType(str, Enum):
@@ -169,3 +166,46 @@ class NostrFilter(BaseModel):
             and (not self.since)
             and (not self.until)
         )
+
+    def to_sql_components(self, relay_id: str) -> Tuple[List[str], List[str], List[Any]]:
+        inner_joins: List[str] = []
+        where = ["deleted=false", "nostrrelay.events.relay_id = ?"]
+        values: List[Any] = [relay_id]
+
+        if len(self.e):
+            values += self.e
+            e_s = ",".join(["?"] * len(self.e))
+            inner_joins.append("INNER JOIN nostrrelay.event_tags e_tags ON nostrrelay.events.id = e_tags.event_id")
+            where.append(f" (e_tags.value in ({e_s}) AND e_tags.name = 'e')")
+
+        if len(self.p):
+            values += self.p
+            p_s = ",".join(["?"] * len(self.p))
+            inner_joins.append("INNER JOIN nostrrelay.event_tags p_tags ON nostrrelay.events.id = p_tags.event_id")
+            where.append(f" p_tags.value in ({p_s}) AND p_tags.name = 'p'")
+
+        if len(self.ids) != 0:
+            ids = ",".join(["?"] * len(self.ids))
+            where.append(f"id IN ({ids})")
+            values += self.ids
+
+        if len(self.authors) != 0:
+            authors = ",".join(["?"] * len(self.authors))
+            where.append(f"pubkey IN ({authors})")
+            values += self.authors
+
+        if len(self.kinds) != 0:
+            kinds = ",".join(["?"] * len(self.kinds))
+            where.append(f"kind IN ({kinds})")
+            values += self.kinds
+
+        if self.since:
+            where.append("created_at >= ?")
+            values += [self.since]
+
+        if self.until:
+            where.append("created_at < ?")
+            values += [self.until]
+        
+
+        return inner_joins, where, values

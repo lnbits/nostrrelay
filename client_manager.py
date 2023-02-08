@@ -129,13 +129,15 @@ class NostrClientConnection:
                     self.relay_id, NostrFilter(kinds=[e.kind], authors=[e.pubkey])
                 )
             await create_event(self.relay_id, e)
-            await self.broadcast_event(self, e)
+            if self.broadcast_event:
+                await self.broadcast_event(self, e)
             if e.is_delete_event():
                 await self.__handle_delete_event(e)
             resp_nip20 += [True, ""]
         except ValueError:
             resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
-        except Exception:
+        except Exception as ex:
+            logger.debug(ex)
             event = await get_event(self.relay_id, e.id)
             # todo: handle NIP20 in detail
             resp_nip20 += [event != None, f"error: failed to create event"]
