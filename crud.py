@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 from lnbits.helpers import urlsafe_short_hash
 
 from . import db
-from .models import NostrEvent, NostrFilter, NostrRelay
+from .models import NostrEvent, NostrFilter, NostrRelay, RelayConfig
 
 ########################## RELAYS ####################
 
@@ -42,9 +42,13 @@ async def get_relays(user_id: str) -> List[NostrRelay]:
 
     return [NostrRelay.from_row(row) for row in rows]
 
-async def get_all_active_relays_ids() -> List[str]:
-    rows = await db.fetchall("SELECT id FROM nostrrelay.relays WHERE active = true",)
-    return [r["id"] for r in rows]
+async def get_config_for_all_active_relays() -> dict:
+    rows = await db.fetchall("SELECT id, meta FROM nostrrelay.relays WHERE active = true",)
+    active_relay_configs = {}
+    for r in rows:
+        active_relay_configs[r["id"]] = RelayConfig(**json.loads(r["meta"])) #todo: from_json
+
+    return active_relay_configs
 
 async def get_public_relay(relay_id: str) -> Optional[dict]:
     row = await db.fetchone("""SELECT * FROM nostrrelay.relays WHERE id = ?""", (relay_id,))

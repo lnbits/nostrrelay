@@ -7,20 +7,24 @@ from loguru import logger
 from .crud import (
     create_event,
     delete_events,
-    get_all_active_relays_ids,
     get_event,
     get_events,
+    get_config_for_all_active_relays,
     mark_events_deleted,
 )
-from .models import NostrEvent, NostrEventType, NostrFilter
+from .models import NostrEvent, NostrEventType, NostrFilter, RelayConfig
 
 
 class NostrClientManager:
     def __init__(self: "NostrClientManager"):
         self.clients: dict = {}
-        self.active_relays: Optional[List[str]] = None
+        self.active_relays: dict = {}
+        self.is_ready = False
 
     async def add_client(self, client: "NostrClientConnection") -> bool:
+        if not self.is_ready:
+            return False
+
         allow_connect = await self._allow_client_to_connect(client.relay_id, client.websocket)
         if not allow_connect:
             return False
@@ -29,22 +33,26 @@ class NostrClientManager:
 
         return True
 
-    def remove_client(self, client: "NostrClientConnection"):
-        self._clients(client.relay_id).remove(client)
+    def remove_client(self, c: "NostrClientConnection"):
+        self._clients(c.relay_id).remove(c)
 
     async def broadcast_event(self, source: "NostrClientConnection", event: NostrEvent):
         for client in self._clients(source.relay_id):
             if client != source:
                 await client.notify_event(event)
 
-    async def toggle_relay(self, relay_id: str, active: bool):
-        if not self.active_relays:
-            self.active_relays = await get_all_active_relays_ids()
-        if active:
-            self.active_relays.append(relay_id)
-        else:
-            self.active_relays = [r for r in self.active_relays if r != relay_id]
-            await self._stop_clients_for_relay(relay_id)
+    async def init_relays(self):
+        self.active_relays = await get_config_for_all_active_relays()
+        self.is_ready = True
+
+    async def enable_relay(self, relay_id: str, config: RelayConfig):
+        self.is_ready = True
+        self.active_relays[relay_id] = config
+
+    async def disable_relay(self, relay_id: str):
+        await self._stop_clients_for_relay(relay_id)
+        del self.active_relays[relay_id]
+            
 
     async def _stop_clients_for_relay(self, relay_id: str):
         for client in self._clients(relay_id):
@@ -57,9 +65,6 @@ class NostrClientManager:
         return self.clients[relay_id]
 
     async def _allow_client_to_connect(self, relay_id:str, websocket: WebSocket) -> bool:
-        if not self.active_relays:
-            self.active_relays = await get_all_active_relays_ids()
-
         if relay_id not in self.active_relays:
             await websocket.close(reason=f"Relay '{relay_id}' is not active")
             return False

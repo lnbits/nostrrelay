@@ -95,7 +95,12 @@ async def api_update_relay(relay_id: str, data: NostrRelay, wallet: WalletTypeIn
             )
         updated_relay = NostrRelay.parse_obj({**dict(relay), **dict(data)})
         updated_relay = await update_relay(wallet.wallet.user, updated_relay)
-        await client_manager.toggle_relay(relay_id, updated_relay.active)
+        
+        if updated_relay.active:            
+            await client_manager.enable_relay(relay_id, updated_relay.config)
+        else:
+            await client_manager.disable_relay(relay_id)
+
         return updated_relay
 
     except HTTPException as ex:
@@ -139,7 +144,7 @@ async def api_get_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_
 @nostrrelay_ext.delete("/api/v1/relay/{relay_id}")
 async def api_delete_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)):
     try:
-        await client_manager.toggle_relay(relay_id, False)
+        await client_manager.disable_relay(relay_id)
         await delete_relay(wallet.wallet.user, relay_id)
         await delete_all_events(relay_id)
     except Exception as ex:
