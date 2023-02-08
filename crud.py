@@ -128,7 +128,13 @@ async def delete_events(relay_id: str,  filter: NostrFilter):
 
     query = f"""DELETE from nostrrelay.events WHERE {" AND ".join(where)}"""
     await db.execute(query, tuple(values))
+    #todo: delete tags
 
+
+async def delete_all_events(relay_id: str):
+    query = "DELETE from nostrrelay.events WHERE relay_id = ?"
+    await db.execute(query, (relay_id,))
+    # todo: delete tags
 
 async def create_event_tags(
     relay_id: str, event_id: str, tag_name: str, tag_value: str, extra_values: Optional[str]
@@ -146,7 +152,6 @@ async def create_event_tags(
         """,
         (relay_id, event_id, tag_name, tag_value, extra_values),
     )
-
 
 async def get_event_tags(
     relay_id: str, event_id: str

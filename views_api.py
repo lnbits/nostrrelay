@@ -19,6 +19,7 @@ from . import client_manager, nostrrelay_ext
 from .client_manager import NostrClientConnection
 from .crud import (
     create_relay,
+    delete_all_events,
     delete_relay,
     get_public_relay,
     get_relay,
@@ -138,7 +139,9 @@ async def api_get_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_
 @nostrrelay_ext.delete("/api/v1/relay/{relay_id}")
 async def api_delete_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)):
     try:
+        await client_manager.toggle_relay(relay_id, False)
         await delete_relay(wallet.wallet.user, relay_id)
+        await delete_all_events(relay_id)
     except Exception as ex:
         logger.warning(ex)
         raise HTTPException(
