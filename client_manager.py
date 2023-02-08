@@ -21,30 +21,21 @@ class NostrClientManager:
         self.active_relays: Optional[List[str]] = None
 
     async def add_client(self, client: "NostrClientConnection") -> bool:
-        allow_connect = await self.allow_client_to_connect(client.relay_id, client.websocket)
+        allow_connect = await self._allow_client_to_connect(client.relay_id, client.websocket)
         if not allow_connect:
             return False
         setattr(client, "broadcast_event", self.broadcast_event)
-        self.relay_clients(client.relay_id).append(client)
+        self._clients(client.relay_id).append(client)
 
         return True
 
     def remove_client(self, client: "NostrClientConnection"):
-        self.relay_clients(client.relay_id).remove(client)
+        self._clients(client.relay_id).remove(client)
 
     async def broadcast_event(self, source: "NostrClientConnection", event: NostrEvent):
-        for client in self.relay_clients(source.relay_id):
+        for client in self._clients(source.relay_id):
             if client != source:
                 await client.notify_event(event)
-
-    async def allow_client_to_connect(self, relay_id:str, websocket: WebSocket) -> bool:
-        if not self.active_relays:
-            self.active_relays = await get_all_active_relays_ids()
-
-        if relay_id not in self.active_relays:
-            await websocket.close(reason=f"Relay '{relay_id}' is not active")
-            return False
-        return True
 
     async def toggle_relay(self, relay_id: str, active: bool):
         if not self.active_relays:
@@ -53,17 +44,26 @@ class NostrClientManager:
             self.active_relays.append(relay_id)
         else:
             self.active_relays = [r for r in self.active_relays if r != relay_id]
-            await self.stop_clients_for_relay(relay_id)
+            await self._stop_clients_for_relay(relay_id)
 
-    async def stop_clients_for_relay(self, relay_id: str):
-        for client in self.relay_clients(relay_id):
+    async def _stop_clients_for_relay(self, relay_id: str):
+        for client in self._clients(relay_id):
             if client.relay_id == relay_id:
                 await client.stop(reason=f"Relay '{relay_id}' has been deactivated.")
 
-    def relay_clients(self, relay_id: str) -> List["NostrClientConnection"]:
+    def _clients(self, relay_id: str) -> List["NostrClientConnection"]:
         if relay_id not in self.clients:
             self.clients[relay_id] = []
         return self.clients[relay_id]
+
+    async def _allow_client_to_connect(self, relay_id:str, websocket: WebSocket) -> bool:
+        if not self.active_relays:
+            self.active_relays = await get_all_active_relays_ids()
+
+        if relay_id not in self.active_relays:
+            await websocket.close(reason=f"Relay '{relay_id}' is not active")
+            return False
+        return True
         
 class NostrClientConnection:
 
@@ -81,7 +81,7 @@ class NostrClientConnection:
             try:
                 data = json.loads(json_data)
 
-                resp = await self.__handle_message(data)
+                resp = await self._handle_message(data)
                 for r in resp:
                     await self.websocket.send_text(json.dumps(r))
             except Exception as e:
@@ -103,24 +103,24 @@ class NostrClientConnection:
                 return True
         return False
 
-    async def __handle_message(self, data: List) -> List:
+    async def _handle_message(self, data: List) -> List:
         if len(data) < 2:
             return []
 
         message_type = data[0]
         if message_type == NostrEventType.EVENT:
-            await self.__handle_event(NostrEvent.parse_obj(data[1]))
+            await self._handle_event(NostrEvent.parse_obj(data[1]))
             return []
         if message_type == NostrEventType.REQ:
             if len(data) != 3:
                 return []
-            return await self.__handle_request(data[1], NostrFilter.parse_obj(data[2]))
+            return await self._handle_request(data[1], NostrFilter.parse_obj(data[2]))
         if message_type == NostrEventType.CLOSE:
-            self.__handle_close(data[1])
+            self._handle_close(data[1])
 
         return []
 
-    async def __handle_event(self, e: NostrEvent):
+    async def _handle_event(self, e: NostrEvent):
         resp_nip20: List[Any] = ["OK", e.id]
         try:
             e.check_signature()
@@ -132,7 +132,7 @@ class NostrClientConnection:
             if self.broadcast_event:
                 await self.broadcast_event(self, e)
             if e.is_delete_event():
-                await self.__handle_delete_event(e)
+                await self._handle_delete_event(e)
             resp_nip20 += [True, ""]
         except ValueError:
             resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
@@ -144,7 +144,7 @@ class NostrClientConnection:
 
         await self.websocket.send_text(json.dumps(resp_nip20))
 
-    async def __handle_delete_event(self, event: NostrEvent):
+    async def _handle_delete_event(self, event: NostrEvent):
         # NIP 09
         filter = NostrFilter(authors=[event.pubkey])
         filter.ids = [t[1] for t in event.tags if t[0] == "e"]
@@ -152,7 +152,7 @@ class NostrClientConnection:
         ids = [e.id for e in events_to_delete if not e.is_delete_event()]
         await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
 
-    async def __handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
+    async def _handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
         filter.subscription_id = subscription_id
         self.remove_filter(subscription_id)
         self.filters.append(filter)
@@ -164,7 +164,7 @@ class NostrClientConnection:
         serialized_events.append(resp_nip15)
         return serialized_events
 
-    def __handle_close(self, subscription_id: str):
+    def _handle_close(self, subscription_id: str):
         self.remove_filter(subscription_id)
 
     def remove_filter(self, subscription_id: str):
