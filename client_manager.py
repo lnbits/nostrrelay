@@ -39,8 +39,7 @@ class NostrClientManager:
 
     async def broadcast_event(self, source: "NostrClientConnection", event: NostrEvent):
         for client in self.clients(source.relay_id):
-            if client != source:
-                await client.notify_event(event)
+            await client.notify_event(event)
 
     async def init_relays(self):
         self._active_relays = await get_config_for_all_active_relays()
