@@ -52,7 +52,8 @@ class NostrClientManager:
 
     async def disable_relay(self, relay_id: str):
         await self._stop_clients_for_relay(relay_id)
-        del self._active_relays[relay_id]
+        if relay_id in self._active_relays:
+            del self._active_relays[relay_id]
 
     def get_relay_config(self, relay_id: str) -> RelayConfig:
         return self._active_relays[relay_id]
@@ -93,7 +94,6 @@ class NostrClientConnection:
         await self.websocket.accept()
         while True:
             json_data = await self.websocket.receive_text()
-            print("### received: ", json_data)
             try:
                 data = json.loads(json_data)
 

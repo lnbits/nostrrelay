@@ -15,7 +15,7 @@ from lnbits.decorators import (
 )
 from lnbits.helpers import urlsafe_short_hash
 
-from . import client_manager, nostrrelay_ext
+from . import nostrrelay_ext
 from .client_manager import NostrClientConnection, NostrClientManager
 from .crud import (
     create_relay,
