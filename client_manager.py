@@ -198,6 +198,9 @@ class NostrClientConnection:
     async def _handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
         filter.subscription_id = subscription_id
         self.remove_filter(subscription_id)
+        if self._can_add_filter():
+            return [["NOTICE", f"Maximum number of filters ({self.client_config.max_client_filters}) exceeded."]]
+            
         self.filters.append(filter)
         events = await get_events(self.relay_id, filter)
         serialized_events = [
@@ -207,8 +210,11 @@ class NostrClientConnection:
         serialized_events.append(resp_nip15)
         return serialized_events
 
+    def remove_filter(self, subscription_id: str):
+        self.filters = [f for f in self.filters if f.subscription_id != subscription_id]
+
     def _handle_close(self, subscription_id: str):
         self.remove_filter(subscription_id)
 
-    def remove_filter(self, subscription_id: str):
-        self.filters = [f for f in self.filters if f.subscription_id != subscription_id]
+    def _can_add_filter(self) -> bool:
+        return self.client_config.max_client_filters != 0 and len(self.filters) >= self.client_config.max_client_filters
