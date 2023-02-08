@@ -29,14 +29,12 @@ class NostrClientManager:
         if not allow_connect:
             return False
 
-        setattr(client, "broadcast_event", self.broadcast_event)
-        def get_client_config() -> ClientConfig:
-            return self.get_relay_config(client.relay_id)
-        setattr(client, "get_client_config", get_client_config)
+        self._set_client_callbacks(client)
 
         self.clients(client.relay_id).append(client)
 
         return True
+
 
     def remove_client(self, c: "NostrClientConnection"):
         self.clients(c.relay_id).remove(c)
@@ -77,6 +75,12 @@ class NostrClientManager:
             return False
         #todo: NIP-42: AUTH
         return True
+
+    def _set_client_callbacks(self, client):
+        setattr(client, "broadcast_event", self.broadcast_event)
+        def get_client_config() -> ClientConfig:
+            return self.get_relay_config(client.relay_id)
+        setattr(client, "get_client_config", get_client_config)
         
 class NostrClientConnection:
 
