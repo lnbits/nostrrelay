@@ -25,7 +25,7 @@ class NostrClientManager:
         if not self._is_ready:
             await self.init_relays()
 
-        allow_connect = await self._allow_client(client.relay_id, client.websocket)
+        allow_connect = await self._allow_client(client)
         if not allow_connect:
             return False
         setattr(client, "broadcast_event", self.broadcast_event)
@@ -64,10 +64,11 @@ class NostrClientManager:
             self._clients[relay_id] = []
         return self._clients[relay_id]
 
-    async def _allow_client(self, relay_id:str, websocket: WebSocket) -> bool:
-        if relay_id not in self._active_relays:
-            await websocket.close(reason=f"Relay '{relay_id}' is not active")
+    async def _allow_client(self, c: "NostrClientConnection") -> bool:
+        if c.relay_id not in self._active_relays:
+            await c.stop(reason=f"Relay '{c.relay_id}' is not active")
             return False
+        #todo: NIP-42: AUTH
         return True
         
 class NostrClientConnection:
@@ -93,10 +94,14 @@ class NostrClientConnection:
                 logger.warning(e)
 
     async def stop(self, reason: Optional[str]):
+        message = reason if reason else "Server closed webocket"
         try:
-            message = reason if reason else "Server closed webocket"
             await self.websocket.send_text(json.dumps(["NOTICE", message]))
-            await self.websocket.close()
+        except:
+            pass
+
+        try:
+            await self.websocket.close(reason=reason)
         except:
             pass
 

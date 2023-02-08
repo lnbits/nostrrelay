@@ -8,18 +8,21 @@ from pydantic import BaseModel, Field
 from secp256k1 import PublicKey
 
 
-class RelayConfig(BaseModel):
-    is_paid_relay = Field(False, alias="isPaidRelay")
-    wallet = Field("")
-    cost_to_join = Field(0, alias="costToJoin")
-    free_storage = Field(0, alias="freeStorage")
-    storage_cost_per_kb = Field(0, alias="storageCostPerKb")
+
+class ClientConfig(BaseModel):
     max_client_filters = Field(0, alias="maxClientFilters")
     allowed_public_keys = Field([], alias="allowedPublicKeys")
     blocked_public_keys = Field([], alias="blockedPublicKeys")
 
     class Config:
         allow_population_by_field_name = True
+class RelayConfig(ClientConfig):
+    is_paid_relay = Field(False, alias="isPaidRelay")
+    wallet = Field("")
+    cost_to_join = Field(0, alias="costToJoin")
+    free_storage = Field(0, alias="freeStorage")
+    storage_cost_per_kb = Field(0, alias="storageCostPerKb")
+
 
 class NostrRelay(BaseModel):
     id: str
