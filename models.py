@@ -8,12 +8,19 @@ from pydantic import BaseModel, Field
 from secp256k1 import PublicKey
 
 
-
 class ClientConfig(BaseModel):
     max_client_filters = Field(0, alias="maxClientFilters")
     allowed_public_keys = Field([], alias="allowedPublicKeys")
     blocked_public_keys = Field([], alias="blockedPublicKeys")
 
+    def is_author_allowed(self, p: str) -> bool:
+        if p in self.blocked_public_keys:
+            return False
+        if len(self.allowed_public_keys) == 0:
+            return True
+        # todo: check payment
+        return p in self.allowed_public_keys
+        
     class Config:
         allow_population_by_field_name = True
 class RelayConfig(ClientConfig):
