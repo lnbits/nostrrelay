@@ -23,7 +23,7 @@ class NostrClientManager:
 
     async def add_client(self, client: "NostrClientConnection") -> bool:
         if not self.is_ready:
-            return False
+            await self.init_relays()
 
         allow_connect = await self._allow_client_to_connect(client.relay_id, client.websocket)
         if not allow_connect:
