@@ -1,10 +1,10 @@
 import asyncio
 from json import dumps, loads
 from typing import Optional
-from loguru import logger
 
 import pytest
 from fastapi import WebSocket
+from loguru import logger
 
 from lnbits.extensions.nostrrelay.client_manager import (
     NostrClientConnection,
