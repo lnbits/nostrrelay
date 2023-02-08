@@ -15,8 +15,8 @@ from lnbits.decorators import (
 )
 from lnbits.helpers import urlsafe_short_hash
 
-from . import nostrrelay_ext
-from .client_manager import NostrClientConnection, NostrClientManager
+from . import client_manager, nostrrelay_ext
+from .client_manager import NostrClientConnection
 from .crud import (
     create_relay,
     delete_relay,
@@ -27,7 +27,6 @@ from .crud import (
 )
 from .models import NostrRelay
 
-client_manager = NostrClientManager()
 
 @nostrrelay_ext.websocket("/{relay_id}")
 async def websocket_endpoint(relay_id: str, websocket: WebSocket):
