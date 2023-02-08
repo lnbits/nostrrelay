@@ -21,17 +21,15 @@ class NostrClientManager:
         self._active_relays: dict = {}
         self._is_ready = False
 
-    async def add_client(self, client: "NostrClientConnection") -> bool:
+    async def add_client(self, c: "NostrClientConnection") -> bool:
         if not self._is_ready:
             await self.init_relays()
 
-        allow_connect = await self._allow_client(client)
-        if not allow_connect:
+        if not (await self._allow_client(c)):
             return False
 
-        self._set_client_callbacks(client)
-
-        self.clients(client.relay_id).append(client)
+        self._set_client_callbacks(c)
+        self.clients(c.relay_id).append(c)
 
         return True
 
