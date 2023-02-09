@@ -168,17 +168,17 @@
             ></q-input>
           </div>
           <div class="col-6">
+            <q-icon name="info" class="cursor-pointer">
+              <q-tooltip>
+                Maximum number of events to be returned in the initial query
+                (default 1000)
+              </q-tooltip></q-icon
+            >
             <q-badge
               v-if="relay.config.limitPerFilter == 0"
               color="green"
               class="float-left"
               ><span>No Limit</span>
-            </q-badge>
-            <q-badge v-else color="yellow" text-color="black" class="float-left"
-              ><span
-                >Maximum number of events to be returned in the initial query
-                (default 1000)</span
-              >
             </q-badge>
           </div>
         </div>
@@ -194,11 +194,38 @@
             ></q-input>
           </div>
           <div class="col-6">
-            <q-badge
-              v-if="relay.config.maxClientFilters == 0"
-              color="green"
-              class="float-left"
+            <q-icon name="info" class="cursor-pointer">
+              <q-tooltip>
+                Limit the number of filters that a client can have. Prevents
+                relay from being abused by clients with extremly high number of
+                fiters.
+              </q-tooltip></q-icon
+            >
+            <q-badge v-if="relay.config.maxClientFilters == 0" color="green"
               ><span>Unlimited Filters</span>
+            </q-badge>
+          </div>
+        </div>
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Max events per second:</div>
+          <div class="col-3 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.config.maxEventsPerSecond"
+              type="number"
+              min="0"
+            ></q-input>
+          </div>
+          <div class="col-6">
+            <q-icon name="info" class="cursor-pointer">
+              <q-tooltip>
+                Limits the rate at which events are accepted by the relay.
+                Prevent clients from clogging the relay.
+              </q-tooltip></q-icon
+            >
+            <q-badge v-if="relay.config.maxEventsPerSecond == 0" color="green"
+              ><span>No Limit</span>
             </q-badge>
           </div>
         </div>

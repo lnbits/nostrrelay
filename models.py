@@ -11,6 +11,7 @@ from secp256k1 import PublicKey
 class ClientConfig(BaseModel):
     max_client_filters = Field(0, alias="maxClientFilters")
     limit_per_filter = Field(1000, alias="limitPerFilter")
+    max_events_per_second = Field(0, alias="maxEventsPerSecond")
     allowed_public_keys = Field([], alias="allowedPublicKeys")
     blocked_public_keys = Field([], alias="blockedPublicKeys")
     
