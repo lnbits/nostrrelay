@@ -150,26 +150,9 @@ class NostrClientConnection:
     async def _handle_event(self, e: NostrEvent):
         resp_nip20: List[Any] = ["OK", e.id]
 
-        if self._exceeded_max_events_per_second():
-            resp_nip20 += [False, f"Exceeded max events per second limit'!"]
-            await self._send_msg(resp_nip20)
-            return None
-
-        if not self.client_config.is_author_allowed(e.pubkey):
-            resp_nip20 += [False, f"Public key '{e.pubkey}' is not allowed in relay '{self.relay_id}'!"]
-            await self._send_msg(resp_nip20)
-            return None
-
-        try:
-            e.check_signature()
-        except ValueError as ex:
-            resp_nip20 += [False, "invalid: wrong event `id` or `sig`"]
-            await self._send_msg(resp_nip20)
-            return None
-
-        in_range, message = self._created_at_in_range(e.created_at)
-        if not in_range:
-            resp_nip20 += [False, message]
+        valid, message = self._validate_event(e)
+        if not valid:
+            resp_nip20 + [valid, message]
             await self._send_msg(resp_nip20)
             return None
 
@@ -235,6 +218,24 @@ class NostrClientConnection:
 
     def _can_add_filter(self) -> bool:
         return self.client_config.max_client_filters != 0 and len(self.filters) >= self.client_config.max_client_filters
+
+    def _validate_event(self, e: NostrEvent)-> Tuple[bool, str]:
+        if self._exceeded_max_events_per_second():
+            return False, f"Exceeded max events per second limit'!"
+
+        if not self.client_config.is_author_allowed(e.pubkey):
+            return False, f"Public key '{e.pubkey}' is not allowed in relay '{self.relay_id}'!"
+
+        try:
+            e.check_signature()
+        except ValueError:
+            return False, "invalid: wrong event `id` or `sig`"
+
+        in_range, message = self._created_at_in_range(e.created_at)
+        if not in_range:
+            return False, message
+
+        return True, ""
 
     def _exceeded_max_events_per_second(self) -> bool:
         if self.client_config.max_events_per_second == 0:
