@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Any, Awaitable, Callable, List, Optional
+from typing import Any, Awaitable, Callable, List, Optional, Tuple
 
 from fastapi import WebSocket
 from loguru import logger
@@ -167,6 +167,12 @@ class NostrClientConnection:
             await self._send_msg(resp_nip20)
             return None
 
+        in_range, message = self._created_at_in_range(e.created_at)
+        if not in_range:
+            resp_nip20 += [False, message]
+            await self._send_msg(resp_nip20)
+            return None
+
         try:
             if e.is_replaceable_event():
                 await delete_events(
@@ -186,6 +192,7 @@ class NostrClientConnection:
             resp_nip20 += [event != None, message]
 
         await self._send_msg(resp_nip20)
+            
 
     @property
     def client_config(self) -> ClientConfig:
@@ -241,3 +248,13 @@ class NostrClientConnection:
             self._event_count_per_timestamp = 0
 
         return self._event_count_per_timestamp > self.client_config.max_events_per_second
+
+    def _created_at_in_range(self, created_at: int) -> Tuple[bool, str]:
+        current_time = round(time.time())
+        if self.client_config.created_at_in_past != 0:
+            if created_at < (current_time - self.client_config.created_at_in_past):
+                return False, "created_at is too much into the past"
+        if self.client_config.created_at_in_future != 0:
+            if created_at > (current_time + self.client_config.created_at_in_future):
+                return False, "created_at is too much into the future"
+        return True, ""

@@ -21,6 +21,23 @@ async function relayDetails(path) {
       }
     },
 
+    computed: {
+      hours: function () {
+        const y = []
+        for (let i = 0; i <= 24; i++) {
+          y.push(i)
+        }
+        return y
+      },
+      range60: function () {
+        const y = []
+        for (let i = 0; i <= 60; i++) {
+          y.push(i)
+        }
+        return y
+      }
+    },
+
     methods: {
       satBtc(val, showUnit = true) {
         return satOrBtc(val, showUnit, this.satsDenominated)

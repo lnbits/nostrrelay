@@ -12,6 +12,17 @@ class ClientConfig(BaseModel):
     max_client_filters = Field(0, alias="maxClientFilters")
     limit_per_filter = Field(1000, alias="limitPerFilter")
     max_events_per_second = Field(0, alias="maxEventsPerSecond")
+
+    created_at_days_past = Field(0, alias="createdAtDaysPast")
+    created_at_hours_past = Field(0, alias="createdAtHoursPast")
+    created_at_minutes_past = Field(0, alias="createdAtMinutesPast")
+    created_at_seconds_past = Field(0, alias="createdAtSecondsPast")
+
+    created_at_days_future = Field(0, alias="createdAtDaysFuture")
+    created_at_hours_future = Field(0, alias="createdAtHoursFuture")
+    created_at_minutes_future = Field(0, alias="createdAtMinutesFuture")
+    created_at_seconds_future = Field(0, alias="createdAtSecondsFuture")
+    
     allowed_public_keys = Field([], alias="allowedPublicKeys")
     blocked_public_keys = Field([], alias="blockedPublicKeys")
     
@@ -23,7 +34,15 @@ class ClientConfig(BaseModel):
             return True
         # todo: check payment
         return p in self.allowed_public_keys
-        
+
+    @property
+    def created_at_in_past(self) -> int:
+        return self.created_at_days_past * 86400 + self.created_at_hours_past * 3600 + self.created_at_minutes_past * 60 + self.created_at_seconds_past
+
+    @property
+    def created_at_in_future(self) -> int:
+        return self.created_at_days_future * 86400 + self.created_at_hours_future * 3600 + self.created_at_minutes_future * 60 + self.created_at_seconds_future
+
     class Config:
         allow_population_by_field_name = True
 class RelayConfig(ClientConfig):
@@ -55,7 +74,7 @@ class NostrRelay(BaseModel):
     def info(cls,) -> dict:
         return {
             "contact": "https://t.me/lnbits",
-            "supported_nips": [1, 9, 11, 15, 20],
+            "supported_nips": [1, 9, 11, 15, 20, 22],
             "software": "LNbits",
             "version": "",
         }

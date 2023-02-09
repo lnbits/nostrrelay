@@ -157,6 +157,108 @@
     <q-tab-panel name="config">
       <div v-if="relay">
         <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Created At in Past:</div>
+          <div class="col-2 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.config.createdAtDaysPast"
+              type="number"
+              min="0"
+              hint="Days"
+            ></q-input>
+          </div>
+          <div class="col-2 q-pr-lg">
+            <q-select
+              filled
+              dense
+              v-model="relay.config.createdAtHoursPast"
+              type="number"
+              hint="Hours"
+              :options="hours"
+            ></q-select>
+          </div>
+          <div class="col-2 q-pr-lg">
+            <q-select
+              filled
+              dense
+              v-model="relay.config.createdAtMinutesPast"
+              type="number"
+              hint="Minutes"
+              :options="range60"
+            ></q-select>
+          </div>
+          <div class="col-2 q-pr-lg">
+            <q-select
+              filled
+              dense
+              v-model="relay.config.createdAtSecondsPast"
+              type="number"
+              hint="Seconds"
+              :options="range60"
+            ></q-select>
+          </div>
+          <div class="col-1 q-pb-md">
+            <q-icon name="info" class="cursor-pointer">
+              <q-tooltip>
+                NIP 22: Lower limit within which a relay will consider an
+                event's created_at to be acceptable.
+              </q-tooltip></q-icon
+            >
+          </div>
+        </div>
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Created At in Future:</div>
+          <div class="col-2 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="relay.config.createdAtDaysFuture"
+              type="number"
+              min="0"
+              hint="Days"
+            ></q-input>
+          </div>
+          <div class="col-2 q-pr-lg">
+            <q-select
+              filled
+              dense
+              v-model="relay.config.createdAtHoursFuture"
+              type="number"
+              hint="Hours"
+              :options="hours"
+            ></q-select>
+          </div>
+          <div class="col-2 q-pr-lg">
+            <q-select
+              filled
+              dense
+              v-model="relay.config.createdAtMinutesFuture"
+              type="number"
+              hint="Minutes"
+              :options="range60"
+            ></q-select>
+          </div>
+          <div class="col-2 q-pr-lg">
+            <q-select
+              filled
+              dense
+              v-model="relay.config.createdAtSecondsFuture"
+              type="number"
+              hint="Seconds"
+              :options="range60"
+            ></q-select>
+          </div>
+          <div class="col-1 q-pb-md">
+            <q-icon name="info" class="cursor-pointer">
+              <q-tooltip>
+                NIP 22: Upper limit within which a relay will consider an
+                event's created_at to be acceptable.
+              </q-tooltip></q-icon
+            >
+          </div>
+        </div>
+        <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Limit per filter:</div>
           <div class="col-3 q-pr-lg">
             <q-input
