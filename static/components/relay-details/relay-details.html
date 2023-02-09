@@ -62,7 +62,7 @@
     <q-tab-panel name="payment">
       <div v-if="relay">
         <div class="row items-center no-wrap q-mb-md">
-          <div class="col-3 q-pr-lg">Free storage:</div>
+          <div class="col-3 q-pr-lg q-pb-md">Free storage:</div>
           <div class="col-2 q-pr-lg">
             <q-input
               filled
@@ -83,11 +83,19 @@
               :options="storageUnits"
             ></q-select>
           </div>
-          <div class="col-5">
+          <div class="col-1 q-pr-lg">
+            <q-icon name="info" class="cursor-pointer q-pb-md">
+              <q-tooltip>
+                How much data a client can store. This can be extended with the
+                Paid Plan.
+              </q-tooltip></q-icon
+            >
+          </div>
+          <div class="col-4">
             <q-badge
               v-if="relay.config.freeStorageValue == 0"
               color="orange"
-              class="float-left q-mb-md"
+              class="float-right q-mb-md"
               ><span>No free storage</span>
             </q-badge>
           </div>
@@ -106,59 +114,96 @@
             <q-badge
               v-if="!relay.config.isPaidRelay && relay.config.freeStorageValue == 0"
               color="orange"
-              class="float-left q-mb-md"
+              class="float-right q-mb-md"
               ><span>No data will be stored, only broadcast</span>
             </q-badge>
-            <q-select
-              v-if="relay.config.isPaidRelay"
-              filled
-              dense
-              emit-value
-              v-model="relay.config.wallet"
-              :options="walletOptions"
-              label="Wallet *"
-            >
-            </q-select>
           </div>
         </div>
 
         <div v-if="relay.config.isPaidRelay && relay.config.wallet">
           <div class="row items-center no-wrap q-mb-md">
+            <div class="col-3 q-pr-lg">Wallet:</div>
+            <div class="col-6 q-pr-lg">
+              <q-select
+                filled
+                dense
+                emit-value
+                v-model="relay.config.wallet"
+                :options="walletOptions"
+                label="Wallet *"
+              >
+              </q-select>
+            </div>
+            <div class="col-7">
+              <q-icon name="info" class="cursor-pointer">
+                <q-tooltip>
+                  Wallet where the paiments will be sent to.
+                </q-tooltip></q-icon
+              >
+            </div>
+          </div>
+          <div class="row items-center no-wrap q-mb-md">
             <div class="col-3 q-pr-lg">Cost to join (sats):</div>
-            <div class="col-3 q-pr-lg">
+            <div class="col-2 q-pr-lg">
               <q-input
                 filled
                 dense
                 v-model.trim="relay.config.costToJoin"
                 type="number"
+                hint="sats"
                 min="0"
               ></q-input>
+            </div>
+            <div class="col-1 q-pr-lg">
+              <q-icon name="info" class="cursor-pointer q-pb-md">
+                <q-tooltip>
+                  Ask a fee for clients to join. Expected to be paid only once.
+                </q-tooltip></q-icon
+              >
             </div>
             <div class="col-6">
               <q-badge
                 v-if="relay.config.costToJoin == 0"
                 color="green"
-                class="float-left"
+                class="float-right"
                 ><span>Free to join</span>
               </q-badge>
             </div>
           </div>
           <div class="row items-center no-wrap q-mb-md">
-            <div class="col-3 q-pr-lg">Storage cost per Kilo-Byte (sats):</div>
-            <div class="col-3 q-pr-lg">
+            <div class="col-3 q-pr-lg">Storage Cost (sats):</div>
+            <div class="col-2 q-pr-lg">
               <q-input
                 filled
                 dense
-                v-model.trim="relay.config.storageCostPerKb"
+                v-model.trim="relay.config.storageCostValue"
                 type="number"
+                hint="sats"
                 min="0"
               ></q-input>
             </div>
-            <div class="col-6">
+            <div class="col-2 q-pr-lg">
+              <q-select
+                filled
+                dense
+                v-model="relay.config.storageCostUnit"
+                type="text"
+                hint="Unit"
+                :options="storageUnits"
+              ></q-select>
+            </div>
+            <div class="col-1 q-pr-lg">
+              <q-icon name="info" class="cursor-pointer q-pb-md">
+                <q-tooltip>
+                  Cost for clients to buy additional storage.
+                </q-tooltip></q-icon
+              >
+            </div>
+            <div class="col-4">
               <q-badge
-                v-if="relay.config.storageCostPerKb == 0"
+                v-if="relay.config.storageCostValue == 0"
                 color="green"
-                class="float-left"
+                class="float-right"
                 ><span>Unlimited storage</span>
               </q-badge>
             </div>
@@ -168,54 +213,6 @@
     </q-tab-panel>
     <q-tab-panel name="config">
       <div v-if="relay">
-        <!-- <div class="row items-center no-wrap q-mb-md">
-          <div class="col-3 q-pr-lg">Free Storage:</div>
-          <div class="col-2 q-pr-lg">
-            <q-toggle
-              color="secodary"
-              v-model="relay.config.hasFreeStorage"
-            ></q-toggle>
-          </div>
-          <div class="col-2 q-pr-lg">
-            <q-input
-              filled
-              dense
-              v-model.trim="relay.config.freeStorageAmount"
-              type="number"
-              min="0"
-              hint="Value"
-            ></q-input>
-          </div>
-          <div class="col-2 q-pr-lg">
-            <q-select
-              filled
-              dense
-              v-model="relay.config.freeStorageXXX"
-              type="text"
-              hint="Unit"
-              :options="storageUnits"
-            ></q-select>
-          </div>
-          <div class="col-2 q-pr-lg">
-            <q-select
-              filled
-              dense
-              v-model="relay.config.createdAtSecondsPast"
-              type="number"
-              hint="Seconds"
-              :options="fullStorageActions"
-            ></q-select>
-          </div>
-          <div class="col-1 q-pb-md">
-            <q-icon name="info" class="cursor-pointer">
-              <q-tooltip>
-                NIP 22: Lower limit within which a relay will consider an
-                event's created_at to be acceptable.
-              </q-tooltip></q-icon
-            >
-          </div>
-        </div> -->
-
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Created At in Past:</div>
           <div class="col-2 q-pr-lg">
@@ -338,12 +335,6 @@
                 reached.
               </q-tooltip></q-icon
             >
-            <q-badge
-              v-if="relay.config.limitPerFilter == 0"
-              color="green"
-              class="float-left"
-              ><span>No Limit</span>
-            </q-badge>
           </div>
         </div>
         <div class="row items-center no-wrap q-mb-md">
@@ -367,7 +358,7 @@
             <q-badge
               v-if="relay.config.limitPerFilter == 0"
               color="green"
-              class="float-left"
+              class="float-right"
               ><span>No Limit</span>
             </q-badge>
           </div>
@@ -391,7 +382,10 @@
                 fiters.
               </q-tooltip></q-icon
             >
-            <q-badge v-if="relay.config.maxClientFilters == 0" color="green"
+            <q-badge
+              v-if="relay.config.maxClientFilters == 0"
+              color="green"
+              class="float-right"
               ><span>Unlimited Filters</span>
             </q-badge>
           </div>
@@ -414,7 +408,10 @@
                 Prevent clients from clogging the relay.
               </q-tooltip></q-icon
             >
-            <q-badge v-if="relay.config.maxEventsPerSecond == 0" color="green"
+            <q-badge
+              v-if="relay.config.maxEventsPerSecond == 0"
+              color="green"
+              class="float-right"
               ><span>No Limit</span>
             </q-badge>
           </div>

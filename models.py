@@ -50,12 +50,15 @@ class ClientConfig(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+
 class RelayConfig(ClientConfig):
     is_paid_relay = Field(False, alias="isPaidRelay")
     wallet = Field("")
     cost_to_join = Field(0, alias="costToJoin")
     free_storage = Field(0, alias="freeStorage")
-    storage_cost_per_kb = Field(0, alias="storageCostPerKb")
+
+    storage_cost_value = Field(0, alias="storageCostValue")
+    storage_cost_unit = Field("MB", alias="storageCostUnit")
 
 
 class NostrRelay(BaseModel):
