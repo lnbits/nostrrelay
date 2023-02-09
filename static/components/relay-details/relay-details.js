@@ -35,6 +35,15 @@ async function relayDetails(path) {
           y.push(i)
         }
         return y
+      },
+      storageUnits: function () {
+        return ['KB', 'MB']
+      },
+      fullStorageActions: function () {
+        return [
+          {value: 'block', label: 'Block New Events'},
+          {value: 'prune', label: 'Prune Old Events'}
+        ]
       }
     },
 

@@ -22,6 +22,11 @@ class ClientConfig(BaseModel):
     created_at_hours_future = Field(0, alias="createdAtHoursFuture")
     created_at_minutes_future = Field(0, alias="createdAtMinutesFuture")
     created_at_seconds_future = Field(0, alias="createdAtSecondsFuture")
+
+    
+    free_storage_value = Field("1", alias="freeStorageValue")
+    free_storage_unit = Field("MB", alias="freeStorageUnit")
+    full_storage_action = Field("prune", alias="fullStorageAction")
     
     allowed_public_keys = Field([], alias="allowedPublicKeys")
     blocked_public_keys = Field([], alias="blockedPublicKeys")
