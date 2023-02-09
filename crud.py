@@ -119,6 +119,15 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
     event.tags = await get_event_tags(relay_id, id)
     return event
 
+async def get_storage_for_public_key(relay_id: str, pubkey: str) -> int:
+    row = await db.fetchone("SELECT SUM(size) FROM nostrrelay.events WHERE relay_id = ? AND pubkey = ?", (relay_id, pubkey,))
+    if not row:
+        return 0
+
+    return row["sum"]
+
+
+
 async def mark_events_deleted(relay_id: str,  filter: NostrFilter):
     if filter.is_empty():
         return None
