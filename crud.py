@@ -82,11 +82,12 @@ async def create_event(relay_id: str, e: NostrEvent):
             created_at,
             kind,
             content,
-            sig
+            sig,
+            size
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (relay_id, e.id, e.pubkey, e.created_at, e.kind, e.content, e.sig),
+        (relay_id, e.id, e.pubkey, e.created_at, e.kind, e.content, e.sig, e.size_bytes),
     )
 
     # todo: optimize with bulk insert

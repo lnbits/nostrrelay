@@ -28,7 +28,8 @@ async def m001_initial(db):
             created_at {db.big_int} NOT NULL,
             kind INT NOT NULL,
             content TEXT NOT NULL,
-            sig TEXT NOT NULL
+            sig TEXT NOT NULL,
+            size {db.big_int} DEFAULT 0
         );
         """
     )

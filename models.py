@@ -116,6 +116,11 @@ class NostrEvent(BaseModel):
         id = hashlib.sha256(data.encode()).hexdigest()
         return id
 
+    @property
+    def size_bytes(self) -> int:
+        s = json.dumps(dict(self), separators=(",", ":"), ensure_ascii=False)
+        return len(s.encode())
+
     def is_replaceable_event(self) -> bool:
         return self.kind in [0, 3]
 
