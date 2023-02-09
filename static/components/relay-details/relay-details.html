@@ -11,7 +11,7 @@
       <div v-if="relay">
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Name:</div>
-          <div class="col-6 q-pr-lg">
+          <div class="col-6 col-sm-8 q-pr-lg">
             <q-input
               filled
               dense
@@ -19,11 +19,11 @@
               type="text"
             ></q-input>
           </div>
-          <div class="col-3"></div>
+          <div class="col-3 col-sm-1"></div>
         </div>
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Description:</div>
-          <div class="col-6 q-pr-lg">
+          <div class="col-6 col-sm-8 q-pr-lg">
             <q-input
               filled
               dense
@@ -31,11 +31,11 @@
               type="text"
             ></q-input>
           </div>
-          <div class="col-3"></div>
+          <div class="col-3 col-sm-1"></div>
         </div>
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Relay Public Key:</div>
-          <div class="col-6 q-pr-lg">
+          <div class="col-6 col-sm-8 q-pr-lg">
             <q-input
               filled
               dense
@@ -43,11 +43,11 @@
               type="text"
             ></q-input>
           </div>
-          <div class="col-3"></div>
+          <div class="col-3 col-sm-1"></div>
         </div>
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Contact:</div>
-          <div class="col-6 q-pr-lg">
+          <div class="col-6 col-sm-8 q-pr-lg">
             <q-input
               filled
               dense
@@ -55,7 +55,7 @@
               type="text"
             ></q-input>
           </div>
-          <div class="col-3"></div>
+          <div class="col-3 col-sm-1"></div>
         </div>
       </div>
     </q-tab-panel>
@@ -63,7 +63,7 @@
       <div v-if="relay">
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg q-pb-md">Free Storage:</div>
-          <div class="col-2 q-pr-lg">
+          <div class="col-2 col-sm-4 q-pr-lg">
             <q-input
               filled
               dense
@@ -73,7 +73,7 @@
               min="0"
             ></q-input>
           </div>
-          <div class="col-2 q-pr-lg">
+          <div class="col-2 col-sm-4 q-pr-lg">
             <q-select
               filled
               dense
@@ -91,7 +91,7 @@
               </q-tooltip></q-icon
             >
           </div>
-          <div class="col-4">
+          <div class="col-4 col-sm-2">
             <q-badge
               v-if="relay.config.freeStorageValue == 0"
               color="orange"
@@ -123,7 +123,7 @@
         <div v-if="relay.config.isPaidRelay && relay.config.wallet">
           <div class="row items-center no-wrap q-mb-md">
             <div class="col-3 q-pr-lg">Wallet:</div>
-            <div class="col-6 q-pr-lg">
+            <div class="col-6 col-sm-8 q-pr-lg">
               <q-select
                 filled
                 dense
@@ -134,7 +134,7 @@
               >
               </q-select>
             </div>
-            <div class="col-7">
+            <div class="col-3 col-sm-1">
               <q-icon name="info" class="cursor-pointer">
                 <q-tooltip>
                   Wallet where the paiments will be sent to.
@@ -144,7 +144,7 @@
           </div>
           <div class="row items-center no-wrap q-mb-md">
             <div class="col-3 q-pr-lg">Cost to join (sats):</div>
-            <div class="col-2 q-pr-lg">
+            <div class="col-2 col-sm-4 q-pr-lg">
               <q-input
                 filled
                 dense
@@ -161,7 +161,7 @@
                 </q-tooltip></q-icon
               >
             </div>
-            <div class="col-6">
+            <div class="col-6 col-sm-4">
               <q-badge
                 v-if="relay.config.costToJoin == 0"
                 color="green"
@@ -172,7 +172,7 @@
           </div>
           <div class="row items-center no-wrap q-mb-md">
             <div class="col-3 q-pr-lg">Storage Cost (sats):</div>
-            <div class="col-2 q-pr-lg">
+            <div class="col-2 col-sm-4 q-pr-lg">
               <q-input
                 filled
                 dense
@@ -182,7 +182,7 @@
                 min="0"
               ></q-input>
             </div>
-            <div class="col-2 q-pr-lg">
+            <div class="col-2 col-sm-4 q-pr-lg">
               <q-select
                 filled
                 dense
@@ -199,7 +199,7 @@
                 </q-tooltip></q-icon
               >
             </div>
-            <div class="col-4">
+            <div class="col-4 col-sm-0">
               <q-badge
                 v-if="relay.config.storageCostValue == 0"
                 color="green"
@@ -318,7 +318,7 @@
         <q-separator></q-separator>
         <div class="row items-center no-wrap q-mb-md q-mt-md">
           <div class="col-3 q-pr-lg">Full Storage Action:</div>
-          <div class="col-3 q-pr-lg">
+          <div class="col-3 col-sm-4 q-pr-lg">
             <q-select
               filled
               dense
@@ -328,7 +328,7 @@
               :options="fullStorageActions"
             ></q-select>
           </div>
-          <div class="col-6">
+          <div class="col-6 col-sm-5">
             <q-icon name="info" class="cursor-pointer">
               <q-tooltip>
                 Action to be taken when the storage limit (if any) has been
@@ -339,7 +339,7 @@
         </div>
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Limit per filter:</div>
-          <div class="col-3 q-pr-lg">
+          <div class="col-3 col-sm-4 q-pr-lg">
             <q-input
               filled
               dense
@@ -348,7 +348,7 @@
               min="0"
             ></q-input>
           </div>
-          <div class="col-6">
+          <div class="col-6 col-sm-5">
             <q-icon name="info" class="cursor-pointer">
               <q-tooltip>
                 Maximum number of events to be returned in the initial query
@@ -365,7 +365,7 @@
         </div>
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Max Filters (per client):</div>
-          <div class="col-3 q-pr-lg">
+          <div class="col-3 col-sm-4 q-pr-lg">
             <q-input
               filled
               dense
@@ -374,7 +374,7 @@
               min="0"
             ></q-input>
           </div>
-          <div class="col-6">
+          <div class="col-6 col-sm-5">
             <q-icon name="info" class="cursor-pointer">
               <q-tooltip>
                 Limit the number of filters that a client can have. Prevents
@@ -392,7 +392,7 @@
         </div>
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Max events per second:</div>
-          <div class="col-3 q-pr-lg">
+          <div class="col-3 col-sm-4 q-pr-lg">
             <q-input
               filled
               dense
@@ -401,7 +401,7 @@
               min="0"
             ></q-input>
           </div>
-          <div class="col-6">
+          <div class="col-6 col-sm-5">
             <q-icon name="info" class="cursor-pointer">
               <q-tooltip>
                 Limits the rate at which events are accepted by the relay.
