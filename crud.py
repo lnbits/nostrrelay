@@ -1,7 +1,5 @@
 import json
-from typing import Any, List, Optional
-
-from lnbits.helpers import urlsafe_short_hash
+from typing import Any, List, Optional, Tuple
 
 from . import db
 from .models import NostrEvent, NostrFilter, NostrRelay, RelayConfig
@@ -121,13 +119,24 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
 
 async def get_storage_for_public_key(relay_id: str, pubkey: str) -> int:
     """Returns the storage space in bytes for all the events of a public key. Deleted events are also counted"""
-    
+
     row = await db.fetchone("SELECT SUM(size) FROM nostrrelay.events WHERE relay_id = ? AND pubkey = ?", (relay_id, pubkey,))
     if not row:
         return 0
 
-    return row["sum"]
+    return round(row["sum"])
 
+async def get_prunable_events(relay_id: str, pubkey: str) -> List[Tuple[str, int]]:
+    """ Return the oldest 10 000 events. Only the `id` and the size are returned, so the data size should be small"""
+    query = """
+            SELECT id, size FROM nostrrelay.events
+            WHERE relay_id = ? AND pubkey = ?
+            ORDER BY created_at ASC LIMIT 10000
+        """
+
+    rows = await db.fetchall(query, (relay_id, pubkey))
+
+    return [(r["id"], r["size"]) for r in rows]
 
 
 async def mark_events_deleted(relay_id: str,  filter: NostrFilter):
@@ -145,6 +154,20 @@ async def delete_events(relay_id: str,  filter: NostrFilter):
     query = f"""DELETE from nostrrelay.events WHERE {" AND ".join(where)}"""
     await db.execute(query, tuple(values))
     #todo: delete tags
+
+async def prune_old_events(relay_id: str, pubkey: str, space_to_regain: int):
+    prunable_events = await get_prunable_events(relay_id, pubkey)
+    prunable_event_ids = []
+    size = 0
+
+    for pe in prunable_events:
+        prunable_event_ids.append(pe[0])
+        size += pe[1]
+
+        if size > space_to_regain:
+            break
+
+    await delete_events(relay_id, NostrFilter(ids=prunable_event_ids))
 
 
 async def delete_all_events(relay_id: str):

@@ -11,7 +11,10 @@ from .crud import (
     get_config_for_all_active_relays,
     get_event,
     get_events,
+    get_prunable_events,
+    get_storage_for_public_key,
     mark_events_deleted,
+    prune_old_events,
 )
 from .models import ClientConfig, NostrEvent, NostrEventType, NostrFilter, RelayConfig
 
@@ -156,6 +159,12 @@ class NostrClientConnection:
             await self._send_msg(resp_nip20)
             return None
 
+        valid, message = await self._validate_storage(e)
+        if not valid:
+            resp_nip20 += [valid, message]
+            await self._send_msg(resp_nip20)
+            return None
+
         try:
             if e.is_replaceable_event():
                 await delete_events(
@@ -234,6 +243,29 @@ class NostrClientConnection:
         in_range, message = self._created_at_in_range(e.created_at)
         if not in_range:
             return False, message
+
+        return True, ""
+
+    async def _validate_storage(self, e: NostrEvent) -> Tuple[bool, str]:
+        if self.client_config.free_storage_value == 0:
+            if not self.client_config.is_paid_relay:
+                return False, "Cannot write event, relay is read-only"
+            # todo: handeld paid paid plan
+            return True, "Temp OK"
+            
+
+        stored_bytes = await get_storage_for_public_key(self.relay_id, e.pubkey)
+        if self.client_config.is_paid_relay:
+            # todo: handeld paid paid plan
+            return True, "Temp OK"
+            
+        if (stored_bytes + e.size_bytes) <= self.client_config.free_storage_bytes_value:
+             return True, ""
+        
+        if self.client_config.full_storage_action == "block":
+            return False, f"Cannot write event, no more storage available for public key: '{e.pubkey}'"
+        
+        await prune_old_events(self.relay_id, e.pubkey, e.size_bytes)
 
         return True, ""
 

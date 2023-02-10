@@ -24,7 +24,8 @@ class ClientConfig(BaseModel):
     created_at_seconds_future = Field(0, alias="createdAtSecondsFuture")
 
     
-    free_storage_value = Field("1", alias="freeStorageValue")
+    is_paid_relay = Field(False, alias="isPaidRelay")
+    free_storage_value = Field(1, alias="freeStorageValue")
     free_storage_unit = Field("MB", alias="freeStorageUnit")
     full_storage_action = Field("prune", alias="fullStorageAction")
     
@@ -48,11 +49,17 @@ class ClientConfig(BaseModel):
     def created_at_in_future(self) -> int:
         return self.created_at_days_future * 86400 + self.created_at_hours_future * 3600 + self.created_at_minutes_future * 60 + self.created_at_seconds_future
 
+    @property
+    def free_storage_bytes_value(self):
+        value = self.free_storage_value * 1024
+        if self.free_storage_unit == "MB":
+            value *= 1024
+        return value
+
     class Config:
         allow_population_by_field_name = True
 
 class RelayConfig(ClientConfig):
-    is_paid_relay = Field(False, alias="isPaidRelay")
     wallet = Field("")
     cost_to_join = Field(0, alias="costToJoin")
     free_storage = Field(0, alias="freeStorage")
