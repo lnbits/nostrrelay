@@ -10,7 +10,7 @@ from lnbits.extensions.nostrrelay.client_manager import (
     NostrClientConnection,
     NostrClientManager,
 )
-from lnbits.extensions.nostrrelay.models import RelayConfig
+from lnbits.extensions.nostrrelay.models import RelaySpec
 
 from .helpers import get_fixtures
 
@@ -71,7 +71,7 @@ async def test_alice_and_bob():
 
 async def init_clients():
     client_manager = NostrClientManager()
-    await client_manager.enable_relay(RELAY_ID, RelayConfig())
+    await client_manager.enable_relay(RELAY_ID, RelaySpec())
 
     ws_alice = MockWebSocket()
     client_alice = NostrClientConnection(relay_id=RELAY_ID, websocket=ws_alice)

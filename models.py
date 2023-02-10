@@ -8,9 +8,11 @@ from pydantic import BaseModel, Field
 from secp256k1 import PublicKey
 
 
-class ClientConfig(BaseModel):
+class FilterSpec(BaseModel):
     max_client_filters = Field(0, alias="maxClientFilters")
     limit_per_filter = Field(1000, alias="limitPerFilter")
+
+class EventSpec(BaseModel):
     max_events_per_second = Field(0, alias="maxEventsPerSecond")
 
     created_at_days_past = Field(0, alias="createdAtDaysPast")
@@ -23,21 +25,6 @@ class ClientConfig(BaseModel):
     created_at_minutes_future = Field(0, alias="createdAtMinutesFuture")
     created_at_seconds_future = Field(0, alias="createdAtSecondsFuture")
 
-    is_paid_relay = Field(False, alias="isPaidRelay")
-    free_storage_value = Field(1, alias="freeStorageValue")
-    free_storage_unit = Field("MB", alias="freeStorageUnit")
-    full_storage_action = Field("prune", alias="fullStorageAction")
-
-    allowed_public_keys = Field([], alias="allowedPublicKeys")
-    blocked_public_keys = Field([], alias="blockedPublicKeys")
-
-    def is_author_allowed(self, p: str) -> bool:
-        if p in self.blocked_public_keys:
-            return False
-        if len(self.allowed_public_keys) == 0:
-            return True
-        # todo: check payment
-        return p in self.allowed_public_keys
 
     @property
     def created_at_in_past(self) -> int:
@@ -57,6 +44,11 @@ class ClientConfig(BaseModel):
             + self.created_at_seconds_future
         )
 
+class StorageSpec(BaseModel):
+    free_storage_value = Field(1, alias="freeStorageValue")
+    free_storage_unit = Field("MB", alias="freeStorageUnit")
+    full_storage_action = Field("prune", alias="fullStorageAction")
+
     @property
     def free_storage_bytes_value(self):
         value = self.free_storage_value * 1024
@@ -64,17 +56,30 @@ class ClientConfig(BaseModel):
             value *= 1024
         return value
 
-    class Config:
-        allow_population_by_field_name = True
+class AuthorSpec(BaseModel):
+    allowed_public_keys = Field([], alias="allowedPublicKeys")
+    blocked_public_keys = Field([], alias="blockedPublicKeys")
 
+    def is_author_allowed(self, p: str) -> bool:
+        if p in self.blocked_public_keys:
+            return False
+        if len(self.allowed_public_keys) == 0:
+            return True
+        # todo: check payment
+        return p in self.allowed_public_keys
 
-class RelayConfig(ClientConfig):
+class PaymentSpec(BaseModel):
+    is_paid_relay = Field(False, alias="isPaidRelay")
     wallet = Field("")
     cost_to_join = Field(0, alias="costToJoin")
     free_storage = Field(0, alias="freeStorage")
 
     storage_cost_value = Field(0, alias="storageCostValue")
     storage_cost_unit = Field("MB", alias="storageCostUnit")
+
+class RelaySpec(FilterSpec, EventSpec, StorageSpec, AuthorSpec, PaymentSpec):
+    class Config:
+        allow_population_by_field_name = True
 
 
 class NostrRelay(BaseModel):
@@ -85,12 +90,12 @@ class NostrRelay(BaseModel):
     contact: Optional[str]
     active: bool = False
 
-    config: "RelayConfig" = RelayConfig()
+    config: "RelaySpec" = RelaySpec()
 
     @classmethod
     def from_row(cls, row: Row) -> "NostrRelay":
         relay = cls(**dict(row))
-        relay.config = RelayConfig(**json.loads(row["meta"]))
+        relay.config = RelaySpec(**json.loads(row["meta"]))
         return relay
 
     @classmethod

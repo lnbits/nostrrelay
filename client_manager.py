@@ -16,7 +16,7 @@ from .crud import (
     mark_events_deleted,
     prune_old_events,
 )
-from .models import ClientConfig, NostrEvent, NostrEventType, NostrFilter, RelayConfig
+from .models import NostrEvent, NostrEventType, NostrFilter, RelaySpec
 
 
 class NostrClientManager:
@@ -48,7 +48,7 @@ class NostrClientManager:
         self._active_relays = await get_config_for_all_active_relays()
         self._is_ready = True
 
-    async def enable_relay(self, relay_id: str, config: RelayConfig):
+    async def enable_relay(self, relay_id: str, config: RelaySpec):
         self._is_ready = True
         self._active_relays[relay_id] = config
 
@@ -57,7 +57,7 @@ class NostrClientManager:
         if relay_id in self._active_relays:
             del self._active_relays[relay_id]
 
-    def get_relay_config(self, relay_id: str) -> RelayConfig:
+    def get_relay_config(self, relay_id: str) -> RelaySpec:
         return self._active_relays[relay_id]
 
     def clients(self, relay_id: str) -> List["NostrClientConnection"]:
@@ -80,7 +80,7 @@ class NostrClientManager:
     def _set_client_callbacks(self, client):
         setattr(client, "broadcast_event", self.broadcast_event)
 
-        def get_client_config() -> ClientConfig:
+        def get_client_config() -> RelaySpec:
             return self.get_relay_config(client.relay_id)
 
         setattr(client, "get_client_config", get_client_config)
@@ -94,7 +94,7 @@ class NostrClientConnection:
         self.broadcast_event: Optional[
             Callable[[NostrClientConnection, NostrEvent], Awaitable[None]]
         ] = None
-        self.get_client_config: Optional[Callable[[], ClientConfig]] = None
+        self.get_client_config: Optional[Callable[[], RelaySpec]] = None
 
         self._last_event_timestamp = 0  # in seconds
         self._event_count_per_timestamp = 0
@@ -189,7 +189,7 @@ class NostrClientConnection:
         await self._send_msg(resp_nip20)
 
     @property
-    def client_config(self) -> ClientConfig:
+    def client_config(self) -> RelaySpec:
         if not self.get_client_config:
             raise Exception("Client not ready!")
         return self.get_client_config()

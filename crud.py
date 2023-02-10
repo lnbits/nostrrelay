@@ -2,7 +2,7 @@ import json
 from typing import Any, List, Optional, Tuple
 
 from . import db
-from .models import NostrEvent, NostrFilter, NostrRelay, RelayConfig
+from .models import NostrEvent, NostrFilter, NostrRelay, RelaySpec
 
 ########################## RELAYS ####################
 
@@ -77,7 +77,7 @@ async def get_config_for_all_active_relays() -> dict:
     )
     active_relay_configs = {}
     for r in rows:
-        active_relay_configs[r["id"]] = RelayConfig(
+        active_relay_configs[r["id"]] = RelaySpec(
             **json.loads(r["meta"])
         )  # todo: from_json
 
