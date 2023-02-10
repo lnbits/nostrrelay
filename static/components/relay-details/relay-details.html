@@ -63,7 +63,7 @@
       <div v-if="relay">
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg q-pb-md">Free Storage:</div>
-          <div class="col-2 col-sm-4 q-pr-lg">
+          <div class="col-md-2 col-sm-4 q-pr-lg">
             <q-input
               filled
               dense
@@ -73,7 +73,7 @@
               min="0"
             ></q-input>
           </div>
-          <div class="col-2 col-sm-4 q-pr-lg">
+          <div class="col-md-2 col-sm-4 q-pr-lg">
             <q-select
               filled
               dense
@@ -91,7 +91,7 @@
               </q-tooltip></q-icon
             >
           </div>
-          <div class="col-4 col-sm-2">
+          <div class="col-md-4 col-sm-2">
             <q-badge
               v-if="relay.config.freeStorageValue == 0"
               color="orange"
@@ -103,7 +103,7 @@
         <q-separator></q-separator>
         <div class="row items-center no-wrap q-mb-md">
           <div class="col-3 q-pr-lg">Paid Plan:</div>
-          <div class="col-3 q-pr-lg">
+          <div class="col-md-3 q-pr-lg">
             <q-toggle
               color="secodary"
               v-model="relay.config.isPaidRelay"
@@ -123,7 +123,7 @@
         <div v-if="relay.config.isPaidRelay && relay.config.wallet">
           <div class="row items-center no-wrap q-mb-md">
             <div class="col-3 q-pr-lg">Wallet:</div>
-            <div class="col-6 col-sm-8 q-pr-lg">
+            <div class="col-md-6 col-sm-8 q-pr-lg">
               <q-select
                 filled
                 dense
@@ -134,7 +134,7 @@
               >
               </q-select>
             </div>
-            <div class="col-3 col-sm-1">
+            <div class="col-md-3 col-sm-1">
               <q-icon name="info" class="cursor-pointer">
                 <q-tooltip>
                   Wallet where the paiments will be sent to.
@@ -144,7 +144,7 @@
           </div>
           <div class="row items-center no-wrap q-mb-md">
             <div class="col-3 q-pr-lg">Cost to join (sats):</div>
-            <div class="col-2 col-sm-4 q-pr-lg">
+            <div class="col-md-2 col-sm-4 q-pr-lg">
               <q-input
                 filled
                 dense
@@ -161,7 +161,7 @@
                 </q-tooltip></q-icon
               >
             </div>
-            <div class="col-6 col-sm-4">
+            <div class="col-md-6 col-sm-4">
               <q-badge
                 v-if="relay.config.costToJoin == 0"
                 color="green"
@@ -172,7 +172,7 @@
           </div>
           <div class="row items-center no-wrap q-mb-md">
             <div class="col-3 q-pr-lg">Storage Cost (sats):</div>
-            <div class="col-2 col-sm-4 q-pr-lg">
+            <div class="col-md-2 col-sm-4 q-pr-lg">
               <q-input
                 filled
                 dense
@@ -182,7 +182,7 @@
                 min="0"
               ></q-input>
             </div>
-            <div class="col-2 col-sm-4 q-pr-lg">
+            <div class="col-md-2 col-sm-4 q-pr-lg">
               <q-select
                 filled
                 dense
@@ -199,7 +199,7 @@
                 </q-tooltip></q-icon
               >
             </div>
-            <div class="col-4 col-sm-0">
+            <div class="col-md-4 col-sm-0">
               <q-badge
                 v-if="relay.config.storageCostValue == 0"
                 color="green"
