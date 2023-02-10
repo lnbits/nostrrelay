@@ -27,7 +27,7 @@ from .views import *  # noqa
 from .views_api import *  # noqa
 
 settings.lnbits_relay_information = {
-    "name": "LNbits Nostr Relay", 
+    "name": "LNbits Nostr Relay",
     "description": "Multiple relays are supported",
-    **NostrRelay.info()
+    **NostrRelay.info(),
 }

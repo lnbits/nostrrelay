@@ -30,6 +30,7 @@ from .models import NostrRelay
 
 client_manager = NostrClientManager()
 
+
 @nostrrelay_ext.websocket("/{relay_id}")
 async def websocket_endpoint(relay_id: str, websocket: WebSocket):
     client = NostrClientConnection(relay_id=relay_id, websocket=websocket)
@@ -44,7 +45,6 @@ async def websocket_endpoint(relay_id: str, websocket: WebSocket):
         client_manager.remove_client(client)
 
 
-
 @nostrrelay_ext.get("/{relay_id}", status_code=HTTPStatus.OK)
 async def api_nostrrelay_info(relay_id: str):
     relay = await get_public_relay(relay_id)
@@ -54,16 +54,20 @@ async def api_nostrrelay_info(relay_id: str):
             detail="Relay not found",
         )
 
-    return JSONResponse(content=relay, headers={
-        "Access-Control-Allow-Origin": "*", 
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "GET"
-    })
-
+    return JSONResponse(
+        content=relay,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "GET",
+        },
+    )
 
 
 @nostrrelay_ext.post("/api/v1/relay")
-async def api_create_relay(data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)) -> NostrRelay:
+async def api_create_relay(
+    data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)
+) -> NostrRelay:
     if len(data.id):
         await check_admin(UUID4(wallet.wallet.user))
     else:
@@ -80,8 +84,11 @@ async def api_create_relay(data: NostrRelay, wallet: WalletTypeInfo = Depends(re
             detail="Cannot create relay",
         )
 
+
 @nostrrelay_ext.put("/api/v1/relay/{relay_id}")
-async def api_update_relay(relay_id: str, data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)) -> NostrRelay:
+async def api_update_relay(
+    relay_id: str, data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)
+) -> NostrRelay:
     if relay_id != data.id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
@@ -97,8 +104,8 @@ async def api_update_relay(relay_id: str, data: NostrRelay, wallet: WalletTypeIn
             )
         updated_relay = NostrRelay.parse_obj({**dict(relay), **dict(data)})
         updated_relay = await update_relay(wallet.wallet.user, updated_relay)
-        
-        if updated_relay.active:            
+
+        if updated_relay.active:
             await client_manager.enable_relay(relay_id, updated_relay.config)
         else:
             await client_manager.disable_relay(relay_id)
@@ -116,7 +123,9 @@ async def api_update_relay(relay_id: str, data: NostrRelay, wallet: WalletTypeIn
 
 
 @nostrrelay_ext.get("/api/v1/relay")
-async def api_get_relays(wallet: WalletTypeInfo = Depends(require_invoice_key)) -> List[NostrRelay]:
+async def api_get_relays(
+    wallet: WalletTypeInfo = Depends(require_invoice_key),
+) -> List[NostrRelay]:
     try:
         return await get_relays(wallet.wallet.user)
     except Exception as ex:
@@ -126,8 +135,11 @@ async def api_get_relays(wallet: WalletTypeInfo = Depends(require_invoice_key)) 
             detail="Cannot fetch relays",
         )
 
+
 @nostrrelay_ext.get("/api/v1/relay/{relay_id}")
-async def api_get_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_invoice_key)) -> Optional[NostrRelay]:
+async def api_get_relay(
+    relay_id: str, wallet: WalletTypeInfo = Depends(require_invoice_key)
+) -> Optional[NostrRelay]:
     try:
         relay = await get_relay(wallet.wallet.user, relay_id)
     except Exception as ex:
@@ -143,8 +155,11 @@ async def api_get_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_
         )
     return relay
 
+
 @nostrrelay_ext.delete("/api/v1/relay/{relay_id}")
-async def api_delete_relay(relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)):
+async def api_delete_relay(
+    relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)
+):
     try:
         await client_manager.disable_relay(relay_id)
         await delete_relay(wallet.wallet.user, relay_id)

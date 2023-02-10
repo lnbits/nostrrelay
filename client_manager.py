@@ -37,7 +37,6 @@ class NostrClientManager:
 
         return True
 
-
     def remove_client(self, c: "NostrClientConnection"):
         self.clients(c.relay_id).remove(c)
 
@@ -60,7 +59,7 @@ class NostrClientManager:
 
     def get_relay_config(self, relay_id: str) -> RelayConfig:
         return self._active_relays[relay_id]
-            
+
     def clients(self, relay_id: str) -> List["NostrClientConnection"]:
         if relay_id not in self._clients:
             self._clients[relay_id] = []
@@ -75,25 +74,29 @@ class NostrClientManager:
         if c.relay_id not in self._active_relays:
             await c.stop(reason=f"Relay '{c.relay_id}' is not active")
             return False
-        #todo: NIP-42: AUTH
+        # todo: NIP-42: AUTH
         return True
 
     def _set_client_callbacks(self, client):
         setattr(client, "broadcast_event", self.broadcast_event)
+
         def get_client_config() -> ClientConfig:
             return self.get_relay_config(client.relay_id)
-        setattr(client, "get_client_config", get_client_config)
-        
-class NostrClientConnection:
 
+        setattr(client, "get_client_config", get_client_config)
+
+
+class NostrClientConnection:
     def __init__(self, relay_id: str, websocket: WebSocket):
         self.websocket = websocket
         self.relay_id = relay_id
         self.filters: List[NostrFilter] = []
-        self.broadcast_event: Optional[Callable[[NostrClientConnection, NostrEvent], Awaitable[None]]] = None
+        self.broadcast_event: Optional[
+            Callable[[NostrClientConnection, NostrEvent], Awaitable[None]]
+        ] = None
         self.get_client_config: Optional[Callable[[], ClientConfig]] = None
 
-        self._last_event_timestamp = 0 # in seconds
+        self._last_event_timestamp = 0  # in seconds
         self._event_count_per_timestamp = 0
 
     async def start(self):
@@ -184,12 +187,11 @@ class NostrClientConnection:
             resp_nip20 += [event != None, message]
 
         await self._send_msg(resp_nip20)
-            
 
     @property
     def client_config(self) -> ClientConfig:
         if not self.get_client_config:
-                raise Exception("Client not ready!")
+            raise Exception("Client not ready!")
         return self.get_client_config()
 
     async def _send_msg(self, data: List):
@@ -207,7 +209,12 @@ class NostrClientConnection:
         filter.subscription_id = subscription_id
         self._remove_filter(subscription_id)
         if self._can_add_filter():
-            return [["NOTICE", f"Maximum number of filters ({self.client_config.max_client_filters}) exceeded."]]
+            return [
+                [
+                    "NOTICE",
+                    f"Maximum number of filters ({self.client_config.max_client_filters}) exceeded.",
+                ]
+            ]
 
         filter.enforce_limit(self.client_config.limit_per_filter)
         self.filters.append(filter)
@@ -226,14 +233,20 @@ class NostrClientConnection:
         self._remove_filter(subscription_id)
 
     def _can_add_filter(self) -> bool:
-        return self.client_config.max_client_filters != 0 and len(self.filters) >= self.client_config.max_client_filters
+        return (
+            self.client_config.max_client_filters != 0
+            and len(self.filters) >= self.client_config.max_client_filters
+        )
 
-    def _validate_event(self, e: NostrEvent)-> Tuple[bool, str]:
+    def _validate_event(self, e: NostrEvent) -> Tuple[bool, str]:
         if self._exceeded_max_events_per_second():
             return False, f"Exceeded max events per second limit'!"
 
         if not self.client_config.is_author_allowed(e.pubkey):
-            return False, f"Public key '{e.pubkey}' is not allowed in relay '{self.relay_id}'!"
+            return (
+                False,
+                f"Public key '{e.pubkey}' is not allowed in relay '{self.relay_id}'!",
+            )
 
         try:
             e.check_signature()
@@ -252,19 +265,21 @@ class NostrClientConnection:
                 return False, "Cannot write event, relay is read-only"
             # todo: handeld paid paid plan
             return True, "Temp OK"
-            
 
         stored_bytes = await get_storage_for_public_key(self.relay_id, e.pubkey)
         if self.client_config.is_paid_relay:
             # todo: handeld paid paid plan
             return True, "Temp OK"
-            
+
         if (stored_bytes + e.size_bytes) <= self.client_config.free_storage_bytes_value:
-             return True, ""
-        
+            return True, ""
+
         if self.client_config.full_storage_action == "block":
-            return False, f"Cannot write event, no more storage available for public key: '{e.pubkey}'"
-        
+            return (
+                False,
+                f"Cannot write event, no more storage available for public key: '{e.pubkey}'",
+            )
+
         await prune_old_events(self.relay_id, e.pubkey, e.size_bytes)
 
         return True, ""
@@ -280,7 +295,9 @@ class NostrClientConnection:
             self._last_event_timestamp = current_time
             self._event_count_per_timestamp = 0
 
-        return self._event_count_per_timestamp > self.client_config.max_events_per_second
+        return (
+            self._event_count_per_timestamp > self.client_config.max_events_per_second
+        )
 
     def _created_at_in_range(self, created_at: int) -> Tuple[bool, str]:
         current_time = round(time.time())

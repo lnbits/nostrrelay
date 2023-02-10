@@ -40,9 +40,7 @@ class MockWebSocket(WebSocket):
     async def wire_mock_data(self, data: dict):
         await self.fake_wire.put(dumps(data))
 
-    async def close(
-        self, code: int = 1000, reason: Optional[str] = None
-    ) -> None:
+    async def close(self, code: int = 1000, reason: Optional[str] = None) -> None:
         logger.info(reason)
 
 
@@ -151,7 +149,6 @@ async def bob_wires_contact_list(ws_alice: MockWebSocket, ws_bob: MockWebSocket)
     await asyncio.sleep(0.1)
     await ws_alice.wire_mock_data(alice["subscribe_to_bob_contact_list"])
     await asyncio.sleep(0.1)
-
 
     print("### ws_alice.sent_message", ws_alice.sent_messages)
     print("### ws_bob.sent_message", ws_bob.sent_messages)

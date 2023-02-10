@@ -23,15 +23,13 @@ class ClientConfig(BaseModel):
     created_at_minutes_future = Field(0, alias="createdAtMinutesFuture")
     created_at_seconds_future = Field(0, alias="createdAtSecondsFuture")
 
-    
     is_paid_relay = Field(False, alias="isPaidRelay")
     free_storage_value = Field(1, alias="freeStorageValue")
     free_storage_unit = Field("MB", alias="freeStorageUnit")
     full_storage_action = Field("prune", alias="fullStorageAction")
-    
+
     allowed_public_keys = Field([], alias="allowedPublicKeys")
     blocked_public_keys = Field([], alias="blockedPublicKeys")
-    
 
     def is_author_allowed(self, p: str) -> bool:
         if p in self.blocked_public_keys:
@@ -43,11 +41,21 @@ class ClientConfig(BaseModel):
 
     @property
     def created_at_in_past(self) -> int:
-        return self.created_at_days_past * 86400 + self.created_at_hours_past * 3600 + self.created_at_minutes_past * 60 + self.created_at_seconds_past
+        return (
+            self.created_at_days_past * 86400
+            + self.created_at_hours_past * 3600
+            + self.created_at_minutes_past * 60
+            + self.created_at_seconds_past
+        )
 
     @property
     def created_at_in_future(self) -> int:
-        return self.created_at_days_future * 86400 + self.created_at_hours_future * 3600 + self.created_at_minutes_future * 60 + self.created_at_seconds_future
+        return (
+            self.created_at_days_future * 86400
+            + self.created_at_hours_future * 3600
+            + self.created_at_minutes_future * 60
+            + self.created_at_seconds_future
+        )
 
     @property
     def free_storage_bytes_value(self):
@@ -58,6 +66,7 @@ class ClientConfig(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+
 
 class RelayConfig(ClientConfig):
     wallet = Field("")
@@ -78,7 +87,6 @@ class NostrRelay(BaseModel):
 
     config: "RelayConfig" = RelayConfig()
 
-
     @classmethod
     def from_row(cls, row: Row) -> "NostrRelay":
         relay = cls(**dict(row))
@@ -86,7 +94,9 @@ class NostrRelay(BaseModel):
         return relay
 
     @classmethod
-    def info(cls,) -> dict:
+    def info(
+        cls,
+    ) -> dict:
         return {
             "contact": "https://t.me/lnbits",
             "supported_nips": [1, 9, 11, 15, 20, 22],
@@ -223,7 +233,9 @@ class NostrFilter(BaseModel):
         if not self.limit or self.limit > limit:
             self.limit = limit
 
-    def to_sql_components(self, relay_id: str) -> Tuple[List[str], List[str], List[Any]]:
+    def to_sql_components(
+        self, relay_id: str
+    ) -> Tuple[List[str], List[str], List[Any]]:
         inner_joins: List[str] = []
         where = ["deleted=false", "nostrrelay.events.relay_id = ?"]
         values: List[Any] = [relay_id]
@@ -231,13 +243,17 @@ class NostrFilter(BaseModel):
         if len(self.e):
             values += self.e
             e_s = ",".join(["?"] * len(self.e))
-            inner_joins.append("INNER JOIN nostrrelay.event_tags e_tags ON nostrrelay.events.id = e_tags.event_id")
+            inner_joins.append(
+                "INNER JOIN nostrrelay.event_tags e_tags ON nostrrelay.events.id = e_tags.event_id"
+            )
             where.append(f" (e_tags.value in ({e_s}) AND e_tags.name = 'e')")
 
         if len(self.p):
             values += self.p
             p_s = ",".join(["?"] * len(self.p))
-            inner_joins.append("INNER JOIN nostrrelay.event_tags p_tags ON nostrrelay.events.id = p_tags.event_id")
+            inner_joins.append(
+                "INNER JOIN nostrrelay.event_tags p_tags ON nostrrelay.events.id = p_tags.event_id"
+            )
             where.append(f" p_tags.value in ({p_s}) AND p_tags.name = 'p'")
 
         if len(self.ids) != 0:
@@ -262,6 +278,5 @@ class NostrFilter(BaseModel):
         if self.until:
             where.append("created_at < ?")
             values += [self.until]
-        
 
         return inner_joins, where, values

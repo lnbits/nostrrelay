@@ -2,6 +2,7 @@ import json
 
 FIXTURES_PATH = "tests/extensions/nostrrelay/fixture"
 
+
 def get_fixtures(file):
     """
     Read the content of the JSON file.
