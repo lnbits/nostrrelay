@@ -24,12 +24,12 @@ async def index(request: Request, user: User = Depends(check_user_exists)):
 @nostrrelay_ext.get("/{relay_id}")
 async def nostrrelay(request: Request, relay_id: str):
     relay_public_data = await get_public_relay(relay_id)
-    
+
     if not relay_public_data:
         raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail="Cannot find relay",
-            )
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Cannot find relay",
+        )
 
     if request.headers.get("accept") == "application/nostr+json":
         return JSONResponse(

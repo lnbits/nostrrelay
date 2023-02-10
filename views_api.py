@@ -155,10 +155,8 @@ async def api_delete_relay(
 
 
 @nostrrelay_ext.put("/api/v1/join")
-async def api_pay_to_join(
-    data: RelayJoin
-):
-    
+async def api_pay_to_join(data: RelayJoin):
+
     try:
         pubkey = normalize_public_key(data.pubkey)
         relay = await get_relay_by_id(data.relay_id)
@@ -179,13 +177,11 @@ async def api_pay_to_join(
                 "tag": "nostrrely",
                 "action": "join",
                 "relay": relay.id,
-                "pubkey": pubkey
+                "pubkey": pubkey,
             },
         )
         print("### payment_request", payment_request)
-        return {
-            "invoice": payment_request
-        }
+        return {"invoice": payment_request}
     except ValueError as ex:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
@@ -199,6 +195,3 @@ async def api_pay_to_join(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot create invoice for client to join",
         )
-
-
-

@@ -11,9 +11,12 @@ from secp256k1 import PublicKey
 class Spec(BaseModel):
     class Config:
         allow_population_by_field_name = True
+
+
 class FilterSpec(Spec):
     max_client_filters = Field(0, alias="maxClientFilters")
     limit_per_filter = Field(1000, alias="limitPerFilter")
+
 
 class EventSpec(Spec):
     max_events_per_second = Field(0, alias="maxEventsPerSecond")
@@ -27,7 +30,6 @@ class EventSpec(Spec):
     created_at_hours_future = Field(0, alias="createdAtHoursFuture")
     created_at_minutes_future = Field(0, alias="createdAtMinutesFuture")
     created_at_seconds_future = Field(0, alias="createdAtSecondsFuture")
-
 
     @property
     def created_at_in_past(self) -> int:
@@ -47,6 +49,7 @@ class EventSpec(Spec):
             + self.created_at_seconds_future
         )
 
+
 class StorageSpec(Spec):
     free_storage_value = Field(1, alias="freeStorageValue")
     free_storage_unit = Field("MB", alias="freeStorageUnit")
@@ -58,6 +61,7 @@ class StorageSpec(Spec):
         if self.free_storage_unit == "MB":
             value *= 1024
         return value
+
 
 class AuthorSpec(Spec):
     allowed_public_keys = Field([], alias="allowedPublicKeys")
@@ -78,14 +82,21 @@ class PaymentSpec(BaseModel):
 
     storage_cost_value = Field(0, alias="storageCostValue")
     storage_cost_unit = Field("MB", alias="storageCostUnit")
+
+
 class WalletSpec(Spec):
     wallet = Field("")
 
-class RelaySpec(FilterSpec, EventSpec, StorageSpec, AuthorSpec, PaymentSpec, WalletSpec):
+
+class RelaySpec(
+    FilterSpec, EventSpec, StorageSpec, AuthorSpec, PaymentSpec, WalletSpec
+):
     pass
+
 
 class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
     pass
+
 
 class NostrRelay(BaseModel):
     id: str
@@ -99,7 +110,7 @@ class NostrRelay(BaseModel):
 
     @property
     def is_free_to_join(self):
-       return not self.config.is_paid_relay or self.config.cost_to_join == 0
+        return not self.config.is_paid_relay or self.config.cost_to_join == 0
 
     @classmethod
     def from_row(cls, row: Row) -> "NostrRelay":
