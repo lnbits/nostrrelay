@@ -45,25 +45,6 @@ async def websocket_endpoint(relay_id: str, websocket: WebSocket):
         client_manager.remove_client(client)
 
 
-@nostrrelay_ext.get("/{relay_id}", status_code=HTTPStatus.OK)
-async def api_nostrrelay_info(relay_id: str):
-    relay = await get_public_relay(relay_id)
-    if not relay:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail="Relay not found",
-        )
-
-    return JSONResponse(
-        content=relay,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Methods": "GET",
-        },
-    )
-
-
 @nostrrelay_ext.post("/api/v1/relay")
 async def api_create_relay(
     data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)

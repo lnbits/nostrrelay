@@ -1,9 +1,13 @@
+from http import HTTPStatus
+
 from fastapi import Depends, Request
+from fastapi.exceptions import HTTPException
 from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, JSONResponse
 
 from lnbits.core.models import User
 from lnbits.decorators import check_user_exists
+from lnbits.extensions.nostrrelay.crud import get_public_relay
 
 from . import nostrrelay_ext, nostrrelay_renderer
 
@@ -17,13 +21,25 @@ async def index(request: Request, user: User = Depends(check_user_exists)):
     )
 
 
-@nostrrelay_ext.get("/public")
-async def nostrrelay(request: Request, nostrrelay_id):
+@nostrrelay_ext.get("/{relay_id}")
+async def nostrrelay(request: Request, relay_id: str):
+    relay_public_data = await get_public_relay(relay_id)
+    if not relay_public_data:
+        raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Cannot find relay",
+            )
+
+    if request.headers.get("accept") == "application/nostr+json":
+        return JSONResponse(
+            content=relay_public_data,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Methods": "GET",
+            },
+        )
+
     return nostrrelay_renderer().TemplateResponse(
-        "nostrrelay/public.html",
-        {
-            "request": request,
-            # "nostrrelay": relay,
-            "web_manifest": f"/nostrrelay/manifest/{nostrrelay_id}.webmanifest",
-        },
+        "nostrrelay/public.html", {"request": request, "relay": relay_public_data}
     )
