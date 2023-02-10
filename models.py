@@ -8,11 +8,14 @@ from pydantic import BaseModel, Field
 from secp256k1 import PublicKey
 
 
-class FilterSpec(BaseModel):
+class Spec(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+class FilterSpec(Spec):
     max_client_filters = Field(0, alias="maxClientFilters")
     limit_per_filter = Field(1000, alias="limitPerFilter")
 
-class EventSpec(BaseModel):
+class EventSpec(Spec):
     max_events_per_second = Field(0, alias="maxEventsPerSecond")
 
     created_at_days_past = Field(0, alias="createdAtDaysPast")
@@ -44,7 +47,7 @@ class EventSpec(BaseModel):
             + self.created_at_seconds_future
         )
 
-class StorageSpec(BaseModel):
+class StorageSpec(Spec):
     free_storage_value = Field(1, alias="freeStorageValue")
     free_storage_unit = Field("MB", alias="freeStorageUnit")
     full_storage_action = Field("prune", alias="fullStorageAction")
@@ -56,7 +59,7 @@ class StorageSpec(BaseModel):
             value *= 1024
         return value
 
-class AuthorSpec(BaseModel):
+class AuthorSpec(Spec):
     allowed_public_keys = Field([], alias="allowedPublicKeys")
     blocked_public_keys = Field([], alias="blockedPublicKeys")
 
@@ -68,18 +71,21 @@ class AuthorSpec(BaseModel):
         # todo: check payment
         return p in self.allowed_public_keys
 
+
 class PaymentSpec(BaseModel):
     is_paid_relay = Field(False, alias="isPaidRelay")
-    wallet = Field("")
     cost_to_join = Field(0, alias="costToJoin")
 
     storage_cost_value = Field(0, alias="storageCostValue")
     storage_cost_unit = Field("MB", alias="storageCostUnit")
+class WalletSpec(Spec):
+    wallet = Field("")
 
-class RelaySpec(FilterSpec, EventSpec, StorageSpec, AuthorSpec, PaymentSpec):
-    class Config:
-        allow_population_by_field_name = True
+class RelaySpec(FilterSpec, EventSpec, StorageSpec, AuthorSpec, PaymentSpec, WalletSpec):
+    pass
 
+class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
+    pass
 
 class NostrRelay(BaseModel):
     id: str

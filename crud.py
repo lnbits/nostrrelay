@@ -2,7 +2,7 @@ import json
 from typing import Any, List, Optional, Tuple
 
 from . import db
-from .models import NostrEvent, NostrFilter, NostrRelay, RelaySpec
+from .models import NostrEvent, NostrFilter, NostrRelay, RelayPublicSpec, RelaySpec
 
 ########################## RELAYS ####################
 
@@ -100,6 +100,7 @@ async def get_public_relay(relay_id: str) -> Optional[dict]:
         "description": relay.description,
         "pubkey": relay.pubkey,
         "contact": relay.contact,
+        "config": dict(RelayPublicSpec(**dict(relay.config)))
     }
 
 

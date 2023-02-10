@@ -1,16 +1,88 @@
-{% extends "public.html" %} {% block toolbar_title %} {{ relay.name }}
-<q-btn
-  flat
-  dense
-  size="md"
-  @click.prevent="urlDialog.show = true"
-  icon="share"
-  color="white"
-></q-btn>
+{% extends "public.html" %} {% block toolbar_title %} LNbits Relay
+<q-icon name="sensors" class="q-ml-lg" />
 {% endblock %} {% block footer %}{% endblock %} {% block page_container %}
+
 <q-page-container>
   <q-page>
-    <h3>Shareable public page on relay to go here!</h3>
+    <div class="row q-col-gutter-md">
+      <div class="col-12 col-md-2 q-gutter-y-md"></div>
+      <div class="col-12 col-md-6 q-gutter-y-md q-pa-xl">
+        <q-card>
+          <q-card-section> </q-card-section>
+        </q-card>
+      </div>
+      <div class="col-12 col-md-4 q-gutter-y-md q-pa-xl">
+        <q-card>
+          <q-card-section>
+            <q-expansion-item
+              group="extras"
+              icon="sensors"
+              :label="relay.name"
+              :content-inset-level="0.5"
+            >
+              <q-separator class="q-mt-md"></q-separator>
+              <span v-text="relay.description"></span>
+              <q-separator class="q-mb-md"></q-separator>
+              <q-expansion-item
+                group="api"
+                dense
+                expand-separator
+                label="Payment Spec"
+              >
+                <q-card>
+                  <q-card-section>
+                    <code
+                      ><span class="text-blue">GET</span>
+                      /lnurlp/api/v1/links</code
+                    >
+                    <h5 class="text-caption q-mt-sm q-mb-none">Headers</h5>
+                    <code>{"X-Api-Key": &lt;invoice_key&gt;}</code><br />
+                    <h5 class="text-caption q-mt-sm q-mb-none">
+                      Body (application/json)
+                    </h5>
+                    <h5 class="text-caption q-mt-sm q-mb-none">
+                      Returns 200 OK (application/json)
+                    </h5>
+                    <code>[&lt;pay_link_object&gt;, ...]</code>
+                    <h5 class="text-caption q-mt-sm q-mb-none">Curl example</h5>
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+              <q-expansion-item
+                group="api"
+                dense
+                expand-separator
+                label="Events Spec"
+              >
+                <q-card>
+                  <q-card-section> </q-card-section>
+                </q-card>
+              </q-expansion-item>
+              <q-expansion-item
+                group="api"
+                dense
+                expand-separator
+                label="Filters Spec"
+              >
+                <q-card>
+                  <q-card-section> </q-card-section>
+                </q-card>
+              </q-expansion-item>
+              <q-expansion-item
+                group="api"
+                dense
+                expand-separator
+                label="Storage Spec"
+              >
+                <q-card>
+                  <q-card-section> </q-card-section>
+                </q-card>
+              </q-expansion-item>
+            </q-expansion-item>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
   </q-page>
 </q-page-container>
 {% endblock %} {% block scripts %}
@@ -21,7 +93,9 @@
     el: '#vue',
     mixins: [windowMixin],
     data: function () {
-      return {}
+      return {
+        relay: JSON.parse('{{relay | tojson | safe}}')
+      }
     },
     methods: {}
   })
