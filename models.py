@@ -72,7 +72,6 @@ class PaymentSpec(BaseModel):
     is_paid_relay = Field(False, alias="isPaidRelay")
     wallet = Field("")
     cost_to_join = Field(0, alias="costToJoin")
-    free_storage = Field(0, alias="freeStorage")
 
     storage_cost_value = Field(0, alias="storageCostValue")
     storage_cost_unit = Field("MB", alias="storageCostUnit")
