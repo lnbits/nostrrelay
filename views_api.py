@@ -3,10 +3,10 @@ from typing import List, Optional
 
 from fastapi import Depends, WebSocket
 from fastapi.exceptions import HTTPException
-from fastapi.responses import JSONResponse
 from loguru import logger
 from pydantic.types import UUID4
 
+from lnbits.core.services import create_invoice
 from lnbits.decorators import (
     WalletTypeInfo,
     check_admin,
@@ -21,12 +21,13 @@ from .crud import (
     create_relay,
     delete_all_events,
     delete_relay,
-    get_public_relay,
     get_relay,
+    get_relay_by_id,
     get_relays,
     update_relay,
 )
-from .models import NostrRelay
+from .helpers import normalize_public_key
+from .models import NostrRelay, RelayJoin
 
 client_manager = NostrClientManager()
 
@@ -151,3 +152,53 @@ async def api_delete_relay(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot delete relay",
         )
+
+
+@nostrrelay_ext.put("/api/v1/join")
+async def api_pay_to_join(
+    data: RelayJoin
+):
+    
+    try:
+        pubkey = normalize_public_key(data.pubkey)
+        relay = await get_relay_by_id(data.relay_id)
+        if not relay:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Relay not found",
+            )
+
+        if relay.is_free_to_join:
+            raise ValueError("Relay is free to join")
+
+        _, payment_request = await create_invoice(
+            wallet_id=relay.config.wallet,
+            amount=int(relay.config.cost_to_join),
+            memo=f"Pubkey '{data.pubkey}' wants to join {relay.id}",
+            extra={
+                "tag": "nostrrely",
+                "action": "join",
+                "relay": relay.id,
+                "pubkey": pubkey
+            },
+        )
+        print("### payment_request", payment_request)
+        return {
+            "invoice": payment_request
+        }
+    except ValueError as ex:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=str(ex),
+        )
+    except HTTPException as ex:
+        raise ex
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot create invoice for client to join",
+        )
+
+
+

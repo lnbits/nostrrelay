@@ -97,6 +97,10 @@ class NostrRelay(BaseModel):
 
     config: "RelaySpec" = RelaySpec()
 
+    @property
+    def is_free_to_join(self):
+       return not self.config.is_paid_relay or self.config.cost_to_join == 0
+
     @classmethod
     def from_row(cls, row: Row) -> "NostrRelay":
         relay = cls(**dict(row))
@@ -290,3 +294,8 @@ class NostrFilter(BaseModel):
             values += [self.until]
 
         return inner_joins, where, values
+
+
+class RelayJoin(BaseModel):
+    relay_id: str
+    pubkey: str

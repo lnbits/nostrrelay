@@ -8,7 +8,55 @@
       <div class="col-12 col-md-2 q-gutter-y-md"></div>
       <div class="col-12 col-md-6 q-gutter-y-md q-pa-xl">
         <q-card>
-          <q-card-section> </q-card-section>
+          <q-card-section>
+            <h4 v-text="relay.name" class="q-my-none"></h4>
+          </q-card-section>
+        </q-card>
+        <q-card>
+          <q-card-section>
+            <span class="text-bold">Public Key:</span>
+            <q-input
+              filled
+              dense
+              v-model.trim="pubkey"
+              type="text"
+              label="User Public Key"
+            ></q-input>
+          </q-card-section>
+          <q-card-section v-if="relay.config.isPaidRelay">
+            <q-btn @click="payToJoin" unelevated color="primary float-right"
+              >Pay to join</q-btn
+            >
+            <span class="text-bold">Cost to join: </span>
+
+            <span v-text="relay.config.costToJoin"></span>
+            <q-badge color="orange">
+              <span>sats</span>
+            </q-badge>
+          </q-card-section>
+          <q-card-section v-else>
+            <q-badge color="yellow" text-color="black">
+              This is a free relay
+            </q-badge>
+          </q-card-section>
+          <q-card-section v-if="joinInvoice">
+            <q-expansion-item
+              group="join-invoice"
+              label="Join Invoice"
+              :content-inset-level="0.5"
+              default-opened
+            >
+              <div class="q-ma-xl">
+                <q-responsive :ratio="1" class="q-ma-xl q-mx-md">
+                  <qrcode
+                    :value="'lightning:'+joinInvoice"
+                    :options="{width: 340}"
+                    class="rounded-borders"
+                  ></qrcode>
+                </q-responsive>
+              </div>
+            </q-expansion-item>
+          </q-card-section>
         </q-card>
       </div>
       <div class="col-12 col-md-4 q-gutter-y-md q-pa-xl">
@@ -17,7 +65,7 @@
             <q-expansion-item
               group="extras"
               icon="sensors"
-              :label="relay.name"
+              label="Relay Specs"
               :content-inset-level="0.5"
             >
               <q-separator class="q-mt-md"></q-separator>
@@ -94,10 +142,40 @@
     mixins: [windowMixin],
     data: function () {
       return {
-        relay: JSON.parse('{{relay | tojson | safe}}')
+        relay: JSON.parse('{{relay | tojson | safe}}'),
+        pubkey: '',
+        joinInvoice: ''
       }
     },
-    methods: {}
+    methods: {
+      payToJoin: async function () {
+        if (!this.pubkey) {
+          this.$q.notify({
+            timeout: 5000,
+            type: 'warning',
+            message: 'Public key is missing'
+          })
+          return
+        }
+        try {
+          const {data} = await LNbits.api.request(
+            'PUT',
+            '/nostrrelay/api/v1/join',
+            '',
+            {
+              relay_id: this.relay.id,
+              pubkey: this.pubkey
+            }
+          )
+          this.joinInvoice = data.invoice
+        } catch (error) {
+          LNbits.utils.notifyApiError(error)
+        }
+      }
+    },
+    created: function () {
+      console.log('### created', this.relay)
+    }
   })
 </script>
 {% endblock %}

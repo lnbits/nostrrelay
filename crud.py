@@ -61,6 +61,17 @@ async def get_relay(user_id: str, relay_id: str) -> Optional[NostrRelay]:
 
     return NostrRelay.from_row(row) if row else None
 
+async def get_relay_by_id(relay_id: str) -> Optional[NostrRelay]:
+    """Note: it does not require `user_id`. Can read any relay. Use it with care."""
+    row = await db.fetchone(
+        """SELECT * FROM nostrrelay.relays WHERE id = ?""",
+        (
+            relay_id,
+        ),
+    )
+
+    return NostrRelay.from_row(row) if row else None
+
 
 async def get_relays(user_id: str) -> List[NostrRelay]:
     rows = await db.fetchall(
@@ -100,7 +111,7 @@ async def get_public_relay(relay_id: str) -> Optional[dict]:
         "description": relay.description,
         "pubkey": relay.pubkey,
         "contact": relay.contact,
-        "config": dict(RelayPublicSpec(**dict(relay.config)))
+        "config": RelayPublicSpec(**dict(relay.config)).dict(by_alias=True)
     }
 
 
