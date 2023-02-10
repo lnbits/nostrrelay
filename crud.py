@@ -120,6 +120,8 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
     return event
 
 async def get_storage_for_public_key(relay_id: str, pubkey: str) -> int:
+    """Returns the storage space in bytes for all the events of a public key. Deleted events are also counted"""
+    
     row = await db.fetchone("SELECT SUM(size) FROM nostrrelay.events WHERE relay_id = ? AND pubkey = ?", (relay_id, pubkey,))
     if not row:
         return 0
