@@ -23,13 +23,14 @@ async def m001_initial(db):
         CREATE TABLE nostrrelay.events (
             relay_id TEXT NOT NULL,
             deleted BOOLEAN DEFAULT false,
-            id TEXT PRIMARY KEY,
+            id TEXT NOT NULL,
             pubkey TEXT NOT NULL,
             created_at {db.big_int} NOT NULL,
             kind INT NOT NULL,
             content TEXT NOT NULL,
             sig TEXT NOT NULL,
-            size {db.big_int} DEFAULT 0
+            size {db.big_int} DEFAULT 0,
+            PRIMARY KEY (relay_id, id)
         );
         """
     )
@@ -55,7 +56,8 @@ async def m001_initial(db):
             storage {db.big_int} DEFAULT 0,
             paid_to_join BOOLEAN DEFAULT false,
             allowed BOOLEAN DEFAULT false,
-            blocked BOOLEAN DEFAULT false
+            blocked BOOLEAN DEFAULT false,
+            PRIMARY KEY (relay_id, pubkey)
         );
         """
     )
