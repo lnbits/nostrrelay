@@ -310,3 +310,16 @@ class NostrFilter(BaseModel):
 class RelayJoin(BaseModel):
     relay_id: str
     pubkey: str
+
+
+class NostrAccount(BaseModel):
+    pubkey: str
+    sats = 0
+    storage = 0
+    paid_to_join = False
+    allowed = False
+    blocked = False
+
+    @classmethod
+    def from_row(cls, row: Row) -> "NostrAccount":
+        return cls(**dict(row))

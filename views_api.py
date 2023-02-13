@@ -176,7 +176,7 @@ async def api_pay_to_join(data: RelayJoin):
             extra={
                 "tag": "nostrrely",
                 "action": "join",
-                "relay": relay.id,
+                "relay_id": relay.id,
                 "pubkey": pubkey,
             },
         )

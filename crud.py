@@ -2,10 +2,9 @@ import json
 from typing import Any, List, Optional, Tuple
 
 from . import db
-from .models import NostrEvent, NostrFilter, NostrRelay, RelayPublicSpec, RelaySpec
+from .models import NostrAccount, NostrEvent, NostrFilter, NostrRelay, RelayPublicSpec, RelaySpec
 
 ########################## RELAYS ####################
-
 
 async def create_relay(user_id: str, r: NostrRelay) -> NostrRelay:
     await db.execute(
@@ -318,3 +317,58 @@ def build_select_events_query(relay_id: str, filter: NostrFilter):
         query += f" LIMIT {filter.limit}"
 
     return query, values
+
+
+
+########################## ACCOUNTS ####################
+
+async def create_account(relay_id: str, a: NostrAccount) -> NostrAccount:
+    await db.execute(
+        """
+        INSERT INTO nostrrelay.accounts (relay_id, pubkey, sats, storage, paid_to_join, allowed, blocked)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            relay_id,
+            a.pubkey,
+            a.sats,
+            a.storage,
+            a.paid_to_join,
+            a.allowed,
+            a.blocked,
+        ),
+    )
+    account = await get_account(relay_id, a.pubkey)
+    assert account, "Created account cannot be retrieved"
+    return account
+
+
+async def update_account(relay_id: str, a: NostrAccount) -> NostrAccount:
+    await db.execute(
+        """
+        UPDATE nostrrelay.accounts
+        SET (sats, storage, paid_to_join, allowed, blocked) = (?, ?, ?, ?, ?)
+        WHERE relay_id = ? AND pubkey = ?
+        """,
+        (
+            a.sats,
+            a.storage,
+            a.paid_to_join,
+            a.allowed,
+            a.blocked,
+            relay_id,
+            a.pubkey
+        ),
+    )
+
+    return a
+
+
+async def get_account(relay_id: str, pubkey: str,) -> Optional[NostrAccount]:
+    row = await db.fetchone(
+        "SELECT * FROM nostrrelay.accounts WHERE relay_id = ? AND pubkey = ?",
+        (relay_id, pubkey),
+    )
+
+    return NostrAccount.from_row(row) if row else None
+

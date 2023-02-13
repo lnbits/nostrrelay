@@ -11,7 +11,6 @@ from .crud import (
     get_config_for_all_active_relays,
     get_event,
     get_events,
-    get_prunable_events,
     get_storage_for_public_key,
     mark_events_deleted,
     prune_old_events,

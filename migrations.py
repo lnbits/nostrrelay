@@ -45,3 +45,17 @@ async def m001_initial(db):
         );
         """
     )
+
+    await db.execute(
+        f"""
+        CREATE TABLE nostrrelay.accounts (
+            relay_id TEXT NOT NULL,
+            pubkey TEXT NOT NULL,
+            sats {db.big_int} DEFAULT 0,
+            storage {db.big_int} DEFAULT 0,
+            paid_to_join BOOLEAN DEFAULT false,
+            allowed BOOLEAN DEFAULT false,
+            blocked BOOLEAN DEFAULT false
+        );
+        """
+    )
