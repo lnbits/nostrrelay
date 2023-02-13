@@ -46,14 +46,18 @@
               :content-inset-level="0.5"
               default-opened
             >
-              <div class="q-ma-xl">
-                <q-responsive :ratio="1" class="q-ma-xl q-mx-md">
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-6">
+                <q-responsive :ratio="1">
                   <qrcode
                     :value="'lightning:'+joinInvoice"
                     :options="{width: 340}"
                     class="rounded-borders"
                   ></qrcode>
                 </q-responsive>
+              </div>
+                <div class="col-3"></div>
               </div>
             </q-expansion-item>
           </q-card-section>
@@ -167,6 +171,7 @@
               pubkey: this.pubkey
             }
           )
+          console.log('### data.invoice', data.invoice)
           this.joinInvoice = data.invoice
         } catch (error) {
           LNbits.utils.notifyApiError(error)
