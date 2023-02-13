@@ -155,13 +155,8 @@ class NostrClientConnection:
     async def _handle_event(self, e: NostrEvent):
         resp_nip20: List[Any] = ["OK", e.id]
         logger.info(f"nostr event: [{e.kind}, {e.pubkey}, '{e.content}']")
-        valid, message = self._validate_event(e)
-        if not valid:
-            resp_nip20 + [valid, message]
-            await self._send_msg(resp_nip20)
-            return None
 
-        valid, message = await self._validate_storage(e)
+        valid, message = await self._validate_write(e)
         if not valid:
             resp_nip20 += [valid, message]
             await self._send_msg(resp_nip20)
@@ -237,6 +232,17 @@ class NostrClientConnection:
             and len(self.filters) >= self.client_config.max_client_filters
         )
 
+    async def _validate_write(self, e: NostrEvent) -> Tuple[bool, str]:
+        valid, message = self._validate_event(e)
+        if not valid:
+            return [valid, message]
+
+        valid, message = await self._validate_storage(e.pubkey, e.size_bytes)
+        if not valid:
+            return [valid, message]
+
+        return True, ""
+
     def _validate_event(self, e: NostrEvent) -> Tuple[bool, str]:
         if self._exceeded_max_events_per_second():
             return False, f"Exceeded max events per second limit'!"
@@ -258,28 +264,28 @@ class NostrClientConnection:
 
         return True, ""
 
-    async def _validate_storage(self, e: NostrEvent) -> Tuple[bool, str]:
+    async def _validate_storage(self, pubkey: str, size_bytes: int) -> Tuple[bool, str]:
         if self.client_config.free_storage_value == 0:
             if not self.client_config.is_paid_relay:
                 return False, "Cannot write event, relay is read-only"
             # todo: handeld paid paid plan
             return True, "Temp OK"
 
-        stored_bytes = await get_storage_for_public_key(self.relay_id, e.pubkey)
+        stored_bytes = await get_storage_for_public_key(self.relay_id, pubkey)
         if self.client_config.is_paid_relay:
             # todo: handeld paid paid plan
             return True, "Temp OK"
 
-        if (stored_bytes + e.size_bytes) <= self.client_config.free_storage_bytes_value:
+        if (stored_bytes + size_bytes) <= self.client_config.free_storage_bytes_value:
             return True, ""
 
         if self.client_config.full_storage_action == "block":
             return (
                 False,
-                f"Cannot write event, no more storage available for public key: '{e.pubkey}'",
+                f"Cannot write event, no more storage available for public key: '{pubkey}'",
             )
 
-        await prune_old_events(self.relay_id, e.pubkey, e.size_bytes)
+        await prune_old_events(self.relay_id, pubkey, size_bytes)
 
         return True, ""
 
