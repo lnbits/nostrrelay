@@ -155,7 +155,7 @@ class NostrClientConnection:
 
     async def _handle_event(self, e: NostrEvent):
         resp_nip20: List[Any] = ["OK", e.id]
-
+        logger.info(f"nostr event: [{e.kind}, {e.pubkey}, '{e.content}']")
         valid, message = self._validate_event(e)
         if not valid:
             resp_nip20 + [valid, message]
