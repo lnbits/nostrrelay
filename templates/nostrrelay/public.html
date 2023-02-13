@@ -12,7 +12,7 @@
             <h4 v-text="relay.name" class="q-my-none"></h4>
           </q-card-section>
         </q-card>
-        <q-card>
+        <q-card class="q-pb-xl">
           <q-card-section>
             <span class="text-bold">Public Key:</span>
             <q-input
@@ -24,38 +24,78 @@
             ></q-input>
           </q-card-section>
           <q-card-section v-if="relay.config.isPaidRelay">
-            <q-btn
-              @click="createJoinInvoice"
-              unelevated
-              color="primary float-right"
-              >Show Invoice</q-btn
-            >
-            <span class="text-bold">Cost to join: </span>
-
-            <span v-text="relay.config.costToJoin"></span>
-            <q-badge color="orange">
-              <span>sats</span>
-            </q-badge>
+            <div class="row q-mb-md">
+              <div class="col-2">
+                <span class="text-bold">Cost to join: </span>
+              </div>
+              <div class="col-6">
+                <span v-text="relay.config.costToJoin"></span>
+                <span class="text-bold q-ml-sm">sats</span>
+              </div>
+              <div class="col-4">
+                <q-btn
+                  @click="createInvoice('join')"
+                  unelevated
+                  color="primary"
+                  class="float-right"
+                  >Pay to Join</q-btn
+                >
+              </div>
+            </div>
+            <q-separator></q-separator>
+            <div class="row q-mt-md q-mb-md">
+              <div class="col-2">
+                <span class="text-bold">Storage cost: </span>
+              </div>
+              <div class="col-3">
+                <span v-text="relay.config.storageCostValue"></span>
+                <span class="text-bold q-ml-sm"> sats per</span>
+                <q-badge color="orange">
+                  <span v-text="relay.config.storageCostUnit"></span>
+                </q-badge>
+              </div>
+              <div class="col-2">
+                <q-input
+                  filled
+                  dense
+                  v-model="unitsToBuy"
+                  type="number"
+                  min="0"
+                  :label="relay.config.storageCostUnit"
+                ></q-input>
+              </div>
+              <div class="col-2">
+                <span class="text-bold q-ml-md" v-text="storageCost"></span>
+                <span>sats</span>
+              </div>
+              <div class="col-3">
+                <q-btn
+                  @click="createInvoice('storage')"
+                  unelevated
+                  color="primary"
+                  class="float-right"
+                  >Buy storage space</q-btn
+                >
+              </div>
+            </div>
+            <q-separator></q-separator>
           </q-card-section>
           <q-card-section v-else>
             <q-badge color="yellow" text-color="black">
               This is a free relay
             </q-badge>
           </q-card-section>
-          <q-card-section v-if="joinInvoice">
+          <q-card-section v-if="invoice">
             <q-expansion-item
               group="join-invoice"
-              label="Pay invoice to join relay"
+              label="Invoice"
               :content-inset-level="0.5"
               default-opened
             >
               <div class="row q-ma-md">
                 <div class="col-3"></div>
                 <div class="col-6 text-center">
-                  <q-btn
-                    outline
-                    color="grey"
-                    @click="copyText(joinInvoice)"
+                  <q-btn outline color="grey" @click="copyText(invoice)"
                     >Copy invoice</q-btn
                   >
                 </div>
@@ -66,7 +106,7 @@
                 <div class="col-6">
                   <q-responsive :ratio="1">
                     <qrcode
-                      :value="'lightning:'+joinInvoice"
+                      :value="'lightning:'+invoice"
                       :options="{width: 340}"
                       class="rounded-borders"
                     ></qrcode>
@@ -163,11 +203,19 @@
       return {
         relay: JSON.parse('{{relay | tojson | safe}}'),
         pubkey: '',
-        joinInvoice: ''
+        invoice: '',
+        unitsToBuy: 0
+      }
+    },
+    computed: {
+      storageCost: function () {
+        if (!this.relay || !this.relay.config.storageCostValue) return 0
+        return this.unitsToBuy * this.relay.config.storageCostValue
       }
     },
     methods: {
-      createJoinInvoice: async function () {
+      createInvoice: async function (action) {
+        if (!action) return
         if (!this.pubkey) {
           this.$q.notify({
             timeout: 5000,
@@ -177,17 +225,20 @@
           return
         }
         try {
+          const reqData = {
+            action,
+            relay_id: this.relay.id,
+            pubkey: this.pubkey,
+            units_to_buy: this.unitsToBuy
+          }
           const {data} = await LNbits.api.request(
             'PUT',
-            '/nostrrelay/api/v1/join',
+            '/nostrrelay/api/v1/pay',
             '',
-            {
-              relay_id: this.relay.id,
-              pubkey: this.pubkey
-            }
+            reqData
           )
           console.log('### data.invoice', data.invoice)
-          this.joinInvoice = data.invoice
+          this.invoice = data.invoice
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }

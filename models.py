@@ -307,10 +307,14 @@ class NostrFilter(BaseModel):
         return inner_joins, where, values
 
 
-class RelayJoin(BaseModel):
+class BuyOrder(BaseModel):
+    action: str
     relay_id: str
     pubkey: str
+    units_to_buy = 0
 
+    def is_valid_action(self):
+        return self.action in ['join', 'storage']
 
 class NostrAccount(BaseModel):
     pubkey: str

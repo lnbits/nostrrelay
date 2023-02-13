@@ -27,7 +27,7 @@ from .crud import (
     update_relay,
 )
 from .helpers import normalize_public_key
-from .models import NostrRelay, RelayJoin
+from .models import BuyOrder, NostrRelay
 
 client_manager = NostrClientManager()
 
@@ -154,9 +154,8 @@ async def api_delete_relay(
         )
 
 
-@nostrrelay_ext.put("/api/v1/join")
-async def api_pay_to_join(data: RelayJoin):
-
+@nostrrelay_ext.put("/api/v1/pay")
+async def api_pay_to_join(data: BuyOrder):
     try:
         pubkey = normalize_public_key(data.pubkey)
         relay = await get_relay_by_id(data.relay_id)
@@ -166,8 +165,18 @@ async def api_pay_to_join(data: RelayJoin):
                 detail="Relay not found",
             )
 
-        if relay.is_free_to_join:
+        if data.action == 'join' and relay.is_free_to_join:
             raise ValueError("Relay is free to join")
+
+        storage_to_buy = 0
+        if data.action == 'storage':
+            if relay.config.storage_cost_value == 0:
+                raise ValueError("Relay storage cost is zero. Cannot buy!")
+            if data.units_to_buy == 0:
+                raise ValueError("Must specify how much storage to buy!")
+            storage_to_buy = data.units_to_buy * relay.config.storage_cost_value * 1024
+            if relay.config.storage_cost_unit == "MB":
+                storage_to_buy *= 1024
 
         _, payment_request = await create_invoice(
             wallet_id=relay.config.wallet,
@@ -175,9 +184,10 @@ async def api_pay_to_join(data: RelayJoin):
             memo=f"Pubkey '{data.pubkey}' wants to join {relay.id}",
             extra={
                 "tag": "nostrrely",
-                "action": "join",
+                "action": data.action,
                 "relay_id": relay.id,
                 "pubkey": pubkey,
+                "storage_to_buy": storage_to_buy
             },
         )
         print("### payment_request", payment_request)

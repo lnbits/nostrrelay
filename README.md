@@ -10,3 +10,11 @@ UI for diagnostics and management (key alow/ban lists, rate limiting) coming soo
 
 1. Enable extension
 2. Enable relay 
+
+
+### Development
+
+Create Symbolic Link:
+```
+ln -s /Users/my-user/git-repos/nostr-relay-extension/ /Users/my-user/git-repos/lnbits/lnbits/extensions/nostrrelay
+```

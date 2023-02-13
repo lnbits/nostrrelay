@@ -31,6 +31,11 @@ async def on_invoice_paid(payment: Payment):
         await invoice_paid_to_join(relay_id, pubkey)
         return
 
+    if payment.extra.get("action") == "storage":
+        storage_to_buy = payment.extra.get("storage_to_buy")
+        await invoice_paid_for_storage(relay_id, pubkey, storage_to_buy)
+        return
+
 async def invoice_paid_to_join(relay_id: str, pubkey: str):
     try:
         account = await get_account(relay_id, pubkey)
@@ -42,6 +47,23 @@ async def invoice_paid_to_join(relay_id: str, pubkey: str):
             return
 
         account.paid_to_join = True
+        await update_account(relay_id, account)
+
+    except Exception as ex:
+        logger.warning(ex)
+
+
+async def invoice_paid_for_storage(relay_id: str, pubkey: str, storage_to_buy: int):
+    try:
+        account = await get_account(relay_id, pubkey)
+        if not account:
+            await create_account(relay_id, NostrAccount(pubkey=pubkey, storage=storage_to_buy))
+            return
+        
+        if account.blocked:
+            return
+
+        account.storage = storage_to_buy
         await update_account(relay_id, account)
 
     except Exception as ex:
