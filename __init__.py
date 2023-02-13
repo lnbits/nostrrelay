@@ -1,4 +1,5 @@
 import asyncio
+
 from fastapi import APIRouter
 from fastapi.staticfiles import StaticFiles
 
@@ -26,6 +27,7 @@ def nostrrelay_renderer():
 from .tasks import wait_for_paid_invoices
 from .views import *  # noqa
 from .views_api import *  # noqa
+
 
 def nostrrelay_start():
     loop = asyncio.get_event_loop()

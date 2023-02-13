@@ -24,8 +24,11 @@
             ></q-input>
           </q-card-section>
           <q-card-section v-if="relay.config.isPaidRelay">
-            <q-btn @click="payToJoin" unelevated color="primary float-right"
-              >Pay to join</q-btn
+            <q-btn
+              @click="createJoinInvoice"
+              unelevated
+              color="primary float-right"
+              >Show Invoice</q-btn
             >
             <span class="text-bold">Cost to join: </span>
 
@@ -46,17 +49,29 @@
               :content-inset-level="0.5"
               default-opened
             >
+              <div class="row q-ma-md">
+                <div class="col-3"></div>
+                <div class="col-6 text-center">
+                  <q-btn
+                    outline
+                    color="grey"
+                    @click="copyText(joinInvoice)"
+                    >Copy invoice</q-btn
+                  >
+                </div>
+                <div class="col-3"></div>
+              </div>
               <div class="row">
                 <div class="col-3"></div>
                 <div class="col-6">
-                <q-responsive :ratio="1">
-                  <qrcode
-                    :value="'lightning:'+joinInvoice"
-                    :options="{width: 340}"
-                    class="rounded-borders"
-                  ></qrcode>
-                </q-responsive>
-              </div>
+                  <q-responsive :ratio="1">
+                    <qrcode
+                      :value="'lightning:'+joinInvoice"
+                      :options="{width: 340}"
+                      class="rounded-borders"
+                    ></qrcode>
+                  </q-responsive>
+                </div>
                 <div class="col-3"></div>
               </div>
             </q-expansion-item>
@@ -152,7 +167,7 @@
       }
     },
     methods: {
-      payToJoin: async function () {
+      createJoinInvoice: async function () {
         if (!this.pubkey) {
           this.$q.notify({
             timeout: 5000,

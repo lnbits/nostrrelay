@@ -2,7 +2,14 @@ import json
 from typing import Any, List, Optional, Tuple
 
 from . import db
-from .models import NostrAccount, NostrEvent, NostrFilter, NostrRelay, RelayPublicSpec, RelaySpec
+from .models import (
+    NostrAccount,
+    NostrEvent,
+    NostrFilter,
+    NostrRelay,
+    RelayPublicSpec,
+    RelaySpec,
+)
 
 ########################## RELAYS ####################
 
