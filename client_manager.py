@@ -8,6 +8,7 @@ from loguru import logger
 from .crud import (
     create_event,
     delete_events,
+    get_account,
     get_config_for_all_active_relays,
     get_event,
     get_events,
@@ -15,7 +16,7 @@ from .crud import (
     mark_events_deleted,
     prune_old_events,
 )
-from .models import NostrEvent, NostrEventType, NostrFilter, RelaySpec
+from .models import NostrAccount, NostrEvent, NostrEventType, NostrFilter, RelaySpec
 
 
 class NostrClientManager:
@@ -264,19 +265,20 @@ class NostrClientConnection:
 
         return True, ""
 
-    async def _validate_storage(self, pubkey: str, size_bytes: int) -> Tuple[bool, str]:
-        if self.client_config.free_storage_value == 0:
-            if not self.client_config.is_paid_relay:
-                return False, "Cannot write event, relay is read-only"
-            # todo: handeld paid paid plan
-            return True, "Temp OK"
+    async def _validate_storage(self, pubkey: str, event_size_bytes: int) -> Tuple[bool, str]:
+        if self.client_config.is_read_only_relay:
+            return False, "Cannot write event, relay is read-only"
+        
+        account = await get_account(self.relay_id, pubkey)
+        if not account:
+            account = NostrAccount.null_account()
+
+        if not account.paid_to_join and self.client_config.is_paid_relay:
+            return False, f"This is a paid relay: '{self.relay_id}'"
 
         stored_bytes = await get_storage_for_public_key(self.relay_id, pubkey)
-        if self.client_config.is_paid_relay:
-            # todo: handeld paid paid plan
-            return True, "Temp OK"
-
-        if (stored_bytes + size_bytes) <= self.client_config.free_storage_bytes_value:
+        total_available_storage = account.storage + self.client_config.free_storage_bytes_value
+        if (stored_bytes + event_size_bytes) <= total_available_storage:
             return True, ""
 
         if self.client_config.full_storage_action == "block":
@@ -285,7 +287,10 @@ class NostrClientConnection:
                 f"Cannot write event, no more storage available for public key: '{pubkey}'",
             )
 
-        await prune_old_events(self.relay_id, pubkey, size_bytes)
+        if event_size_bytes > total_available_storage:
+            return False, "Message is too large. Not enough storage available for it."
+
+        await prune_old_events(self.relay_id, pubkey, event_size_bytes)
 
         return True, ""
 

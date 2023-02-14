@@ -68,7 +68,15 @@
                 />
               </q-td>
 
-              <q-td key="id" :props="props"> {{props.row.id}} </q-td>
+              <q-td key="id" :props="props">
+                <a
+                style="color: unset"
+                :href="props.row.id"
+                target="_blank"
+              >
+                {{props.row.id}}</a
+              >  
+              </q-td>
               <q-td key="toggle" :props="props">
                 <q-toggle
                   size="sm"

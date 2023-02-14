@@ -62,6 +62,13 @@ class StorageSpec(Spec):
             value *= 1024
         return value
 
+class PaymentSpec(BaseModel):
+    is_paid_relay = Field(False, alias="isPaidRelay")
+    cost_to_join = Field(0, alias="costToJoin")
+
+    storage_cost_value = Field(0, alias="storageCostValue")
+    storage_cost_unit = Field("MB", alias="storageCostUnit")
+
 
 class AuthorSpec(Spec):
     allowed_public_keys = Field([], alias="allowedPublicKeys")
@@ -75,27 +82,19 @@ class AuthorSpec(Spec):
         # todo: check payment
         return p in self.allowed_public_keys
 
-
-class PaymentSpec(BaseModel):
-    is_paid_relay = Field(False, alias="isPaidRelay")
-    cost_to_join = Field(0, alias="costToJoin")
-
-    storage_cost_value = Field(0, alias="storageCostValue")
-    storage_cost_unit = Field("MB", alias="storageCostUnit")
-
-
 class WalletSpec(Spec):
     wallet = Field("")
 
 
-class RelaySpec(
-    FilterSpec, EventSpec, StorageSpec, AuthorSpec, PaymentSpec, WalletSpec
-):
-    pass
-
-
 class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
+    @property
+    def is_read_only_relay(self):
+        self.free_storage_value == 0 and not self.is_paid_relay
+
+class RelaySpec(RelayPublicSpec, AuthorSpec, WalletSpec):
     pass
+
+
 
 
 class NostrRelay(BaseModel):
@@ -323,6 +322,10 @@ class NostrAccount(BaseModel):
     paid_to_join = False
     allowed = False
     blocked = False
+
+    @classmethod
+    def null_account(cls) -> "NostrAccount":
+        return NostrAccount(pubkey="")
 
     @classmethod
     def from_row(cls, row: Row) -> "NostrAccount":
