@@ -329,6 +329,72 @@
         </div>
         <q-separator></q-separator>
         <div class="row items-center no-wrap q-mb-md q-mt-md">
+          <div class="col-3 q-pr-lg">Require Auth :</div>
+          <div class="col-2 col-sm-4 q-pr-lg">
+            <q-toggle
+              color="secodary"
+              class="q-ml-md q-mr-md"
+              v-model="relay.config.requireAuthFilter"
+              >For Filters</q-toggle
+            >
+          </div>
+          <div class="col-2 col-sm-4 q-pr-lg">
+            <q-toggle
+              color="secodary"
+              class="q-ml-md q-mr-md"
+              v-model="relay.config.requireAuthEvents"
+              >For Events</q-toggle
+            >
+          </div>
+          <div class="col-5 col-sm-5">
+            <q-icon name="info" class="cursor-pointer">
+              <q-tooltip>
+                Require client authentication for accessing different types of
+                resources.
+              </q-tooltip></q-icon
+            >
+          </div>
+        </div>
+        <div
+          v-if="relay.config.requireAuthEvents"
+          class="row items-center no-wrap q-mb-md q-mt-md"
+        >
+          <div class="col-3 q-pr-lg">Skip Auth For Events:</div>
+          <div class="col-1">
+            <q-input
+              filled
+              dense
+              v-model.trim="skipEventKind"
+              type="number"
+              min="0"
+            ></q-input>
+          </div>
+          <div class="col-1">
+            <q-btn
+              unelevated
+              color="secondary"
+              icon="add"
+              @click="addSkipAuthForEvent()"
+            ></q-btn>
+          </div>
+          <div class="col-7">
+            <q-chip
+              v-for="e in relay.config.skipedAuthEvents"
+              :key="e"
+              removable
+              @remove="removeSkipAuthForEvent(e)"
+              color="primary"
+              text-color="white"
+            >
+              {{ e }}
+            </q-chip>
+            <!-- <q-badge color="secondary" class="q-ml-sm" multi-line>
+              {{ relay.config.skipedAuthEvents }}
+            </q-badge> -->
+          </div>
+        </div>
+        <q-separator></q-separator>
+        <div class="row items-center no-wrap q-mb-md q-mt-md">
           <div class="col-3 q-pr-lg">Full Storage Action:</div>
           <div class="col-3 col-sm-4 q-pr-lg">
             <q-select

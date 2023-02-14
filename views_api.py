@@ -1,8 +1,8 @@
 from http import HTTPStatus
 from typing import List, Optional
-
 from urllib.parse import urlparse
-from fastapi import Depends, WebSocket, Request
+
+from fastapi import Depends, Request, WebSocket
 from fastapi.exceptions import HTTPException
 from loguru import logger
 from pydantic.types import UUID4

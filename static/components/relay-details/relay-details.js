@@ -17,7 +17,8 @@ async function relayDetails(path) {
             name: '',
             description: ''
           }
-        }
+        },
+        skipEventKind: 0
       }
     },
 
@@ -128,6 +129,18 @@ async function relayDetails(path) {
       deleteBlockedPublicKey: function (pubKey) {
         this.relay.config.blockedPublicKeys =
           this.relay.config.blockedPublicKeys.filter(p => p !== pubKey)
+      },
+      addSkipAuthForEvent: function () {
+        value = +this.skipEventKind
+        if (this.relay.config.skipedAuthEvents.indexOf(value) != -1) {
+          return
+        }
+        this.relay.config.skipedAuthEvents.push(value)
+      },
+      removeSkipAuthForEvent: function (eventKind) {
+        value = +eventKind
+        this.relay.config.skipedAuthEvents =
+          this.relay.config.skipedAuthEvents.filter(e => e !== value)
       }
     },
 

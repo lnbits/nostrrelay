@@ -62,6 +62,17 @@ class StorageSpec(Spec):
             value *= 1024
         return value
 
+
+class AuthSpec(BaseModel):
+    require_auth_events = Field(False, alias="requireAuthEvents")
+    skiped_auth_events = Field([], alias="skipedAuthEvents")
+    require_auth_filter = Field(False, alias="requireAuthFilter")
+
+    def event_requires_auth(self, kind: int) -> bool:
+        if not self.require_auth_events:
+            return False
+        return kind not in self.skiped_auth_events
+
 class PaymentSpec(BaseModel):
     is_paid_relay = Field(False, alias="isPaidRelay")
     cost_to_join = Field(0, alias="costToJoin")
@@ -93,7 +104,7 @@ class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
     def is_read_only_relay(self):
         self.free_storage_value == 0 and not self.is_paid_relay
 
-class RelaySpec(RelayPublicSpec, AuthorSpec, WalletSpec):
+class RelaySpec(RelayPublicSpec, AuthorSpec, WalletSpec, AuthSpec):
     pass
 
 
@@ -135,6 +146,7 @@ class NostrEventType(str, Enum):
     EVENT = "EVENT"
     REQ = "REQ"
     CLOSE = "CLOSE"
+    AUTH = "AUTH"
 
 
 class NostrEvent(BaseModel):
@@ -166,6 +178,9 @@ class NostrEvent(BaseModel):
 
     def is_replaceable_event(self) -> bool:
         return self.kind in [0, 3]
+
+    def is_ephemeral_event(self) -> bool:
+        return self.kind in [22242]
 
     def is_delete_event(self) -> bool:
         return self.kind == 5

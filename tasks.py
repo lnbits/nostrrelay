@@ -3,12 +3,12 @@ import asyncio
 from loguru import logger
 
 from lnbits.core.models import Payment
-
 from lnbits.helpers import get_current_extension_name
 from lnbits.tasks import register_invoice_listener
 
 from .crud import create_account, get_account, update_account
 from .models import NostrAccount
+
 
 async def wait_for_paid_invoices():
     invoice_queue = asyncio.Queue()
