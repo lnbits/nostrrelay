@@ -1,7 +1,8 @@
 from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import Depends, WebSocket
+from urllib.parse import urlparse
+from fastapi import Depends, WebSocket, Request
 from fastapi.exceptions import HTTPException
 from loguru import logger
 from pydantic.types import UUID4
@@ -48,7 +49,7 @@ async def websocket_endpoint(relay_id: str, websocket: WebSocket):
 
 @nostrrelay_ext.post("/api/v1/relay")
 async def api_create_relay(
-    data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)
+    data: NostrRelay,  request: Request, wallet: WalletTypeInfo = Depends(require_admin_key)
 ) -> NostrRelay:
     if len(data.id):
         await check_admin(UUID4(wallet.wallet.user))
@@ -56,6 +57,7 @@ async def api_create_relay(
         data.id = urlsafe_short_hash()[:8]
 
     try:
+        data.config.domain = urlparse(str(request.url)).netloc
         relay = await create_relay(wallet.wallet.user, data)
         return relay
 
