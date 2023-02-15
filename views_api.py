@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from typing import List, Optional
-from urllib.parse import urlparse
 
 from fastapi import Depends, Request, WebSocket
 from fastapi.exceptions import HTTPException
@@ -27,7 +26,7 @@ from .crud import (
     get_relays,
     update_relay,
 )
-from .helpers import normalize_public_key
+from .helpers import extract_domain, normalize_public_key
 from .models import BuyOrder, NostrRelay
 
 client_manager = NostrClientManager()
@@ -57,7 +56,7 @@ async def api_create_relay(
         data.id = urlsafe_short_hash()[:8]
 
     try:
-        data.config.domain = urlparse(str(request.url)).netloc
+        data.config.domain = extract_domain(str(request.url))
         relay = await create_relay(wallet.wallet.user, data)
         return relay
 

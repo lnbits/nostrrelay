@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from bech32 import bech32_decode, convertbits
 
 
@@ -17,3 +19,6 @@ def normalize_public_key(pubkey: str) -> str:
         raise ValueError("Public Key is not valid hex")
     int(pubkey, 16)
     return pubkey
+
+def extract_domain(url: str) -> str:
+    return urlparse(url).netloc
