@@ -35,13 +35,16 @@ async def on_invoice_paid(payment: Payment):
         await invoice_paid_for_storage(relay_id, pubkey, storage_to_buy)
         return
 
+
 async def invoice_paid_to_join(relay_id: str, pubkey: str):
     try:
         account = await get_account(relay_id, pubkey)
         if not account:
-            await create_account(relay_id, NostrAccount(pubkey=pubkey, paid_to_join=True))
+            await create_account(
+                relay_id, NostrAccount(pubkey=pubkey, paid_to_join=True)
+            )
             return
-        
+
         if account.blocked or account.paid_to_join:
             return
 
@@ -56,9 +59,11 @@ async def invoice_paid_for_storage(relay_id: str, pubkey: str, storage_to_buy: i
     try:
         account = await get_account(relay_id, pubkey)
         if not account:
-            await create_account(relay_id, NostrAccount(pubkey=pubkey, storage=storage_to_buy))
+            await create_account(
+                relay_id, NostrAccount(pubkey=pubkey, storage=storage_to_buy)
+            )
             return
-        
+
         if account.blocked:
             return
 

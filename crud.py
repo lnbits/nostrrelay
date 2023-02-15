@@ -13,6 +13,7 @@ from .models import (
 
 ########################## RELAYS ####################
 
+
 async def create_relay(user_id: str, r: NostrRelay) -> NostrRelay:
     await db.execute(
         """
@@ -326,8 +327,8 @@ def build_select_events_query(relay_id: str, filter: NostrFilter):
     return query, values
 
 
-
 ########################## ACCOUNTS ####################
+
 
 async def create_account(relay_id: str, a: NostrAccount) -> NostrAccount:
     await db.execute(
@@ -357,25 +358,19 @@ async def update_account(relay_id: str, a: NostrAccount) -> NostrAccount:
         SET (sats, storage, paid_to_join, allowed, blocked) = (?, ?, ?, ?, ?)
         WHERE relay_id = ? AND pubkey = ?
         """,
-        (
-            a.sats,
-            a.storage,
-            a.paid_to_join,
-            a.allowed,
-            a.blocked,
-            relay_id,
-            a.pubkey
-        ),
+        (a.sats, a.storage, a.paid_to_join, a.allowed, a.blocked, relay_id, a.pubkey),
     )
 
     return a
 
 
-async def get_account(relay_id: str, pubkey: str,) -> Optional[NostrAccount]:
+async def get_account(
+    relay_id: str,
+    pubkey: str,
+) -> Optional[NostrAccount]:
     row = await db.fetchone(
         "SELECT * FROM nostrrelay.accounts WHERE relay_id = ? AND pubkey = ?",
         (relay_id, pubkey),
     )
 
     return NostrAccount.from_row(row) if row else None
-

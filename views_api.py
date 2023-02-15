@@ -48,7 +48,9 @@ async def websocket_endpoint(relay_id: str, websocket: WebSocket):
 
 @nostrrelay_ext.post("/api/v1/relay")
 async def api_create_relay(
-    data: NostrRelay,  request: Request, wallet: WalletTypeInfo = Depends(require_admin_key)
+    data: NostrRelay,
+    request: Request,
+    wallet: WalletTypeInfo = Depends(require_admin_key),
 ) -> NostrRelay:
     if len(data.id):
         await check_admin(UUID4(wallet.wallet.user))
@@ -166,11 +168,11 @@ async def api_pay_to_join(data: BuyOrder):
                 detail="Relay not found",
             )
 
-        if data.action == 'join' and relay.is_free_to_join:
+        if data.action == "join" and relay.is_free_to_join:
             raise ValueError("Relay is free to join")
 
         storage_to_buy = 0
-        if data.action == 'storage':
+        if data.action == "storage":
             if relay.config.storage_cost_value == 0:
                 raise ValueError("Relay storage cost is zero. Cannot buy!")
             if data.units_to_buy == 0:
@@ -188,7 +190,7 @@ async def api_pay_to_join(data: BuyOrder):
                 "action": data.action,
                 "relay_id": relay.id,
                 "pubkey": pubkey,
-                "storage_to_buy": storage_to_buy
+                "storage_to_buy": storage_to_buy,
             },
         )
         print("### payment_request", payment_request)

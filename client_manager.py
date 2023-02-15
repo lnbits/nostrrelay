@@ -106,8 +106,6 @@ class NostrClientConnection:
         ] = None
         self.get_client_config: Optional[Callable[[], RelaySpec]] = None
 
-
-
     async def start(self):
         await self.websocket.accept()
         while True:
@@ -177,14 +175,15 @@ class NostrClientConnection:
             self.authenticated = True
             return None
 
-
         if not self.authenticated and self.client_config.event_requires_auth(e.kind):
             await self._send_msg(["AUTH", self._current_auth_challenge()])
-            resp_nip20 += [False, f"restricted: Relay requires authentication for events of kind '{e.kind}'"]
+            resp_nip20 += [
+                False,
+                f"restricted: Relay requires authentication for events of kind '{e.kind}'",
+            ]
             await self._send_msg(resp_nip20)
-            return None 
+            return None
 
-        
         valid, message = await self._validate_write(e)
         if not valid:
             resp_nip20 += [valid, message]
@@ -259,7 +258,7 @@ class NostrClientConnection:
         self._remove_filter(subscription_id)
 
     def _handle_auth(self):
-        raise ValueError('Not supported')
+        raise ValueError("Not supported")
 
     def _can_add_filter(self) -> bool:
         return (
@@ -276,7 +275,7 @@ class NostrClientConnection:
         challenge_tag = e.tag_values("challenge")
         if len(relay_tag) == 0 or len(challenge_tag) == 0:
             return False, "error: NIP42 tags are missing for auth event"
-        
+
         if self.client_config.domain != extract_domain(relay_tag[0]):
             return False, "error: wrong relay domain  for auth event"
 
@@ -317,10 +316,12 @@ class NostrClientConnection:
 
         return True, ""
 
-    async def _validate_storage(self, pubkey: str, event_size_bytes: int) -> Tuple[bool, str]:
+    async def _validate_storage(
+        self, pubkey: str, event_size_bytes: int
+    ) -> Tuple[bool, str]:
         if self.client_config.is_read_only_relay:
             return False, "Cannot write event, relay is read-only"
-        
+
         account = await get_account(self.relay_id, pubkey)
         if not account:
             account = NostrAccount.null_account()
@@ -329,7 +330,9 @@ class NostrClientConnection:
             return False, f"This is a paid relay: '{self.relay_id}'"
 
         stored_bytes = await get_storage_for_public_key(self.relay_id, pubkey)
-        total_available_storage = account.storage + self.client_config.free_storage_bytes_value
+        total_available_storage = (
+            account.storage + self.client_config.free_storage_bytes_value
+        )
         if (stored_bytes + event_size_bytes) <= total_available_storage:
             return True, ""
 
@@ -375,8 +378,10 @@ class NostrClientConnection:
         if self._auth_challenge_created_at == 0:
             return True
         current_time_seconds = round(time.time())
-        chanllenge_max_age_seconds = 300 # 5 min
-        return (current_time_seconds - self._auth_challenge_created_at) >= chanllenge_max_age_seconds
+        chanllenge_max_age_seconds = 300  # 5 min
+        return (
+            current_time_seconds - self._auth_challenge_created_at
+        ) >= chanllenge_max_age_seconds
 
     def _current_auth_challenge(self):
         if self._auth_challenge_expired():

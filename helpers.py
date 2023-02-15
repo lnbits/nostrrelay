@@ -20,5 +20,6 @@ def normalize_public_key(pubkey: str) -> str:
     int(pubkey, 16)
     return pubkey
 
+
 def extract_domain(url: str) -> str:
     return urlparse(url).netloc

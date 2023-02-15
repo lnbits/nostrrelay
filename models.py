@@ -73,6 +73,7 @@ class AuthSpec(BaseModel):
             return False
         return kind not in self.skiped_auth_events
 
+
 class PaymentSpec(BaseModel):
     is_paid_relay = Field(False, alias="isPaidRelay")
     cost_to_join = Field(0, alias="costToJoin")
@@ -93,21 +94,21 @@ class AuthorSpec(Spec):
         # todo: check payment
         return p in self.allowed_public_keys
 
+
 class WalletSpec(Spec):
     wallet = Field("")
 
 
 class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
-    domain: str = ''
+    domain: str = ""
 
     @property
     def is_read_only_relay(self):
         self.free_storage_value == 0 and not self.is_paid_relay
 
+
 class RelaySpec(RelayPublicSpec, AuthorSpec, WalletSpec, AuthSpec):
     pass
-
-
 
 
 class NostrRelay(BaseModel):
@@ -183,7 +184,7 @@ class NostrEvent(BaseModel):
     @property
     def is_auth_response_event(self) -> bool:
         return self.kind == 22242
-    
+
     @property
     def is_delete_event(self) -> bool:
         return self.kind == 5
@@ -340,7 +341,8 @@ class BuyOrder(BaseModel):
     units_to_buy = 0
 
     def is_valid_action(self):
-        return self.action in ['join', 'storage']
+        return self.action in ["join", "storage"]
+
 
 class NostrAccount(BaseModel):
     pubkey: str
