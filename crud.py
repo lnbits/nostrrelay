@@ -374,3 +374,15 @@ async def get_account(
     )
 
     return NostrAccount.from_row(row) if row else None
+
+async def get_accounts(
+    relay_id: str,
+    allowed = True,
+    blocked = False,
+) -> List[NostrAccount]:
+    rows = await db.fetchall(
+        "SELECT * FROM nostrrelay.accounts WHERE relay_id = ? AND allowed = ? AND blocked = ?",
+        (relay_id, allowed, blocked),
+    )
+
+    return [NostrAccount.from_row(row) for row in rows]

@@ -27,21 +27,21 @@ async def on_invoice_paid(payment: Payment):
     pubkey = payment.extra.get("pubkey")
 
     if payment.extra.get("action") == "join":
-        await invoice_paid_to_join(relay_id, pubkey)
+        await invoice_paid_to_join(relay_id, pubkey, payment.amount)
         return
 
     if payment.extra.get("action") == "storage":
         storage_to_buy = payment.extra.get("storage_to_buy")
-        await invoice_paid_for_storage(relay_id, pubkey, storage_to_buy)
+        await invoice_paid_for_storage(relay_id, pubkey, storage_to_buy, payment.amount)
         return
 
 
-async def invoice_paid_to_join(relay_id: str, pubkey: str):
+async def invoice_paid_to_join(relay_id: str, pubkey: str, amount: int):
     try:
         account = await get_account(relay_id, pubkey)
         if not account:
             await create_account(
-                relay_id, NostrAccount(pubkey=pubkey, paid_to_join=True)
+                relay_id, NostrAccount(pubkey=pubkey, paid_to_join=True, sats=amount)
             )
             return
 
@@ -49,18 +49,19 @@ async def invoice_paid_to_join(relay_id: str, pubkey: str):
             return
 
         account.paid_to_join = True
+        account.sats += amount
         await update_account(relay_id, account)
 
     except Exception as ex:
         logger.warning(ex)
 
 
-async def invoice_paid_for_storage(relay_id: str, pubkey: str, storage_to_buy: int):
+async def invoice_paid_for_storage(relay_id: str, pubkey: str, storage_to_buy: int, amount: str):
     try:
         account = await get_account(relay_id, pubkey)
         if not account:
             await create_account(
-                relay_id, NostrAccount(pubkey=pubkey, storage=storage_to_buy)
+                relay_id, NostrAccount(pubkey=pubkey, storage=storage_to_buy, sats=amount)
             )
             return
 
@@ -68,6 +69,7 @@ async def invoice_paid_for_storage(relay_id: str, pubkey: str, storage_to_buy: i
             return
 
         account.storage = storage_to_buy
+        account.sats += amount
         await update_account(relay_id, account)
 
     except Exception as ex:

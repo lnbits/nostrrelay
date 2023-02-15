@@ -114,9 +114,29 @@ async function relayDetails(path) {
         this.relay.config.wallet =
           this.relay.config.wallet || this.walletOptions[0].value
       },
-      allowPublicKey: function () {
-        this.relay.config.allowedPublicKeys.push(this.allowedPubkey)
-        this.allowedPubkey = ''
+      allowPublicKey: async function () {
+        try {
+          const {data} = await LNbits.api.request(
+            'PUT',
+            '/nostrrelay/api/v1/account',
+            this.adminkey,
+            {
+              pubkey: this.allowedPubkey,
+              allowed: true
+            }
+          )
+          this.relay = data
+          this.$emit('relay-updated', this.relay)
+          this.$q.notify({
+            type: 'positive',
+            message: 'Account Updated',
+            timeout: 5000
+          })
+          this.allowedPubkey = ''
+        } catch (error) {
+          LNbits.utils.notifyApiError(error)
+        }
+        
       },
       blockPublicKey: function () {
         this.relay.config.blockedPublicKeys.push(this.blockedPubkey)

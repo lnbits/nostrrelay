@@ -18,16 +18,20 @@ from lnbits.helpers import urlsafe_short_hash
 from . import nostrrelay_ext
 from .client_manager import NostrClientConnection, NostrClientManager
 from .crud import (
+    create_account,
     create_relay,
     delete_all_events,
     delete_relay,
+    get_account,
+    get_accounts,
     get_relay,
     get_relay_by_id,
     get_relays,
+    update_account,
     update_relay,
 )
 from .helpers import extract_domain, normalize_public_key
-from .models import BuyOrder, NostrRelay
+from .models import BuyOrder, NostrAccount, NostrPartialAccount, NostrRelay
 
 client_manager = NostrClientManager()
 
@@ -141,6 +145,64 @@ async def api_get_relay(
     return relay
 
 
+@nostrrelay_ext.put("/api/v1/account")
+async def api_create_or_update_account(
+    data: NostrPartialAccount,
+    wallet: WalletTypeInfo = Depends(require_admin_key),
+) -> NostrAccount:
+
+    try:
+        data.pubkey = normalize_public_key(data.pubkey)
+        account = await get_account(data.relay_id, data.pubkey)
+        if not account:
+            return await create_account(data.relay_id, NostrAccount.parse_obj(data.dict()))
+
+        if data.blocked is not None:
+            account.blocked = data.blocked
+        if data.allowed is not None:
+            account.allowed = data.allowed
+        return await update_account(data.relay_id, account)            
+
+    except ValueError as ex:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=str(ex),
+        )
+    except HTTPException as ex:
+        raise ex
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot create account",
+        )
+
+
+@nostrrelay_ext.get("/api/v1/account")
+async def api_get_accounts(
+    relay_id: str, allowed: bool, blocked: bool, wallet: WalletTypeInfo = Depends(require_invoice_key)
+) -> List[NostrAccount]:
+    try:
+        # make sure the user has access to the relay
+        relay = await get_relay(wallet.wallet.user, relay_id)
+        accounts = await get_accounts(relay.id, allowed, blocked)
+        return accounts
+    except ValueError as ex:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=str(ex),
+        )
+    except HTTPException as ex:
+        raise ex
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot fetch accounts",
+        )
+
+
+
 @nostrrelay_ext.delete("/api/v1/relay/{relay_id}")
 async def api_delete_relay(
     relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)
@@ -193,7 +255,6 @@ async def api_pay_to_join(data: BuyOrder):
                 "storage_to_buy": storage_to_buy,
             },
         )
-        print("### payment_request", payment_request)
         return {"invoice": payment_request}
     except ValueError as ex:
         raise HTTPException(

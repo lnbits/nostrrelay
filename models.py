@@ -344,14 +344,18 @@ class BuyOrder(BaseModel):
     def is_valid_action(self):
         return self.action in ["join", "storage"]
 
-
+class NostrPartialAccount(BaseModel):
+    relay_id: str
+    pubkey: str
+    allowed: Optional[bool]
+    blocked: Optional[bool]
 class NostrAccount(BaseModel):
     pubkey: str
+    allowed = False
+    blocked = False
     sats = 0
     storage = 0
     paid_to_join = False
-    allowed = False
-    blocked = False
 
     @classmethod
     def null_account(cls) -> "NostrAccount":
