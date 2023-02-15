@@ -18,7 +18,8 @@ async function relayDetails(path) {
             description: ''
           }
         },
-        skipEventKind: 0
+        skipEventKind: 0,
+        forceEventKind: 0
       }
     },
 
@@ -141,6 +142,18 @@ async function relayDetails(path) {
         value = +eventKind
         this.relay.config.skipedAuthEvents =
           this.relay.config.skipedAuthEvents.filter(e => e !== value)
+      },
+      addForceAuthForEvent: function () {
+        value = +this.forceEventKind
+        if (this.relay.config.forcedAuthEvents.indexOf(value) != -1) {
+          return
+        }
+        this.relay.config.forcedAuthEvents.push(value)
+      },
+      removeSkipAuthForEvent: function (eventKind) {
+        value = +eventKind
+        this.relay.config.forcedAuthEvents =
+          this.relay.config.forcedAuthEvents.filter(e => e !== value)
       }
     },
 

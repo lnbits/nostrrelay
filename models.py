@@ -66,12 +66,13 @@ class StorageSpec(Spec):
 class AuthSpec(BaseModel):
     require_auth_events = Field(False, alias="requireAuthEvents")
     skiped_auth_events = Field([], alias="skipedAuthEvents")
+    forced_auth_events = Field([], alias="forcedAuthEvents")
     require_auth_filter = Field(False, alias="requireAuthFilter")
 
     def event_requires_auth(self, kind: int) -> bool:
-        if not self.require_auth_events:
-            return False
-        return kind not in self.skiped_auth_events
+        if self.require_auth_events:
+            return kind not in self.skiped_auth_events
+        return kind in self.forced_auth_events
 
 
 class PaymentSpec(BaseModel):
