@@ -216,7 +216,7 @@ class NostrEvent(BaseModel):
     def serialize_response(self, subscription_id):
         return [NostrEventType.EVENT, subscription_id, dict(self)]
 
-    def tag_values(self, tag_name: str) -> List[List[str]]:
+    def tag_values(self, tag_name: str) -> List[str]:
         return [t[1] for t in self.tags if t[0] == tag_name]
 
     @classmethod

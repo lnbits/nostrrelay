@@ -94,8 +94,8 @@ class NostrClientConnection:
         self.relay_id = relay_id
         self.filters: List[NostrFilter] = []
         self.authenticated = False
-        self.pubkey: str = None
-        self._auth_challenge: str = None
+        self.pubkey: Optional[str] = None
+        self._auth_challenge: Optional[str] = None
         self._auth_challenge_created_at = 0
 
         self._last_event_timestamp = 0  # in seconds
@@ -158,7 +158,7 @@ class NostrClientConnection:
         if message_type == NostrEventType.CLOSE:
             self._handle_close(data[1])
         if message_type == NostrEventType.AUTH:
-            await self._handle_auth(data[1])
+            await self._handle_auth()
 
         return []
 
@@ -269,7 +269,7 @@ class NostrClientConnection:
     def _validate_auth_event(self, e: NostrEvent) -> Tuple[bool, str]:
         valid, message = self._validate_event(e)
         if not valid:
-            return [valid, message]
+            return (valid, message)
 
         relay_tag = e.tag_values("relay")
         challenge_tag = e.tag_values("challenge")

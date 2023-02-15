@@ -7,9 +7,9 @@ from starlette.responses import HTMLResponse, JSONResponse
 
 from lnbits.core.models import User
 from lnbits.decorators import check_user_exists
-from lnbits.extensions.nostrrelay.crud import get_public_relay
 
 from . import nostrrelay_ext, nostrrelay_renderer
+from .crud import get_public_relay
 
 templates = Jinja2Templates(directory="templates")
 

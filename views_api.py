@@ -185,6 +185,11 @@ async def api_get_accounts(
     try:
         # make sure the user has access to the relay
         relay = await get_relay(wallet.wallet.user, relay_id)
+        if not relay:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Relay not found",
+            )
         accounts = await get_accounts(relay.id, allowed, blocked)
         return accounts
     except ValueError as ex:

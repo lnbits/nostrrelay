@@ -5,8 +5,12 @@ import pytest
 from loguru import logger
 from pydantic import BaseModel
 
-from lnbits.extensions.nostrrelay.crud import create_event, get_event, get_events
-from lnbits.extensions.nostrrelay.models import NostrEvent, NostrFilter
+from lnbits.extensions.nostrrelay.crud import (  # type: ignore
+    create_event,
+    get_event,
+    get_events,
+)
+from lnbits.extensions.nostrrelay.models import NostrEvent, NostrFilter  # type: ignore
 
 from .helpers import get_fixtures
 
