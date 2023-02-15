@@ -176,14 +176,21 @@ class NostrEvent(BaseModel):
         s = json.dumps(dict(self), separators=(",", ":"), ensure_ascii=False)
         return len(s.encode())
 
+    @property
     def is_replaceable_event(self) -> bool:
         return self.kind in [0, 3]
 
-    def is_ephemeral_event(self) -> bool:
-        return self.kind in [22242]
-
+    @property
+    def is_auth_response_event(self) -> bool:
+        return self.kind == 22242
+    
+    @property
     def is_delete_event(self) -> bool:
         return self.kind == 5
+
+    @property
+    def is_ephemeral_event(self) -> bool:
+        return self.kind in [22242]
 
     def check_signature(self):
         event_id = self.event_id
@@ -206,6 +213,9 @@ class NostrEvent(BaseModel):
 
     def serialize_response(self, subscription_id):
         return [NostrEventType.EVENT, subscription_id, dict(self)]
+
+    def tag_values(self, tag_name: str) -> List[List[str]]:
+        return [t[1] for t in self.tags if t[0] == tag_name]
 
     @classmethod
     def from_row(cls, row: Row) -> "NostrEvent":
