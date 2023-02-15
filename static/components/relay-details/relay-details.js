@@ -126,11 +126,11 @@ async function relayDetails(path) {
         this.relay.config.allowedPublicKeys =
           this.relay.config.allowedPublicKeys.filter(p => p !== pubKey)
       },
-
       deleteBlockedPublicKey: function (pubKey) {
         this.relay.config.blockedPublicKeys =
           this.relay.config.blockedPublicKeys.filter(p => p !== pubKey)
       },
+
       addSkipAuthForEvent: function () {
         value = +this.skipEventKind
         if (this.relay.config.skipedAuthEvents.indexOf(value) != -1) {
