@@ -180,7 +180,7 @@ class NostrClientConnection:
 
         if not self.authenticated and self.client_config.event_requires_auth(e.kind):
             await self._send_msg(["AUTH", self._current_auth_challenge()])
-            resp_nip20 += [False, "Relay requires authentication"]
+            resp_nip20 += [False, f"restricted: Relay requires authentication for events of kind '{e.kind}'"]
             await self._send_msg(resp_nip20)
             return None 
 
@@ -275,13 +275,13 @@ class NostrClientConnection:
         relay_tag = e.tag_values("relay")
         challenge_tag = e.tag_values("challenge")
         if len(relay_tag) == 0 or len(challenge_tag) == 0:
-            return False, "NIP42 tags are missing"
+            return False, "error: NIP42 tags are missing for auth event"
         
         if self.client_config.domain != extract_domain(relay_tag[0]):
-            return False, "Wrong relay domain"
+            return False, "error: wrong relay domain  for auth event"
 
         if self._auth_challenge != challenge_tag[0]:
-            return False, "Wrong chanlange value"
+            return False, "error: wrong chanlange value for auth event"
 
         return True, ""
 
