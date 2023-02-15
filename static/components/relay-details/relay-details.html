@@ -389,41 +389,38 @@
             </q-chip>
           </div>
         </div>
-        <div
-        v-else
-        class="row items-center no-wrap q-mb-md q-mt-md"
-      >
-        <div class="col-3 q-pr-lg">Force Auth For Events:</div>
-        <div class="col-1">
-          <q-input
-            filled
-            dense
-            v-model.trim="forceEventKind"
-            type="number"
-            min="0"
-          ></q-input>
+        <div v-else class="row items-center no-wrap q-mb-md q-mt-md">
+          <div class="col-3 q-pr-lg">Force Auth For Events:</div>
+          <div class="col-1">
+            <q-input
+              filled
+              dense
+              v-model.trim="forceEventKind"
+              type="number"
+              min="0"
+            ></q-input>
+          </div>
+          <div class="col-1">
+            <q-btn
+              unelevated
+              color="secondary"
+              icon="add"
+              @click="addForceAuthForEvent()"
+            ></q-btn>
+          </div>
+          <div class="col-7">
+            <q-chip
+              v-for="e in relay.config.forcedAuthEvents"
+              :key="e"
+              removable
+              @remove="removeForceAuthForEvent(e)"
+              color="primary"
+              text-color="white"
+            >
+              {{ e }}
+            </q-chip>
+          </div>
         </div>
-        <div class="col-1">
-          <q-btn
-            unelevated
-            color="secondary"
-            icon="add"
-            @click="addForceAuthForEvent()"
-          ></q-btn>
-        </div>
-        <div class="col-7">
-          <q-chip
-            v-for="e in relay.config.forcedAuthEvents"
-            :key="e"
-            removable
-            @remove="removeForceAuthForEvent(e)"
-            color="primary"
-            text-color="white"
-          >
-            {{ e }}
-          </q-chip>
-        </div>
-      </div>
         <q-separator></q-separator>
         <div class="row items-center no-wrap q-mb-md q-mt-md">
           <div class="col-3 q-pr-lg">Full Storage Action:</div>
@@ -530,7 +527,7 @@
     <q-tab-panel name="accounts">
       <div v-if="relay">
         <div class="row items-center no-wrap q-mb-md">
-          <div class="col-2 q-pr-lg">Public Key: </div>
+          <div class="col-2 q-pr-lg">Public Key:</div>
           <div class="col-6 q-pr-lg">
             <q-input
               filled
@@ -558,7 +555,6 @@
             >
           </div>
         </div>
-
       </div>
     </q-tab-panel>
   </q-tab-panels>

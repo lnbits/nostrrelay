@@ -136,7 +136,6 @@ async function relayDetails(path) {
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
-        
       },
       blockPublicKey: function () {
         this.relay.config.blockedPublicKeys.push(this.blockedPubkey)
