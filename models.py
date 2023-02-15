@@ -138,7 +138,7 @@ class NostrRelay(BaseModel):
     ) -> dict:
         return {
             "contact": "https://t.me/lnbits",
-            "supported_nips": [1, 9, 11, 15, 20, 22],
+            "supported_nips": [1, 9, 11, 15, 20, 22, 42],
             "software": "LNbits",
             "version": "",
         }
