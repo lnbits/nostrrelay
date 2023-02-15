@@ -158,7 +158,7 @@ class NostrClientConnection:
         if message_type == NostrEventType.CLOSE:
             self._handle_close(data[1])
         if message_type == NostrEventType.AUTH:
-            self._handle_auth(data[1])
+            await self._handle_auth(data[1])
 
         return []
 
@@ -257,8 +257,8 @@ class NostrClientConnection:
     def _handle_close(self, subscription_id: str):
         self._remove_filter(subscription_id)
 
-    def _handle_auth(self):
-        raise ValueError("Not supported")
+    async def _handle_auth(self):
+        await self._send_msg(["AUTH", self._current_auth_challenge()])
 
     def _can_add_filter(self) -> bool:
         return (
