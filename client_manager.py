@@ -173,6 +173,7 @@ class NostrClientConnection:
                 await self._send_msg(resp_nip20)
                 return None
             self.authenticated = True
+            self.pubkey = e.pubkey
             return None
 
         if not self.authenticated and self.client_config.event_requires_auth(e.kind):
