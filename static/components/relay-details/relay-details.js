@@ -238,7 +238,7 @@ async function relayDetails(path) {
         }
         this.relay.config.forcedAuthEvents.push(value)
       },
-      removeSkipAuthForEvent: function (eventKind) {
+      removeForceAuthForEvent: function (eventKind) {
         value = +eventKind
         this.relay.config.forcedAuthEvents =
           this.relay.config.forcedAuthEvents.filter(e => e !== value)

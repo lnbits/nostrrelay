@@ -93,8 +93,7 @@ class NostrClientConnection:
         self.websocket = websocket
         self.relay_id = relay_id
         self.filters: List[NostrFilter] = []
-        self.authenticated = False
-        self.pubkey: Optional[str] = None
+        self.pubkey: Optional[str] = None # set if authenticated
         self._auth_challenge: Optional[str] = None
         self._auth_challenge_created_at = 0
 
@@ -132,12 +131,26 @@ class NostrClientConnection:
             pass
 
     async def notify_event(self, event: NostrEvent) -> bool:
+        if self._is_direct_message_for_other(event):
+            return False
+
         for filter in self.filters:
             if filter.matches(event):
                 resp = event.serialize_response(filter.subscription_id)
                 await self._send_msg(resp)
                 return True
         return False
+
+    def _is_direct_message_for_other(self, event: NostrEvent) -> bool:
+        if not event.is_direct_message:
+            return False
+        if not self.client_config.event_requires_auth(event.kind):
+            return False
+        if not self.pubkey:
+            return True
+        if event.has_tag_value("p", self.pubkey):
+            return False
+        return True
 
     async def _broadcast_event(self, e: NostrEvent):
         if self.broadcast_event:
@@ -172,11 +185,10 @@ class NostrClientConnection:
                 resp_nip20 += [valid, message]
                 await self._send_msg(resp_nip20)
                 return None
-            self.authenticated = True
             self.pubkey = e.pubkey
             return None
 
-        if not self.authenticated and self.client_config.event_requires_auth(e.kind):
+        if not self.pubkey and self.client_config.event_requires_auth(e.kind):
             await self._send_msg(["AUTH", self._current_auth_challenge()])
             resp_nip20 += [
                 False,
@@ -229,7 +241,7 @@ class NostrClientConnection:
         await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
 
     async def _handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
-        if not self.authenticated and self.client_config.require_auth_filter:
+        if not self.pubkey and self.client_config.require_auth_filter:
             return [["AUTH", self._current_auth_challenge()]]
 
         filter.subscription_id = subscription_id
