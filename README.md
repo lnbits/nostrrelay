@@ -2,15 +2,16 @@
 
 ## One click and spin up your own Nostr relay. Share with the world, or use privately.
 
-A simple UI wrapper for the great python relay library <a href="https://code.pobblelabs.org/fossil/nostr_relay/">nostr_relay</a>.
-
-UI for diagnostics and management (key alow/ban lists, rate limiting) coming soon!
 
 ### Usage
+Install this extension into your LNbits instance.
+....
 
-1. Enable extension
-2. Enable relay 
 
+## Supported NIPs
+ - [x] NIP-01: Basic protocol flow
+ - [x] NIP-02: Contact List and Petnames
+   - `kind: 3`: delete past contact lists as soon as the relay receives a new one
 
 ### Development
 
