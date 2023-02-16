@@ -299,12 +299,6 @@ class NostrClientConnection:
         if self._exceeded_max_events_per_second():
             return False, f"Exceeded max events per second limit'!"
 
-        if not self.client_config.is_author_allowed(e.pubkey):
-            return (
-                False,
-                f"Public key '{e.pubkey}' is not allowed in relay '{self.relay_id}'!",
-            )
-
         try:
             e.check_signature()
         except ValueError:
@@ -326,7 +320,13 @@ class NostrClientConnection:
         if not account:
             account = NostrAccount.null_account()
 
-        if not account.paid_to_join and self.client_config.is_paid_relay:
+        if account.blocked:
+            return (
+                    False,
+                    f"Public key '{pubkey}' is not allowed in relay '{self.relay_id}'!",
+                )
+
+        if not account.can_join and self.client_config.is_paid_relay:
             return False, f"This is a paid relay: '{self.relay_id}'"
 
         stored_bytes = await get_storage_for_public_key(self.relay_id, pubkey)

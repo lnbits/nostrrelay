@@ -182,7 +182,7 @@ async def api_create_or_update_account(
 
 @nostrrelay_ext.get("/api/v1/account")
 async def api_get_accounts(
-    relay_id: str, allowed: bool, blocked: bool, wallet: WalletTypeInfo = Depends(require_invoice_key)
+    relay_id: str, allowed = False, blocked = True, wallet: WalletTypeInfo = Depends(require_invoice_key)
 ) -> List[NostrAccount]:
     try:
         # make sure the user has access to the relay

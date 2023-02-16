@@ -9,12 +9,59 @@ async function relayDetails(path) {
       return {
         tab: 'info',
         relay: null,
+        accounts: [],
         accountPubkey: '',
         formDialogItem: {
           show: false,
           data: {
             name: '',
             description: ''
+          }
+        },
+        accountsFilter: '',
+        showBlockedAccounts: true,
+        showAllowedAccounts: false,
+        accountsTable: {
+          columns: [
+            {
+              name: 'pubkey',
+              align: 'left',
+              label: 'Public Key',
+              field: 'pubkey'
+            },
+            {
+              name: 'allowed',
+              align: 'left',
+              label: 'Allowed',
+              field: 'allowed'
+            },
+            {
+              name: 'blocked',
+              align: 'left',
+              label: 'Blocked',
+              field: 'blocked'
+            },
+            {
+              name: 'paid_to_join',
+              align: 'left',
+              label: 'Paid to join',
+              field: 'paid_to_join'
+            },
+            {
+              name: 'sats',
+              align: 'left',
+              label: 'Spent Sats',
+              field: 'sats'
+            },
+            {
+              name: 'storage',
+              align: 'left',
+              label: 'Storage',
+              field: 'storage'
+            }
+          ],
+          pagination: {
+            rowsPerPage: 10
           }
         },
         skipEventKind: 0,
@@ -113,11 +160,39 @@ async function relayDetails(path) {
         this.relay.config.wallet =
           this.relay.config.wallet || this.walletOptions[0].value
       },
-      allowPublicKey: async function (allowed) {
-        await this.updatePublicKey({allowed})
+      getAccounts: async function () {
+        try {
+          const {data} = await LNbits.api.request(
+            'GET',
+            `/nostrrelay/api/v1/account?relay_id=${this.relay.id}&allowed=${this.showAllowedAccounts}&blocked=${this.showBlockedAccounts}`,
+            this.inkey
+          )
+          this.accounts = data
+
+          console.log('###  this.accounts', this.accounts)
+        } catch (error) {
+          LNbits.utils.notifyApiError(error)
+        }
       },
-      blockPublicKey: async function (blocked = true) {
-        await this.updatePublicKey({blocked})
+      allowPublicKey: async function (pubkey, allowed) {
+        await this.updatePublicKey({pubkey, allowed})
+      },
+      blockPublicKey: async function (pubkey, blocked = true) {
+        await this.updatePublicKey({pubkey, blocked})
+      },
+      togglePublicKey: async function (account, action) {
+        if (action === 'allow') {
+          await this.updatePublicKey({
+            pubkey: account.pubkey,
+            allowed: account.allowed
+          })
+        }
+        if (action === 'block') {
+          await this.updatePublicKey({
+            pubkey: account.pubkey,
+            blocked: account.blocked
+          })
+        }
       },
       updatePublicKey: async function (ops) {
         try {
@@ -127,7 +202,7 @@ async function relayDetails(path) {
             this.adminkey,
             {
               relay_id: this.relay.id,
-              pubkey: this.accountPubkey,
+              pubkey: ops.pubkey,
               allowed: ops.allowed,
               blocked: ops.blocked
             }
@@ -138,17 +213,10 @@ async function relayDetails(path) {
             timeout: 5000
           })
           this.accountPubkey = ''
+          await this.getAccounts()
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
-      },
-      deleteAllowedPublicKey: function (pubKey) {
-        this.relay.config.allowedPublicKeys =
-          this.relay.config.allowedPublicKeys.filter(p => p !== pubKey)
-      },
-      deleteBlockedPublicKey: function (pubKey) {
-        this.relay.config.blockedPublicKeys =
-          this.relay.config.blockedPublicKeys.filter(p => p !== pubKey)
       },
 
       addSkipAuthForEvent: function () {
@@ -179,6 +247,7 @@ async function relayDetails(path) {
 
     created: async function () {
       await this.getRelay()
+      await this.getAccounts()
     }
   })
 }

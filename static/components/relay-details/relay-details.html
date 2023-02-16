@@ -526,33 +526,101 @@
     </q-tab-panel>
     <q-tab-panel name="accounts">
       <div v-if="relay">
+        <q-card
+          ><q-card-section>
+            <div class="row items-center no-wrap q-mb-md">
+              <div class="col-2 q-pr-lg">Public Key:</div>
+              <div class="col-6 q-pr-lg">
+                <q-input
+                  filled
+                  dense
+                  v-model.trim="accountPubkey"
+                  type="text"
+                ></q-input>
+              </div>
+              <div class="col-2 q-pr-md">
+                <q-btn
+                  unelevated
+                  color="green"
+                  class="float-right"
+                  @click="allowPublicKey(accountPubkey, true)"
+                  >Allow</q-btn
+                >
+              </div>
+              <div class="col-2">
+                <q-btn
+                  unelevated
+                  color="pink"
+                  class="float-right"
+                  @click="blockPublicKey(accountPubkey, true)"
+                  >Block</q-btn
+                >
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+        <q-separator></q-separator>
         <div class="row items-center no-wrap q-mb-md">
-          <div class="col-2 q-pr-lg">Public Key:</div>
-          <div class="col-6 q-pr-lg">
-            <q-input
-              filled
+          <div class="col-3 q-pr-lg">Filter:</div>
+          <div class="col-9 q-pr-lg">
+            <q-toggle
+              size="sm"
+              color="secodary"
+              class="q-mr-lg"
+              v-model="showAllowedAccounts"
+              @input="getAccounts()"
+              >Show Allowed Account</q-toggle
+            >
+            <q-toggle
+              size="sm"
+              color="secodary"
+              class="q-mr-lg"
+              v-model="showBlockedAccounts"
+              @input="getAccounts()"
+            >
+              Show Blocked Accounts</q-toggle
+            >
+          </div>
+        </div>
+        <q-separator></q-separator>
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-12 q-pr-lg">
+            <q-table
+              flat
               dense
-              v-model.trim="accountPubkey"
-              type="text"
-            ></q-input>
-          </div>
-          <div class="col-2 q-pr-md">
-            <q-btn
-              unelevated
-              color="green"
-              class="float-right"
-              @click="allowPublicKey(true)"
-              >Allow</q-btn
+              :data="accounts"
+              row-key="pubkey"
+              :columns="accountsTable.columns"
+              :pagination.sync="accountsTable.pagination"
+              :filter="accountsFilter"
             >
-          </div>
-          <div class="col-2">
-            <q-btn
-              unelevated
-              color="pink"
-              class="float-right"
-              @click="blockPublicKey(true)"
-              >Block</q-btn
-            >
+              <template v-slot:body="props">
+                <q-tr :props="props">
+                  <q-td key="pubkey" :props="props">
+                    {{props.row.pubkey}}
+                  </q-td>
+                  <q-td key="allowed" :props="props">
+                    <q-toggle
+                      size="sm"
+                      color="secodary"
+                      v-model="props.row.allowed"
+                      @input="togglePublicKey(props.row, 'allow')"
+                    ></q-toggle>
+                  </q-td>
+                  <q-td key="blocked" :props="props">
+                    <q-toggle
+                      size="sm"
+                      color="secodary"
+                      v-model="props.row.blocked"
+                      @input="togglePublicKey(props.row, 'block')"
+                    ></q-toggle>
+                  </q-td>
+                  <q-td auto-width> {{props.row.paid_to_join}} </q-td>
+                  <q-td auto-width> {{props.row.sats}} </q-td>
+                  <q-td auto-width> {{props.row.storage}} </q-td>
+                </q-tr>
+              </template>
+            </q-table>
           </div>
         </div>
       </div>

@@ -83,18 +83,6 @@ class PaymentSpec(BaseModel):
     storage_cost_unit = Field("MB", alias="storageCostUnit")
 
 
-class AuthorSpec(Spec):
-    allowed_public_keys = Field([], alias="allowedPublicKeys")
-    blocked_public_keys = Field([], alias="blockedPublicKeys")
-
-    def is_author_allowed(self, p: str) -> bool:
-        if p in self.blocked_public_keys:
-            return False
-        if len(self.allowed_public_keys) == 0:
-            return True
-        # todo: check payment
-        return p in self.allowed_public_keys
-
 
 class WalletSpec(Spec):
     wallet = Field("")
@@ -108,7 +96,7 @@ class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
         self.free_storage_value == 0 and not self.is_paid_relay
 
 
-class RelaySpec(RelayPublicSpec, AuthorSpec, WalletSpec, AuthSpec):
+class RelaySpec(RelayPublicSpec, WalletSpec, AuthSpec):
     pass
 
 
@@ -356,6 +344,11 @@ class NostrAccount(BaseModel):
     sats = 0
     storage = 0
     paid_to_join = False
+
+    @property
+    def can_join(self):
+        """If an account is explicitly allowed then it does not need to pay"""
+        return self.paid_to_join or self.allowed
 
     @classmethod
     def null_account(cls) -> "NostrAccount":
