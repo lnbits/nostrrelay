@@ -27,7 +27,9 @@ async def on_invoice_paid(payment: Payment):
     pubkey = payment.extra.get("pubkey")
 
     if not relay_id or not pubkey:
-        logger.warning(f"Invoice extra data missing for 'relay_id' and 'pubkey'. Payment hash: {payment.payment_hash}")
+        logger.warning(
+            f"Invoice extra data missing for 'relay_id' and 'pubkey'. Payment hash: {payment.payment_hash}"
+        )
         return
 
     if payment.extra.get("action") == "join":
@@ -37,7 +39,9 @@ async def on_invoice_paid(payment: Payment):
     if payment.extra.get("action") == "storage":
         storage_to_buy = payment.extra.get("storage_to_buy")
         if not storage_to_buy:
-            logger.warning(f"Invoice extra data missing for 'storage_to_buy'. Payment hash: {payment.payment_hash}")
+            logger.warning(
+                f"Invoice extra data missing for 'storage_to_buy'. Payment hash: {payment.payment_hash}"
+            )
             return
         await invoice_paid_for_storage(relay_id, pubkey, storage_to_buy, payment.amount)
         return
@@ -63,12 +67,15 @@ async def invoice_paid_to_join(relay_id: str, pubkey: str, amount: int):
         logger.warning(ex)
 
 
-async def invoice_paid_for_storage(relay_id: str, pubkey: str, storage_to_buy: int, amount: int):
+async def invoice_paid_for_storage(
+    relay_id: str, pubkey: str, storage_to_buy: int, amount: int
+):
     try:
         account = await get_account(relay_id, pubkey)
         if not account:
             await create_account(
-                relay_id, NostrAccount(pubkey=pubkey, storage=storage_to_buy, sats=amount)
+                relay_id,
+                NostrAccount(pubkey=pubkey, storage=storage_to_buy, sats=amount),
             )
             return
 

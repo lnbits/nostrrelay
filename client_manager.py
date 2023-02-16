@@ -322,9 +322,9 @@ class NostrClientConnection:
 
         if account.blocked:
             return (
-                    False,
-                    f"Public key '{pubkey}' is not allowed in relay '{self.relay_id}'!",
-                )
+                False,
+                f"Public key '{pubkey}' is not allowed in relay '{self.relay_id}'!",
+            )
 
         if not account.can_join and self.client_config.is_paid_relay:
             return False, f"This is a paid relay: '{self.relay_id}'"

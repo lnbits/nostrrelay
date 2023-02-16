@@ -83,7 +83,6 @@ class PaymentSpec(BaseModel):
     storage_cost_unit = Field("MB", alias="storageCostUnit")
 
 
-
 class WalletSpec(Spec):
     wallet = Field("")
 
@@ -332,11 +331,14 @@ class BuyOrder(BaseModel):
     def is_valid_action(self):
         return self.action in ["join", "storage"]
 
+
 class NostrPartialAccount(BaseModel):
     relay_id: str
     pubkey: str
     allowed: Optional[bool]
     blocked: Optional[bool]
+
+
 class NostrAccount(BaseModel):
     pubkey: str
     allowed = False

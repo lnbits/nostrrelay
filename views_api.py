@@ -155,15 +155,19 @@ async def api_create_or_update_account(
         data.pubkey = normalize_public_key(data.pubkey)
         account = await get_account(data.relay_id, data.pubkey)
         if not account:
-            account = NostrAccount(pubkey=data.pubkey, blocked = data.blocked or False, allowed = data.allowed or False)
+            account = NostrAccount(
+                pubkey=data.pubkey,
+                blocked=data.blocked or False,
+                allowed=data.allowed or False,
+            )
             return await create_account(data.relay_id, account)
 
         if data.blocked is not None:
             account.blocked = data.blocked
         if data.allowed is not None:
             account.allowed = data.allowed
-        
-        return await update_account(data.relay_id, account)            
+
+        return await update_account(data.relay_id, account)
 
     except ValueError as ex:
         raise HTTPException(
@@ -182,7 +186,10 @@ async def api_create_or_update_account(
 
 @nostrrelay_ext.get("/api/v1/account")
 async def api_get_accounts(
-    relay_id: str, allowed = False, blocked = True, wallet: WalletTypeInfo = Depends(require_invoice_key)
+    relay_id: str,
+    allowed=False,
+    blocked=True,
+    wallet: WalletTypeInfo = Depends(require_invoice_key),
 ) -> List[NostrAccount]:
     try:
         # make sure the user has access to the relay
@@ -207,7 +214,6 @@ async def api_get_accounts(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot fetch accounts",
         )
-
 
 
 @nostrrelay_ext.delete("/api/v1/relay/{relay_id}")
