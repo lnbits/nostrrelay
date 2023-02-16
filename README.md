@@ -24,7 +24,21 @@ Install this extension into your LNbits instance.
    - [x] Regular Events
    - [ ] Replaceable Events
    - [ ] Ephemeral Events
-
+ - [x] **NIP-20**: Command Results
+   - todo: use correct prefixes
+ - [x] **NIP-22**: Event created_at Limits
+ - [ ] **NIP-26**: Delegated Event Signing
+   - not planned
+ - [x] **NIP-28** Public Chat
+   - `kind: 41`: handled similar to `kind 0` metadata events
+ - [ ] **NIP-33**: Parameterized Replaceable Events
+   - todo
+ - [ ] **NIP-40**: Expiration Timestamp
+   - todo
+ - [x] **NIP-42**: Authentication of clients to relays
+   - todo: use correct prefix
+ - [ ] **NIP-50**: Search Capability
+   - todo
 
 ### Development
 
