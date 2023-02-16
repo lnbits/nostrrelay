@@ -98,7 +98,7 @@ class NostrClientConnection:
         self._auth_challenge: Optional[str] = None
         self._auth_challenge_created_at = 0
 
-        self._last_event_timestamp = 0  # in seconds
+        self._last_event_timestamp = 0  # in hours
         self._event_count_per_timestamp = 0
 
         self.broadcast_event: Optional[
@@ -296,8 +296,8 @@ class NostrClientConnection:
         return True, ""
 
     def _validate_event(self, e: NostrEvent) -> Tuple[bool, str]:
-        if self._exceeded_max_events_per_second():
-            return False, f"Exceeded max events per second limit'!"
+        if self._exceeded_max_events_per_hour():
+            return False, f"Exceeded max events per hour limit'!"
 
         try:
             e.check_signature()
@@ -349,11 +349,11 @@ class NostrClientConnection:
 
         return True, ""
 
-    def _exceeded_max_events_per_second(self) -> bool:
-        if self.client_config.max_events_per_second == 0:
+    def _exceeded_max_events_per_hour(self) -> bool:
+        if self.client_config.max_events_per_hour == 0:
             return False
 
-        current_time = round(time.time())
+        current_time = round(time.time() / 3600)
         if self._last_event_timestamp == current_time:
             self._event_count_per_timestamp += 1
         else:
@@ -361,7 +361,7 @@ class NostrClientConnection:
             self._event_count_per_timestamp = 0
 
         return (
-            self._event_count_per_timestamp > self.client_config.max_events_per_second
+            self._event_count_per_timestamp > self.client_config.max_events_per_hour
         )
 
     def _created_at_in_range(self, created_at: int) -> Tuple[bool, str]:

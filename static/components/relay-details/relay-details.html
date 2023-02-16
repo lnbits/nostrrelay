@@ -497,12 +497,12 @@
           </div>
         </div>
         <div class="row items-center no-wrap q-mb-md">
-          <div class="col-3 q-pr-lg">Max events per second:</div>
+          <div class="col-3 q-pr-lg">Max events per hour:</div>
           <div class="col-3 col-sm-4 q-pr-lg">
             <q-input
               filled
               dense
-              v-model.trim="relay.config.maxEventsPerSecond"
+              v-model.trim="relay.config.maxEventsPerHour"
               type="number"
               min="0"
             ></q-input>
@@ -515,7 +515,7 @@
               </q-tooltip></q-icon
             >
             <q-badge
-              v-if="relay.config.maxEventsPerSecond == 0"
+              v-if="relay.config.maxEventsPerHour == 0"
               color="green"
               class="float-right"
               ><span>No Limit</span>

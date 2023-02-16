@@ -19,7 +19,7 @@ class FilterSpec(Spec):
 
 
 class EventSpec(Spec):
-    max_events_per_second = Field(0, alias="maxEventsPerSecond")
+    max_events_per_hour = Field(0, alias="maxEventsPerHour")
 
     created_at_days_past = Field(0, alias="createdAtDaysPast")
     created_at_hours_past = Field(0, alias="createdAtHoursPast")
