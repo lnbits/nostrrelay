@@ -155,12 +155,14 @@ async def api_create_or_update_account(
         data.pubkey = normalize_public_key(data.pubkey)
         account = await get_account(data.relay_id, data.pubkey)
         if not account:
-            return await create_account(data.relay_id, NostrAccount.parse_obj(data.dict()))
+            account = NostrAccount(pubkey=data.pubkey, blocked = data.blocked or False, allowed = data.allowed or False)
+            return await create_account(data.relay_id, account)
 
         if data.blocked is not None:
             account.blocked = data.blocked
         if data.allowed is not None:
             account.allowed = data.allowed
+        
         return await update_account(data.relay_id, account)            
 
     except ValueError as ex:

@@ -532,7 +532,7 @@
             <q-input
               filled
               dense
-              v-model.trim="allowedPubkey"
+              v-model.trim="accountPubkey"
               type="text"
             ></q-input>
           </div>
@@ -541,7 +541,7 @@
               unelevated
               color="green"
               class="float-right"
-              @click="allowPublicKey()"
+              @click="allowPublicKey(true)"
               >Allow</q-btn
             >
           </div>
@@ -550,7 +550,7 @@
               unelevated
               color="pink"
               class="float-right"
-              @click="blockPublicKey()"
+              @click="blockPublicKey(true)"
               >Block</q-btn
             >
           </div>

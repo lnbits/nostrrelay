@@ -9,8 +9,7 @@ async function relayDetails(path) {
       return {
         tab: 'info',
         relay: null,
-        blockedPubkey: '',
-        allowedPubkey: '',
+        accountPubkey: '',
         formDialogItem: {
           show: false,
           data: {
@@ -114,32 +113,34 @@ async function relayDetails(path) {
         this.relay.config.wallet =
           this.relay.config.wallet || this.walletOptions[0].value
       },
-      allowPublicKey: async function () {
+      allowPublicKey: async function (allowed) {
+        await this.updatePublicKey({allowed})
+      },
+      blockPublicKey: async function (blocked = true) {
+        await this.updatePublicKey({blocked})
+      },
+      updatePublicKey: async function (ops) {
         try {
-          const {data} = await LNbits.api.request(
+          await LNbits.api.request(
             'PUT',
             '/nostrrelay/api/v1/account',
             this.adminkey,
             {
-              pubkey: this.allowedPubkey,
-              allowed: true
+              relay_id: this.relay.id,
+              pubkey: this.accountPubkey,
+              allowed: ops.allowed,
+              blocked: ops.blocked
             }
           )
-          this.relay = data
-          this.$emit('relay-updated', this.relay)
           this.$q.notify({
             type: 'positive',
             message: 'Account Updated',
             timeout: 5000
           })
-          this.allowedPubkey = ''
+          this.accountPubkey = ''
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
-      },
-      blockPublicKey: function () {
-        this.relay.config.blockedPublicKeys.push(this.blockedPubkey)
-        this.blockedPubkey = ''
       },
       deleteAllowedPublicKey: function (pubKey) {
         this.relay.config.allowedPublicKeys =
