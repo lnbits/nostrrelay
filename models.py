@@ -167,7 +167,7 @@ class NostrEvent(BaseModel):
 
     @property
     def is_replaceable_event(self) -> bool:
-        return self.kind in [0, 3]
+        return self.kind in [0, 3, 41]
 
     @property
     def is_auth_response_event(self) -> bool:
