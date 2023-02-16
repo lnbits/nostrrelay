@@ -17,6 +17,14 @@ Install this extension into your LNbits instance.
  - [x] **NIP-09**: Event Deletion
  - [x] **NIP-11**: Relay Information Document
    - >**Note**: the endpoint is NOT on the root level of the domain. It also includes a path (eg https://lnbits.link/nostrrelay/)
+ - [ ] **NIP-12**: Generic Tag Queries
+   - todo
+ - [x] **NIP-15**: End of Stored Events Notice
+ - [ ] **NIP-16**: Event Treatment
+   - [x] Regular Events
+   - [ ] Replaceable Events
+   - [ ] Ephemeral Events
+
 
 ### Development
 
