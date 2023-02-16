@@ -174,6 +174,10 @@ class NostrEvent(BaseModel):
         return self.kind == 22242
 
     @property
+    def is_direct_message(self) -> bool:
+        return self.kind == 4
+
+    @property
     def is_delete_event(self) -> bool:
         return self.kind == 5
 
@@ -205,6 +209,12 @@ class NostrEvent(BaseModel):
 
     def tag_values(self, tag_name: str) -> List[str]:
         return [t[1] for t in self.tags if t[0] == tag_name]
+
+    def has_tag_value(self, tag_name: str, tag_value: str) -> bool:
+        return tag_value in self.tag_values(tag_name)
+
+    def is_direct_message_for_pubkey(self, pubkey: str) -> bool:
+        return self.is_direct_message and self.has_tag_value("p", pubkey)
 
     @classmethod
     def from_row(cls, row: Row) -> "NostrEvent":
