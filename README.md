@@ -40,7 +40,18 @@ Install this extension into your LNbits instance.
  - [ ] **NIP-50**: Search Capability
    - todo
 
-### Development
+## Usage
+### Create Relay
+Creating a new relay is straightforward. Just click `New Relay` then enter the Relay Info.
+> *Note*: admin users can select a relay id. Regular users will be assigned a generated relay id.
+The relay can be activated/deactivated.
+
+![image](https://user-images.githubusercontent.com/2951406/219601417-9292d5b9-d96c-4ff6-a6fd-6c8b37b9872d.png)
+
+### Configure Relay
+
+
+## Development
 
 Create Symbolic Link:
 ```
