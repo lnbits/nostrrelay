@@ -20,10 +20,10 @@ Install this extension into your LNbits instance.
  - [ ] **NIP-12**: Generic Tag Queries
    - todo
  - [x] **NIP-15**: End of Stored Events Notice
- - [ ] **NIP-16**: Event Treatment
+ - [x] **NIP-16**: Event Treatment
    - [x] Regular Events
-   - [ ] Replaceable Events
-   - [ ] Ephemeral Events
+   - [x] Replaceable Events
+   - [x] Ephemeral Events
  - [x] **NIP-20**: Command Results
    - todo: use correct prefixes
  - [x] **NIP-22**: Event created_at Limits
