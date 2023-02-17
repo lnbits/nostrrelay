@@ -5,7 +5,6 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-
 class Spec(BaseModel):
     class Config:
         allow_population_by_field_name = True
@@ -127,4 +126,3 @@ class NostrRelay(BaseModel):
             "software": "LNbits",
             "version": "",
         }
-

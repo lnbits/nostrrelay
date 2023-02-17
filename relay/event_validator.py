@@ -9,7 +9,6 @@ from .relay import RelaySpec
 
 
 class EventValidator:
-
     def __init__(self, relay_id: str):
         self.relay_id = relay_id
 
@@ -18,7 +17,9 @@ class EventValidator:
 
         self.get_client_config: Optional[Callable[[], RelaySpec]] = None
 
-    async def validate_write(self, e: NostrEvent, publisher_pubkey: str) -> Tuple[bool, str]:
+    async def validate_write(
+        self, e: NostrEvent, publisher_pubkey: str
+    ) -> Tuple[bool, str]:
         valid, message = self._validate_event(e)
         if not valid:
             return (valid, message)
@@ -32,7 +33,9 @@ class EventValidator:
 
         return True, ""
 
-    def validate_auth_event(self, e: NostrEvent, auth_challenge: Optional[str]) -> Tuple[bool, str]:
+    def validate_auth_event(
+        self, e: NostrEvent, auth_challenge: Optional[str]
+    ) -> Tuple[bool, str]:
         valid, message = self._validate_event(e)
         if not valid:
             return (valid, message)
@@ -91,9 +94,7 @@ class EventValidator:
             return False, f"This is a paid relay: '{self.relay_id}'"
 
         stored_bytes = await get_storage_for_public_key(self.relay_id, pubkey)
-        total_available_storage = (
-            account.storage + self.config.free_storage_bytes_value
-        )
+        total_available_storage = account.storage + self.config.free_storage_bytes_value
         if (stored_bytes + event_size_bytes) <= total_available_storage:
             return True, ""
 
@@ -110,7 +111,6 @@ class EventValidator:
 
         return True, ""
 
-
     def _exceeded_max_events_per_hour(self) -> bool:
         if self.config.max_events_per_hour == 0:
             return False
@@ -122,9 +122,7 @@ class EventValidator:
             self._last_event_timestamp = current_time
             self._event_count_per_timestamp = 0
 
-        return (
-            self._event_count_per_timestamp > self.config.max_events_per_hour
-        )
+        return self._event_count_per_timestamp > self.config.max_events_per_hour
 
     def _created_at_in_range(self, created_at: int) -> Tuple[bool, str]:
         current_time = round(time.time())

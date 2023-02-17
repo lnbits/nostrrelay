@@ -1,9 +1,9 @@
 from typing import List
 
 from ..crud import get_config_for_all_active_relays
-from .relay import RelaySpec
 from .client_connection import NostrClientConnection
 from .event import NostrEvent
+from .relay import RelaySpec
 
 
 class NostrClientManager:
@@ -69,4 +69,3 @@ class NostrClientManager:
 
         setattr(client, "get_client_config", get_client_config)
         client.init_callbacks(self.broadcast_event, get_client_config)
-

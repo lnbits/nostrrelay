@@ -65,7 +65,6 @@ class NostrEvent(BaseModel):
     @property
     def is_ephemeral_event(self) -> bool:
         return self.kind >= 20000 and self.kind < 30000
-        
 
     def check_signature(self):
         event_id = self.event_id
@@ -101,4 +100,3 @@ class NostrEvent(BaseModel):
     @classmethod
     def from_row(cls, row: Row) -> "NostrEvent":
         return cls(**dict(row))
-
