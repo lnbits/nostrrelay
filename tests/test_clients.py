@@ -7,8 +7,12 @@ from fastapi import WebSocket
 from loguru import logger
 
 from lnbits.extensions.nostrrelay.models import RelaySpec  # type: ignore
-from lnbits.extensions.nostrrelay.relay.client_manager import NostrClientManager  # type: ignore
-from lnbits.extensions.nostrrelay.relay.client_connection import NostrClientConnection  # type: ignore
+from lnbits.extensions.nostrrelay.relay.client_connection import (
+    NostrClientConnection,  # type: ignore
+)
+from lnbits.extensions.nostrrelay.relay.client_manager import (
+    NostrClientManager,  # type: ignore
+)
 
 from .helpers import get_fixtures
 

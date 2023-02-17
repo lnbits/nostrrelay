@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from secp256k1 import PublicKey
 
 
-
 class NostrEventType(str, Enum):
     EVENT = "EVENT"
     REQ = "REQ"
