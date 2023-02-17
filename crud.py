@@ -1,16 +1,10 @@
 import json
 from typing import List, Optional, Tuple
 
-from .relay.event import NostrEvent
-
 from . import db
-from .models import (
-    NostrAccount,
-    NostrFilter,
-    NostrRelay,
-    RelayPublicSpec,
-    RelaySpec,
-)
+from .models import NostrAccount, NostrRelay, RelayPublicSpec, RelaySpec
+from .relay.event import NostrEvent
+from .relay.filter import NostrFilter
 
 ########################## RELAYS ####################
 
