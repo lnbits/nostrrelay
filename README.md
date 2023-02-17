@@ -43,10 +43,10 @@ Install this extension into your LNbits instance.
 ## Usage
 ### Create Relay
 Creating a new relay is straightforward. Just click `New Relay` then enter the Relay Info.
-> *Note*: admin users can select a relay id. Regular users will be assigned a generated relay id.
+> **Note**: admin users can select a relay id. Regular users will be assigned a generated relay id.
 The relay can be activated/deactivated.
 
-- New Relay Dialog
+- **New Relay Dialog**
    - ![image](https://user-images.githubusercontent.com/2951406/219601417-9292d5b9-d96c-4ff6-a6fd-6c8b37b9872d.png)
 
 ### Configure Relay
@@ -76,8 +76,11 @@ Here the entry and storage fees can be paid.
 - **Relay Public Page**
    - ![image](https://user-images.githubusercontent.com/2951406/219610594-ec2984ca-2c09-4187-91c3-96a25e8b5722.png)
 
+
 **Config**
-Configure `NIP-22` (Event created_at Limits), `NIP-42` (Authentication of clients to relays) and other Relay parameters.
+
+Configure `NIP-22` (_Event `created_at` Limits_), `NIP-42` (_Authentication of clients to relays_) and other Relay parameters.
+
 Some configurations are not standard (`NIPs`) but they help control what clients are allowed to do, thus blocking (some) attack vectors.
 
 - **Config Tab**
@@ -85,8 +88,11 @@ Some configurations are not standard (`NIPs`) but they help control what clients
 
 
 **Accounts**
+
 Allows the Relay operator to `Block` or `Allow` certain accounts.
+
 If an account is `allowed` then it is not required to `pay to join`.
+
 When an account is `blocked`  it does not matter if it `paid to join` or if it is `allowed`.
 
 - **Accounts Tab**
