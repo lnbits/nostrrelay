@@ -1,7 +1,7 @@
 from typing import List
 
 from ..crud import get_config_for_all_active_relays
-from ..models import RelaySpec
+from .relay import RelaySpec
 from .client_connection import NostrClientConnection
 from .event import NostrEvent
 

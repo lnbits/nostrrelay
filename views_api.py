@@ -30,8 +30,9 @@ from .crud import (
     update_relay,
 )
 from .helpers import extract_domain, normalize_public_key
-from .models import BuyOrder, NostrAccount, NostrPartialAccount, NostrRelay
+from .models import BuyOrder, NostrAccount, NostrPartialAccount
 from .relay.client_manager import NostrClientConnection, NostrClientManager
+from .relay.relay import NostrRelay
 
 client_manager = NostrClientManager()
 

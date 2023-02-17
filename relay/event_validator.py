@@ -3,8 +3,9 @@ from typing import Callable, Optional, Tuple
 
 from ..crud import get_account, get_storage_for_public_key, prune_old_events
 from ..helpers import extract_domain
-from ..models import NostrAccount, RelaySpec
+from ..models import NostrAccount
 from .event import NostrEvent
+from .relay import RelaySpec
 
 
 class EventValidator:
