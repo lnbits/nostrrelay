@@ -54,12 +54,25 @@ Find your Relay in the list and click the expand button (`+`) to configure it.
 **Relay Info**
 This tab contains data according to `NIP-11` (Relay Information Document).
 > **Note**: the `domain` is added automatically and shoud be corrected manually if needed. This value is used for `NIP-42` (Authentication of clients to relays)
-![image](https://user-images.githubusercontent.com/2951406/219601945-f3987de0-ed0c-48d5-b31e-44d8356cfa9a.png)
+- ![image](https://user-images.githubusercontent.com/2951406/219601945-f3987de0-ed0c-48d5-b31e-44d8356cfa9a.png)
 
 
 **Payment**
+
 By default the relay is free to access, but it can be configured to ask for payments.
-![image](https://user-images.githubusercontent.com/2951406/219603153-a1564722-621d-494a-9e7e-22e93d42fe89.png)
+It is encourage to also activate the `Require Auth` option for paid relays.
+
+> **Note**: check the info button (`I`) tooltip for a description of each field.
+
+- ![image](https://user-images.githubusercontent.com/2951406/219609779-1513ad00-e816-4b4f-8e1e-459e5e1c586f.png)
+
+Click on the Relay ID (or visit `https://{your_domain}/nostrrelay/${relay_id}`) for the Relay public page.
+Here the entry and storage fees can be paid.
+
+- ![image](https://user-images.githubusercontent.com/2951406/219610594-ec2984ca-2c09-4187-91c3-96a25e8b5722.png)
+
+**Config**
+- ![image](https://user-images.githubusercontent.com/2951406/219611794-57066899-5bc3-4439-ad98-af6fd4130ee9.png)
 
 
 ## Development
