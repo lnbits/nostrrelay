@@ -1,9 +1,10 @@
 from typing import List
 
+from .event import NostrEvent
 from .client_connection import NostrClientConnection
 
 from ..crud import get_config_for_all_active_relays
-from ..models import NostrEvent, RelaySpec
+from ..models import RelaySpec
 
 
 class NostrClientManager:

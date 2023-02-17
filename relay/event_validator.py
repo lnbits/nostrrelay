@@ -1,9 +1,11 @@
 import time
 from typing import Callable, Optional, Tuple
 
+from .event import NostrEvent
+
 from ..crud import get_account, get_storage_for_public_key, prune_old_events
 from ..helpers import extract_domain
-from ..models import NostrAccount, NostrEvent, RelaySpec
+from ..models import NostrAccount, RelaySpec
 
 
 class EventValidator:
