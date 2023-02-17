@@ -49,6 +49,17 @@ The relay can be activated/deactivated.
 ![image](https://user-images.githubusercontent.com/2951406/219601417-9292d5b9-d96c-4ff6-a6fd-6c8b37b9872d.png)
 
 ### Configure Relay
+Find your Relay in the list and click the expand button (`+`) to configure it.
+
+**Relay Info**
+This tab contains data according to `NIP-11` (Relay Information Document).
+> **Note**: the `domain` is added automatically and shoud be corrected manually if needed. This value is used for `NIP-42` (Authentication of clients to relays)
+![image](https://user-images.githubusercontent.com/2951406/219601945-f3987de0-ed0c-48d5-b31e-44d8356cfa9a.png)
+
+
+**Payment**
+By default the relay is free to access, but it can be configured to ask for payments.
+![image](https://user-images.githubusercontent.com/2951406/219603153-a1564722-621d-494a-9e7e-22e93d42fe89.png)
 
 
 ## Development
