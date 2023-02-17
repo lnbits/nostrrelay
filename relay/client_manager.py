@@ -52,6 +52,10 @@ class NostrClientManager:
             self._clients[relay_id] = []
         return self._clients[relay_id]
 
+    async def stop(self):
+        for relay_id in self._active_relays:
+            await self._stop_clients_for_relay(relay_id)
+
     async def _stop_clients_for_relay(self, relay_id: str):
         for client in self.clients(relay_id):
             if client.relay_id == relay_id:

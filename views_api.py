@@ -15,7 +15,7 @@ from lnbits.decorators import (
 )
 from lnbits.helpers import urlsafe_short_hash
 
-from . import nostrrelay_ext
+from . import nostrrelay_ext, scheduled_tasks
 from .crud import (
     create_account,
     create_relay,
@@ -283,3 +283,19 @@ async def api_pay_to_join(data: BuyOrder):
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot create invoice for client to join",
         )
+
+
+@nostrrelay_ext.delete("/api/v1", status_code=HTTPStatus.OK)
+async def api_stop(wallet: WalletTypeInfo = Depends(check_admin)):
+    for t in scheduled_tasks:
+        try:
+            t.cancel()
+        except Exception as ex:
+            logger.warning(ex)
+
+    try:
+        await client_manager.stop()
+    except Exception as ex:
+        logger.warning(ex)
+
+    return {"success": True}
