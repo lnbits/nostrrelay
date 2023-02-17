@@ -14,10 +14,10 @@ from ..crud import (
     get_events,
     mark_events_deleted,
 )
-from .relay import RelaySpec
 from .event import NostrEvent, NostrEventType
 from .event_validator import EventValidator
 from .filter import NostrFilter
+from .relay import RelaySpec
 
 
 class NostrClientConnection:
@@ -25,7 +25,7 @@ class NostrClientConnection:
         self.websocket = websocket
         self.relay_id = relay_id
         self.filters: List[NostrFilter] = []
-        self.pubkey: Optional[str] = None # set if authenticated
+        self.pubkey: Optional[str] = None  # set if authenticated
         self._auth_challenge: Optional[str] = None
         self._auth_challenge_created_at = 0
 
@@ -65,7 +65,6 @@ class NostrClientConnection:
         setattr(self, "broadcast_event", broadcast_event)
         setattr(self, "get_client_config", get_client_config)
         setattr(self.event_validator, "get_client_config", get_client_config)
-        
 
     async def notify_event(self, event: NostrEvent) -> bool:
         if self._is_direct_message_for_other(event):
@@ -80,8 +79,8 @@ class NostrClientConnection:
 
     def _is_direct_message_for_other(self, event: NostrEvent) -> bool:
         """
-            Direct messages are not inteded to be boradcast (even if encrypted). 
-            If the server requires AUTH for kind '4' then direct message will be sent only to the intended client.
+        Direct messages are not inteded to be boradcast (even if encrypted).
+        If the server requires AUTH for kind '4' then direct message will be sent only to the intended client.
         """
         if not event.is_direct_message:
             return False
@@ -121,7 +120,9 @@ class NostrClientConnection:
         resp_nip20: List[Any] = ["OK", e.id]
 
         if e.is_auth_response_event:
-            valid, message = self.event_validator.validate_auth_event(e, self._auth_challenge)
+            valid, message = self.event_validator.validate_auth_event(
+                e, self._auth_challenge
+            )
             if not valid:
                 resp_nip20 += [valid, message]
                 await self._send_msg(resp_nip20)
@@ -148,7 +149,8 @@ class NostrClientConnection:
         try:
             if e.is_replaceable_event:
                 await delete_events(
-                    self.relay_id, NostrFilter(kinds=[e.kind], authors=[e.pubkey], until=e.created_at)
+                    self.relay_id,
+                    NostrFilter(kinds=[e.kind], authors=[e.pubkey], until=e.created_at),
                 )
             if not e.is_ephemeral_event:
                 await create_event(self.relay_id, e, self.pubkey)
