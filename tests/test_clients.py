@@ -96,7 +96,7 @@ async def alice_wires_meta_and_post01(ws_alice: MockWebSocket):
 
     assert (
         len(ws_alice.sent_messages) == 4
-    ), "Alice: Expected 3 confirmations to be sent"
+    ), "Alice: Expected 4 confirmations to be sent"
     assert ws_alice.sent_messages[0] == dumps(
         alice["meta_response"]
     ), "Alice: Wrong confirmation for meta"
