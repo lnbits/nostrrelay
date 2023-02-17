@@ -14,7 +14,7 @@ from ..crud import (
     get_events,
     mark_events_deleted,
 )
-from ..models import RelaySpec
+from .relay import RelaySpec
 from .event import NostrEvent, NostrEventType
 from .event_validator import EventValidator
 from .filter import NostrFilter
