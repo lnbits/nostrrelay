@@ -16,7 +16,6 @@ from lnbits.decorators import (
 from lnbits.helpers import urlsafe_short_hash
 
 from . import nostrrelay_ext
-from .relay.client_manager import NostrClientConnection, NostrClientManager
 from .crud import (
     create_account,
     create_relay,
@@ -32,6 +31,7 @@ from .crud import (
 )
 from .helpers import extract_domain, normalize_public_key
 from .models import BuyOrder, NostrAccount, NostrPartialAccount, NostrRelay
+from .relay.client_manager import NostrClientConnection, NostrClientManager
 
 client_manager = NostrClientManager()
 
