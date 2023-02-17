@@ -132,11 +132,13 @@ async def delete_relay(user_id: str, relay_id: str):
 
 
 ########################## EVENTS ####################
-async def create_event(relay_id: str, e: NostrEvent):
+async def create_event(relay_id: str, e: NostrEvent, publisher: Optional[str]):
+    publisher = publisher if publisher else e.pubkey
     await db.execute(
         """
         INSERT INTO nostrrelay.events (
             relay_id,
+            publisher,
             id,
             pubkey,
             created_at,
@@ -145,10 +147,11 @@ async def create_event(relay_id: str, e: NostrEvent):
             sig,
             size
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             relay_id,
+            publisher,
             e.id,
             e.pubkey,
             e.created_at,
@@ -199,14 +202,14 @@ async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
     return event
 
 
-async def get_storage_for_public_key(relay_id: str, pubkey: str) -> int:
+async def get_storage_for_public_key(relay_id: str, publisher_pubkey: str) -> int:
     """Returns the storage space in bytes for all the events of a public key. Deleted events are also counted"""
 
     row = await db.fetchone(
-        "SELECT SUM(size) as sum FROM nostrrelay.events WHERE relay_id = ? AND pubkey = ? GROUP BY pubkey",
+        "SELECT SUM(size) as sum FROM nostrrelay.events WHERE relay_id = ? AND publisher = ? GROUP BY publisher",
         (
             relay_id,
-            pubkey,
+            publisher_pubkey,
         ),
     )
     if not row:

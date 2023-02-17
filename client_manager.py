@@ -142,6 +142,10 @@ class NostrClientConnection:
         return False
 
     def _is_direct_message_for_other(self, event: NostrEvent) -> bool:
+        """
+            Direct messages are not inteded to be boradcast (even if encrypted). 
+            If the server requires AUTH for kind '4' then direct message will be sent only to the intended client.
+        """
         if not event.is_direct_message:
             return False
         if not self.client_config.event_requires_auth(event.kind):
@@ -208,7 +212,7 @@ class NostrClientConnection:
                 await delete_events(
                     self.relay_id, NostrFilter(kinds=[e.kind], authors=[e.pubkey])
                 )
-            await create_event(self.relay_id, e)
+            await create_event(self.relay_id, e, self.pubkey)
             await self._broadcast_event(e)
 
             if e.is_delete_event:
@@ -257,6 +261,7 @@ class NostrClientConnection:
         filter.enforce_limit(self.client_config.limit_per_filter)
         self.filters.append(filter)
         events = await get_events(self.relay_id, filter)
+        events = [e for e in events if not self._is_direct_message_for_other(e)]
         serialized_events = [
             event.serialize_response(subscription_id) for event in events
         ]
@@ -290,7 +295,7 @@ class NostrClientConnection:
             return False, "error: NIP42 tags are missing for auth event"
 
         if self.client_config.domain != extract_domain(relay_tag[0]):
-            return False, "error: wrong relay domain  for auth event"
+            return False, "error: wrong relay domain for auth event"
 
         if self._auth_challenge != challenge_tag[0]:
             return False, "error: wrong chanlange value for auth event"
@@ -302,7 +307,8 @@ class NostrClientConnection:
         if not valid:
             return (valid, message)
 
-        valid, message = await self._validate_storage(e.pubkey, e.size_bytes)
+        publisher_pubkey = self.pubkey if self.pubkey else e.pubkey
+        valid, message = await self._validate_storage(publisher_pubkey, e.size_bytes)
         if not valid:
             return (valid, message)
 
