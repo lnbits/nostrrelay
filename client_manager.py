@@ -152,7 +152,7 @@ class NostrClientConnection:
         """
         if not event.is_direct_message:
             return False
-        if not self.client_config.event_requires_auth(event.kind):
+        if not self.config.event_requires_auth(event.kind):
             return False
         if not self.pubkey:
             return True
@@ -196,7 +196,7 @@ class NostrClientConnection:
             self.pubkey = e.pubkey
             return None
 
-        if not self.pubkey and self.client_config.event_requires_auth(e.kind):
+        if not self.pubkey and self.config.event_requires_auth(e.kind):
             await self._send_msg(["AUTH", self._current_auth_challenge()])
             resp_nip20 += [
                 False,
@@ -234,7 +234,7 @@ class NostrClientConnection:
         await self._send_msg(resp_nip20)
 
     @property
-    def client_config(self) -> RelaySpec:
+    def config(self) -> RelaySpec:
         if not self.get_client_config:
             raise Exception("Client not ready!")
         return self.get_client_config()
@@ -251,7 +251,7 @@ class NostrClientConnection:
         await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
 
     async def _handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
-        if not self.pubkey and self.client_config.require_auth_filter:
+        if not self.pubkey and self.config.require_auth_filter:
             return [["AUTH", self._current_auth_challenge()]]
 
         filter.subscription_id = subscription_id
@@ -260,11 +260,11 @@ class NostrClientConnection:
             return [
                 [
                     "NOTICE",
-                    f"Maximum number of filters ({self.client_config.max_client_filters}) exceeded.",
+                    f"Maximum number of filters ({self.config.max_client_filters}) exceeded.",
                 ]
             ]
 
-        filter.enforce_limit(self.client_config.limit_per_filter)
+        filter.enforce_limit(self.config.limit_per_filter)
         self.filters.append(filter)
         events = await get_events(self.relay_id, filter)
         events = [e for e in events if not self._is_direct_message_for_other(e)]
@@ -286,8 +286,8 @@ class NostrClientConnection:
 
     def _can_add_filter(self) -> bool:
         return (
-            self.client_config.max_client_filters != 0
-            and len(self.filters) >= self.client_config.max_client_filters
+            self.config.max_client_filters != 0
+            and len(self.filters) >= self.config.max_client_filters
         )
 
     def _auth_challenge_expired(self):
@@ -341,7 +341,7 @@ class EventValidator:
         if len(relay_tag) == 0 or len(challenge_tag) == 0:
             return False, "error: NIP42 tags are missing for auth event"
 
-        if self.client_config.domain != extract_domain(relay_tag[0]):
+        if self.config.domain != extract_domain(relay_tag[0]):
             return False, "error: wrong relay domain for auth event"
 
         if auth_challenge != challenge_tag[0]:
@@ -350,7 +350,7 @@ class EventValidator:
         return True, ""
 
     @property
-    def client_config(self) -> RelaySpec:
+    def config(self) -> RelaySpec:
         if not self.get_client_config:
             raise Exception("EventValidator not ready!")
         return self.get_client_config()
@@ -373,7 +373,7 @@ class EventValidator:
     async def _validate_storage(
         self, pubkey: str, event_size_bytes: int
     ) -> Tuple[bool, str]:
-        if self.client_config.is_read_only_relay:
+        if self.config.is_read_only_relay:
             return False, "Cannot write event, relay is read-only"
 
         account = await get_account(self.relay_id, pubkey)
@@ -386,17 +386,17 @@ class EventValidator:
                 f"Public key '{pubkey}' is not allowed in relay '{self.relay_id}'!",
             )
 
-        if not account.can_join and self.client_config.is_paid_relay:
+        if not account.can_join and self.config.is_paid_relay:
             return False, f"This is a paid relay: '{self.relay_id}'"
 
         stored_bytes = await get_storage_for_public_key(self.relay_id, pubkey)
         total_available_storage = (
-            account.storage + self.client_config.free_storage_bytes_value
+            account.storage + self.config.free_storage_bytes_value
         )
         if (stored_bytes + event_size_bytes) <= total_available_storage:
             return True, ""
 
-        if self.client_config.full_storage_action == "block":
+        if self.config.full_storage_action == "block":
             return (
                 False,
                 f"Cannot write event, no more storage available for public key: '{pubkey}'",
@@ -411,7 +411,7 @@ class EventValidator:
 
 
     def _exceeded_max_events_per_hour(self) -> bool:
-        if self.client_config.max_events_per_hour == 0:
+        if self.config.max_events_per_hour == 0:
             return False
 
         current_time = round(time.time() / 3600)
@@ -422,15 +422,15 @@ class EventValidator:
             self._event_count_per_timestamp = 0
 
         return (
-            self._event_count_per_timestamp > self.client_config.max_events_per_hour
+            self._event_count_per_timestamp > self.config.max_events_per_hour
         )
 
     def _created_at_in_range(self, created_at: int) -> Tuple[bool, str]:
         current_time = round(time.time())
-        if self.client_config.created_at_in_past != 0:
-            if created_at < (current_time - self.client_config.created_at_in_past):
+        if self.config.created_at_in_past != 0:
+            if created_at < (current_time - self.config.created_at_in_past):
                 return False, "created_at is too much into the past"
-        if self.client_config.created_at_in_future != 0:
-            if created_at > (current_time + self.client_config.created_at_in_future):
+        if self.config.created_at_in_future != 0:
+            if created_at > (current_time + self.config.created_at_in_future):
                 return False, "created_at is too much into the future"
         return True, ""
