@@ -7,7 +7,7 @@ from loguru import logger
 
 from lnbits.helpers import urlsafe_short_hash
 
-from .crud import (
+from ..crud import (
     create_event,
     delete_events,
     get_account,
@@ -18,8 +18,8 @@ from .crud import (
     mark_events_deleted,
     prune_old_events,
 )
-from .helpers import extract_domain
-from .models import NostrAccount, NostrEvent, NostrEventType, NostrFilter, RelaySpec
+from ..helpers import extract_domain
+from ..models import NostrAccount, NostrEvent, NostrEventType, NostrFilter, RelaySpec
 
 
 class NostrClientManager:
