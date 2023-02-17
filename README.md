@@ -46,7 +46,8 @@ Creating a new relay is straightforward. Just click `New Relay` then enter the R
 > *Note*: admin users can select a relay id. Regular users will be assigned a generated relay id.
 The relay can be activated/deactivated.
 
-![image](https://user-images.githubusercontent.com/2951406/219601417-9292d5b9-d96c-4ff6-a6fd-6c8b37b9872d.png)
+- New Relay Dialog
+   - ![image](https://user-images.githubusercontent.com/2951406/219601417-9292d5b9-d96c-4ff6-a6fd-6c8b37b9872d.png)
 
 ### Configure Relay
 Find your Relay in the list and click the expand button (`+`) to configure it.
@@ -54,7 +55,9 @@ Find your Relay in the list and click the expand button (`+`) to configure it.
 **Relay Info**
 This tab contains data according to `NIP-11` (Relay Information Document).
 > **Note**: the `domain` is added automatically and shoud be corrected manually if needed. This value is used for `NIP-42` (Authentication of clients to relays)
-- ![image](https://user-images.githubusercontent.com/2951406/219601945-f3987de0-ed0c-48d5-b31e-44d8356cfa9a.png)
+
+- **Relay Info Tab**
+  - ![image](https://user-images.githubusercontent.com/2951406/219601945-f3987de0-ed0c-48d5-b31e-44d8356cfa9a.png)
 
 
 **Payment**
@@ -64,19 +67,30 @@ It is encourage to also activate the `Require Auth` option for paid relays.
 
 > **Note**: check the info button (`I`) tooltip for a description of each field.
 
-- ![image](https://user-images.githubusercontent.com/2951406/219609779-1513ad00-e816-4b4f-8e1e-459e5e1c586f.png)
+- **Payment Config Tab**
+  - ![image](https://user-images.githubusercontent.com/2951406/219609779-1513ad00-e816-4b4f-8e1e-459e5e1c586f.png)
 
 Click on the Relay ID (or visit `https://{your_domain}/nostrrelay/${relay_id}`) for the Relay public page.
 Here the entry and storage fees can be paid.
 
-- ![image](https://user-images.githubusercontent.com/2951406/219610594-ec2984ca-2c09-4187-91c3-96a25e8b5722.png)
+- **Relay Public Page**
+   - ![image](https://user-images.githubusercontent.com/2951406/219610594-ec2984ca-2c09-4187-91c3-96a25e8b5722.png)
 
 **Config**
 Configure `NIP-22` (Event created_at Limits), `NIP-42` (Authentication of clients to relays) and other Relay parameters.
 Some configurations are not standard (`NIPs`) but they help control what clients are allowed to do, thus blocking (some) attack vectors.
 
-- ![image](https://user-images.githubusercontent.com/2951406/219611794-57066899-5bc3-4439-ad98-af6fd4130ee9.png)
+- **Config Tab**
+  - ![image](https://user-images.githubusercontent.com/2951406/219611794-57066899-5bc3-4439-ad98-af6fd4130ee9.png)
 
+
+**Accounts**
+Allows the Relay operator to `Block` or `Allow` certain accounts.
+If an account is `allowed` then it is not required to `pay to join`.
+When an account is `blocked`  it does not matter if it `paid to join` or if it is `allowed`.
+
+- **Accounts Tab**
+  - ![image](https://user-images.githubusercontent.com/2951406/219615500-8ca98580-dc3d-4163-b321-ae9279d47a98.png)
 
 ## Development
 
