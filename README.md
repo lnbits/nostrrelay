@@ -2,12 +2,6 @@
 
 ## One click and spin up your own Nostr relay. Share with the world, or use privately.
 
-
-### Usage
-Install this extension into your LNbits instance.
-....
-
-
 ## Supported NIPs
  - [x] **NIP-01**: Basic protocol flow
  - [x] **NIP-02**: Contact List and Petnames
@@ -40,7 +34,7 @@ Install this extension into your LNbits instance.
  - [ ] **NIP-50**: Search Capability
    - todo
 
-## Usage
+
 ### Create Relay
 Creating a new relay is straightforward. Just click `New Relay` then enter the Relay Info.
 > **Note**: admin users can select a relay id. Regular users will be assigned a generated relay id.
@@ -82,6 +76,8 @@ Here the entry and storage fees can be paid.
 Configure `NIP-22` (_Event `created_at` Limits_), `NIP-42` (_Authentication of clients to relays_) and other Relay parameters.
 
 Some configurations are not standard (`NIPs`) but they help control what clients are allowed to do, thus blocking (some) attack vectors.
+
+> **Note**: check the info button (`I`) tooltip for a description of each field.
 
 - **Config Tab**
   - ![image](https://user-images.githubusercontent.com/2951406/219611794-57066899-5bc3-4439-ad98-af6fd4130ee9.png)
