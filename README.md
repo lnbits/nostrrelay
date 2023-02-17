@@ -1,6 +1,14 @@
 # Nostr Relay
 
-## One click and spin up your own Nostr relay. Share with the world, or use privately.
+### One click and spin up your own Nostr relay. Share with the world, or use privately.
+**Configure**:
+- Free Plan: with limitted storage (limit can be changed)
+- Paid Plan: `pay to join` and `pay for storage`
+- Storage Limit (can buy more)
+- Rate Limit
+- Filter Limit
+- Allow/Block accounts
+- Optional Auth for `Events` and `Filters`
 
 ## Supported NIPs
  - [x] **NIP-01**: Basic protocol flow
