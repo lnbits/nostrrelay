@@ -10,7 +10,8 @@ from lnbits.extensions.nostrrelay.crud import (  # type: ignore
     get_event,
     get_events,
 )
-from lnbits.extensions.nostrrelay.models import NostrEvent, NostrFilter  # type: ignore
+from lnbits.extensions.nostrrelay.models import NostrFilter  # type: ignore
+from lnbits.extensions.nostrrelay.relay.event import NostrEvent  # type: ignore
 
 from .helpers import get_fixtures
 

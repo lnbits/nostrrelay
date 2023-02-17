@@ -1,10 +1,11 @@
 import json
-from typing import Any, List, Optional, Tuple
+from typing import List, Optional, Tuple
+
+from .relay.event import NostrEvent
 
 from . import db
 from .models import (
     NostrAccount,
-    NostrEvent,
     NostrFilter,
     NostrRelay,
     RelayPublicSpec,
