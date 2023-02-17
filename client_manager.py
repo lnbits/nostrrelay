@@ -210,9 +210,10 @@ class NostrClientConnection:
         try:
             if e.is_replaceable_event:
                 await delete_events(
-                    self.relay_id, NostrFilter(kinds=[e.kind], authors=[e.pubkey])
+                    self.relay_id, NostrFilter(kinds=[e.kind], authors=[e.pubkey], until=e.created_at)
                 )
-            await create_event(self.relay_id, e, self.pubkey)
+            if not e.is_ephemeral_event:
+                await create_event(self.relay_id, e, self.pubkey)
             await self._broadcast_event(e)
 
             if e.is_delete_event:
@@ -306,6 +307,9 @@ class NostrClientConnection:
         valid, message = self._validate_event(e)
         if not valid:
             return (valid, message)
+
+        if e.is_ephemeral_event:
+            return True, ""
 
         publisher_pubkey = self.pubkey if self.pubkey else e.pubkey
         valid, message = await self._validate_storage(publisher_pubkey, e.size_bytes)

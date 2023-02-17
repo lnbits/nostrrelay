@@ -167,7 +167,7 @@ class NostrEvent(BaseModel):
 
     @property
     def is_replaceable_event(self) -> bool:
-        return self.kind in [0, 3, 41]
+        return self.kind in [0, 3, 41] or (self.kind >= 10000 and self.kind < 20000)
 
     @property
     def is_auth_response_event(self) -> bool:
@@ -182,8 +182,13 @@ class NostrEvent(BaseModel):
         return self.kind == 5
 
     @property
+    def is_regular_event(self) -> bool:
+        return self.kind >= 1000 and self.kind < 10000
+
+    @property
     def is_ephemeral_event(self) -> bool:
-        return self.kind in [22242]
+        return self.kind >= 20000 and self.kind < 30000
+        
 
     def check_signature(self):
         event_id = self.event_id
