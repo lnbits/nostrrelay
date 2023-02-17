@@ -72,6 +72,9 @@ Here the entry and storage fees can be paid.
 - ![image](https://user-images.githubusercontent.com/2951406/219610594-ec2984ca-2c09-4187-91c3-96a25e8b5722.png)
 
 **Config**
+Configure `NIP-22` (Event created_at Limits), `NIP-42` (Authentication of clients to relays) and other Relay parameters.
+Some configurations are not standard (`NIPs`) but they help control what clients are allowed to do, thus blocking (some) attack vectors.
+
 - ![image](https://user-images.githubusercontent.com/2951406/219611794-57066899-5bc3-4439-ad98-af6fd4130ee9.png)
 
 
