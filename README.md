@@ -35,7 +35,7 @@
    - todo
 
 
-### Create Relay
+## Create Relay
 Creating a new relay is straightforward. Just click `New Relay` then enter the Relay Info.
 > **Note**: admin users can select a relay id. Regular users will be assigned a generated relay id.
 The relay can be activated/deactivated.
@@ -43,10 +43,10 @@ The relay can be activated/deactivated.
 - **New Relay Dialog**
    - ![image](https://user-images.githubusercontent.com/2951406/219601417-9292d5b9-d96c-4ff6-a6fd-6c8b37b9872d.png)
 
-### Configure Relay
+## Configure Relay
 Find your Relay in the list and click the expand button (`+`) to configure it.
 
-**Relay Info**
+### Relay Info
 This tab contains data according to `NIP-11` (Relay Information Document).
 > **Note**: the `domain` is added automatically and shoud be corrected manually if needed. This value is used for `NIP-42` (Authentication of clients to relays)
 
@@ -54,7 +54,7 @@ This tab contains data according to `NIP-11` (Relay Information Document).
   - ![image](https://user-images.githubusercontent.com/2951406/219601945-f3987de0-ed0c-48d5-b31e-44d8356cfa9a.png)
 
 
-**Payment**
+### Payment
 
 By default the relay is free to access, but it can be configured to ask for payments.
 It is encourage to also activate the `Require Auth` option for paid relays.
@@ -71,7 +71,7 @@ Here the entry and storage fees can be paid.
    - ![image](https://user-images.githubusercontent.com/2951406/219610594-ec2984ca-2c09-4187-91c3-96a25e8b5722.png)
 
 
-**Config**
+### Config
 
 Configure `NIP-22` (_Event `created_at` Limits_), `NIP-42` (_Authentication of clients to relays_) and other Relay parameters.
 
@@ -83,7 +83,7 @@ Some configurations are not standard (`NIPs`) but they help control what clients
   - ![image](https://user-images.githubusercontent.com/2951406/219611794-57066899-5bc3-4439-ad98-af6fd4130ee9.png)
 
 
-**Accounts**
+### Accounts
 
 Allows the Relay operator to `Block` or `Allow` certain accounts.
 
