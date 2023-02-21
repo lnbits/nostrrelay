@@ -1,384 +1,365 @@
 {
-    "alice": {
-        "meta": [
-            "EVENT",
-            {
-                "id": "9d4883c31d6ae3d80fd8882a248cc193800a096d87bd55d5c1df8a237e78ca09",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675332095,
-                "kind": 0,
-                "tags": [],
-                "content": "{\"name\":\"Alice\"}",
-                "sig": "95c30b6bbc70f3777d2b2b47ae3961e196eae0df72f3ae301ff1009cdabf9c50bb0eb7825891c842fc6ca5cb268342cc486850a6127ab40df871bd3e1fd0b0d7"
-            }
+  "alice": {
+    "meta": [
+      "EVENT",
+      {
+        "id": "9d4883c31d6ae3d80fd8882a248cc193800a096d87bd55d5c1df8a237e78ca09",
+        "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+        "created_at": 1675332095,
+        "kind": 0,
+        "tags": [],
+        "content": "{\"name\":\"Alice\"}",
+        "sig": "95c30b6bbc70f3777d2b2b47ae3961e196eae0df72f3ae301ff1009cdabf9c50bb0eb7825891c842fc6ca5cb268342cc486850a6127ab40df871bd3e1fd0b0d7"
+      }
+    ],
+    "meta_response": [
+      "OK",
+      "9d4883c31d6ae3d80fd8882a248cc193800a096d87bd55d5c1df8a237e78ca09",
+      true,
+      ""
+    ],
+    "meta_update": [
+      "EVENT",
+      {
+        "id": "2928f73760ac3a60affdf51d04169680472a8594b4584f087f497dcf6a28d12a",
+        "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+        "created_at": 1675673494,
+        "kind": 0,
+        "tags": [],
+        "content": "{\"name\":\"Alice\",\"about\":\"Uses Hamstr\"}",
+        "sig": "938313418d6d8b16b43213b3347c64925cbc1846e4447b4d878be9b865fe4b78f276ac399ea6b0aa81ed88fb18c992f2fae9e4f70c35c49202e576c54a0dc89c"
+      }
+    ],
+    "meta_update_response": [
+      "OK",
+      "2928f73760ac3a60affdf51d04169680472a8594b4584f087f497dcf6a28d12a",
+      true,
+      ""
+    ],
+    "post01": [
+      "EVENT",
+      {
+        "id": "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
+        "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+        "created_at": 1675332224,
+        "kind": 1,
+        "tags": [],
+        "content": "Alice - post 01",
+        "sig": "8d27c9f818ff194b491de1dc7d52d2d26916d87189ed1330315c4ff5509a986c80f34c2202302f8fe246c0b3f4e2f79103c000cbd6ca65bbe3921e14f30cb35b"
+      }
+    ],
+    "post01_response_ok": [
+      "OK",
+      "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
+      true,
+      ""
+    ],
+    "post01_response_duplicate": [
+      "OK",
+      "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
+      true,
+      "error: failed to create event"
+    ],
+    "post02": [
+      "EVENT",
+      {
+        "id": "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
+        "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+        "created_at": 1675332284,
+        "kind": 1,
+        "tags": [],
+        "content": "Alice post 02",
+        "sig": "012fc88407b0cfb967e80d1117acf6cf03410f6810039543d2290eef64e246d82ad130d08814b2564cee68e77dd0e99ea539e7a9751ef2e0914e7d93f345094e"
+      }
+    ],
+    "post02_response_ok": [
+      "OK",
+      "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
+      true,
+      ""
+    ],
+    "subscribe_reactions_to_me": [
+      "REQ",
+      "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
+      {
+        "kinds": [1, 7, 6, 4],
+        "#p": [
+          "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
         ],
-        "meta_response": [
-            "OK",
-            "9d4883c31d6ae3d80fd8882a248cc193800a096d87bd55d5c1df8a237e78ca09",
-            true,
-            ""
+        "limit": 400
+      }
+    ],
+    "direct_message01": [
+      "EVENT",
+      {
+        "id": "28c96b6e80681c18a690e0e0dc6ca4e72b9d291d1d2576bc8949a07bb4bee225",
+        "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+        "created_at": 1675412967,
+        "kind": 4,
+        "tags": [
+          [
+            "p",
+            "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
+          ]
         ],
-        "meta_update": [
-            "EVENT",
-            {
-                "id": "2928f73760ac3a60affdf51d04169680472a8594b4584f087f497dcf6a28d12a",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675673494,
-                "kind": 0,
-                "tags": [],
-                "content": "{\"name\":\"Alice\",\"about\":\"Uses Hamstr\"}",
-                "sig": "938313418d6d8b16b43213b3347c64925cbc1846e4447b4d878be9b865fe4b78f276ac399ea6b0aa81ed88fb18c992f2fae9e4f70c35c49202e576c54a0dc89c"
-            }
+        "content": "BwstXDkQJAHnLOrWFzBRDHdMoF4hoXSCwgmR+K2uw237yss/i639rpR2iOIYJP4z?iv=5pTRQh6NBKfe1hyhwh2WEw==",
+        "sig": "5da31b8a51dcc9fc9665db6199084696b705fc415e1be684b82fe39f3cbd271c2d707fd5a532232205a016e99ed1ef12abdacb52d139d7f5746cb693de71e5aa"
+      }
+    ],
+    "direct_message01_response": [
+      "OK",
+      "28c96b6e80681c18a690e0e0dc6ca4e72b9d291d1d2576bc8949a07bb4bee225",
+      true,
+      ""
+    ],
+    "delete_post01": [
+      "EVENT",
+      {
+        "kind": 5,
+        "content": "deleted",
+        "tags": [
+          [
+            "e",
+            "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85"
+          ],
+          ["e", "mock-id", ""],
+          [
+            "e",
+            "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea"
+          ]
         ],
-        "meta_update_response": [
-            "OK",
-            "2928f73760ac3a60affdf51d04169680472a8594b4584f087f497dcf6a28d12a",
-            true,
-            ""
-        ],
-        "post01": [
-            "EVENT",
-            {
-                "id": "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675332224,
-                "kind": 1,
-                "tags": [],
-                "content": "Alice - post 01",
-                "sig": "8d27c9f818ff194b491de1dc7d52d2d26916d87189ed1330315c4ff5509a986c80f34c2202302f8fe246c0b3f4e2f79103c000cbd6ca65bbe3921e14f30cb35b"
-            }
-        ],
-        "post01_response_ok": [
-            "OK",
-            "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-            true,
-            ""
-        ],
-        "post01_response_duplicate": [
-            "OK",
-            "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85",
-            true,
-            "error: failed to create event"
-        ],
-        "post02": [
-            "EVENT",
-            {
-                "id": "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675332284,
-                "kind": 1,
-                "tags": [],
-                "content": "Alice post 02",
-                "sig": "012fc88407b0cfb967e80d1117acf6cf03410f6810039543d2290eef64e246d82ad130d08814b2564cee68e77dd0e99ea539e7a9751ef2e0914e7d93f345094e"
-            }
-        ],
-        "post02_response_ok": [
-            "OK",
-            "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5",
-            true,
-            ""
-        ],
-        "subscribe_reactions_to_me": [
-            "REQ",
-            "notifications:0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345",
-            {
-                "kinds": [
-                    1,
-                    7,
-                    6,
-                    4
-                ],
-                "#p": [
-                    "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                ],
-                "limit": 400
-            }
-        ],
-        "direct_message01": [
-            "EVENT",
-            {
-                "id": "28c96b6e80681c18a690e0e0dc6ca4e72b9d291d1d2576bc8949a07bb4bee225",
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "created_at": 1675412967,
-                "kind": 4,
-                "tags": [
-                    [
-                        "p",
-                        "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
-                    ]
-                ],
-                "content": "BwstXDkQJAHnLOrWFzBRDHdMoF4hoXSCwgmR+K2uw237yss/i639rpR2iOIYJP4z?iv=5pTRQh6NBKfe1hyhwh2WEw==",
-                "sig": "5da31b8a51dcc9fc9665db6199084696b705fc415e1be684b82fe39f3cbd271c2d707fd5a532232205a016e99ed1ef12abdacb52d139d7f5746cb693de71e5aa"
-            }
-        ],
-        "direct_message01_response": [
-            "OK",
-            "28c96b6e80681c18a690e0e0dc6ca4e72b9d291d1d2576bc8949a07bb4bee225",
-            true,
-            ""
-        ],
-        "delete_post01": [
-            "EVENT",
-            {
-                "kind": 5,
-                "content": "deleted",
-                "tags": [
-                    [
-                        "e",
-                        "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85"
-                    ],
-                    [
-                        "e",
-                        "mock-id",
-                        ""
-                    ],
-                    [
-                        "e",
-                        "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea"
-                    ]
-                ],
-                "created_at": 1675427798,
-                "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
-                "id": "2751f2ee0f894268c61300c5b1a1a434f49a33a467a6f4516f10a82a1848f093",
-                "sig": "8e972ba7f1ce9d11ba5d49fdd48db4a92ea999790eb604e6a7f01868a26a70a8e96e1f9e104d8f77a5aa7f29e94119e33117b4cc8a5ff9e50ec8c23eeccd94e9"
-            }
-        ],
-        "delete_post01_response": [
-            "OK",
-            "2751f2ee0f894268c61300c5b1a1a434f49a33a467a6f4516f10a82a1848f093",
-            true,
-            ""
-        ],
-        "subscribe_to_bob_contact_list": [
-            "REQ",
-            "contact",
-            {
-                "kinds": [
-                    3
-                ],
-                "authors": [
-                    "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
-                ]
-            }
+        "created_at": 1675427798,
+        "pubkey": "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816",
+        "id": "2751f2ee0f894268c61300c5b1a1a434f49a33a467a6f4516f10a82a1848f093",
+        "sig": "8e972ba7f1ce9d11ba5d49fdd48db4a92ea999790eb604e6a7f01868a26a70a8e96e1f9e104d8f77a5aa7f29e94119e33117b4cc8a5ff9e50ec8c23eeccd94e9"
+      }
+    ],
+    "delete_post01_response": [
+      "OK",
+      "2751f2ee0f894268c61300c5b1a1a434f49a33a467a6f4516f10a82a1848f093",
+      true,
+      ""
+    ],
+    "subscribe_to_bob_contact_list": [
+      "REQ",
+      "contact",
+      {
+        "kinds": [3],
+        "authors": [
+          "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
         ]
-    },
-    "bob": {
-        "meta": [
-            "EVENT",
-            {
-                "id": "a3591f44f9f12e8d745a79c19affc1f9ea267a716981116835ddb7b327096be5",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675332410,
-                "kind": 0,
-                "tags": [],
-                "content": "{\"name\":\"Bob\"}",
-                "sig": "52b142eb5bf95e46424d8f146a0efcfd1be35ec2ae446152ccc875bc82eee66bef6df1af9a4456ec8984540ac4e21905544b5291334e2b18a24e534b788b2d81"
-            }
-        ],
-        "meta_response": [
-            "OK",
-            "a3591f44f9f12e8d745a79c19affc1f9ea267a716981116835ddb7b327096be5",
-            true,
-            ""
-        ],
-        "request_meta_alice": [
-            "REQ",
-            "profile",
-            {
-                "kinds": [
-                    0
-                ],
-                "authors": [
-                    "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                ]
-            }
-        ],
-        "request_posts_alice": [
-            "REQ",
-            "sub0",
-            {
-                "kinds": [
-                    1
-                ],
-                "authors": [
-                    "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                ],
-                "limit": 50
-            }
-        ],
-        "like_post01": [
-            "EVENT",
-            {
-                "id": "700da4df9029a049ddecd1c586b778f434afb55e56c3016d94334108e3829db7",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675350162,
-                "kind": 7,
-                "tags": [
-                    [
-                        "e",
-                        "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85"
-                    ],
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                    ]
-                ],
-                "content": "\u2764\ufe0f",
-                "sig": "3522d670f2e28bd63d32184aa9617df360684e5bc4b7c791b53c5401437e1bf91d1d335f016076fdee9afa99046dc9cc06a39738b25ff9a1562ac7321e3dca2e"
-            }
-        ],
-        "like_post02": [
-            "EVENT",
-            {
-                "id": "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675332450,
-                "kind": 7,
-                "tags": [
-                    [
-                        "e",
-                        "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5"
-                    ],
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                    ]
-                ],
-                "content": "\u2764\ufe0f",
-                "sig": "90fa8093088ed9280277f10a97c41d68d9f51d24254f7b27c28f5d84ac25426f1bfc217bca0c6712a9965164b07db219ee7e583b94c4d26f00aee87344c3f17a"
-            }
-        ],
-        "like_post02_response": [
-            "OK",
-            "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
-            true,
-            ""
-        ],
-        "comment_on_alice_post01": [
-            "EVENT",
-            {
-                "id": "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675332468,
-                "kind": 1,
-                "tags": [
-                    [
-                        "e",
-                        "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85"
-                    ],
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                    ]
-                ],
-                "content": "bob comment 01",
-                "sig": "f9bb53e2adc27f3a49ec42d681833742e28d734327107ebba3076be226340503048116947a75274e5262fa03aa0430da6fe697e46e19342639ef208e5690d8c5"
-            }
-        ],
-        "comment_on_alice_post01_response": [
-            "OK",
-            "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
-            true,
-            ""
-        ],
-        "direct_message01": [
-            "EVENT",
-            {
-                "id": "15f6e6bd6cb538167d4430ea6bd7c0cfb99b400ca3e8879a114e90f74b3f20b2",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675412687,
-                "kind": 4,
-                "tags": [
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                    ]
-                ],
-                "content": "jjBSyp36t555ywERY2fI4A==?iv=+8bg2vsltrXewAywxw9m6w==",
-                "sig": "091f4e8e5c497099bfe6af58126e022bc8babe648b8157c39f51e5d3906bfddf01f2f6d1a3ed36f94fbf07b009008fd448fbb8ce35b60260517aa0124a6c5c39"
-            }
-        ],
-        "direct_message01_response": [
-            "OK",
-            "15f6e6bd6cb538167d4430ea6bd7c0cfb99b400ca3e8879a114e90f74b3f20b2",
-            true,
-            ""
-        ],
-        "subscribe_to_direct_messages": [
-            "REQ",
-            "notifications:d685447c43c7c18dbbea61923cf0b63e1ab46bed",
-            {
-                "kinds": [
-                    4
-                ],
-                "#p": [
-                    "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
-                ],
-                "limit": 400
-            }
-        ],
-        "subscribe_to_delete_from_alice": [
-            "REQ",
-            "notifications:delete",
-            {
-                "kinds": [
-                    5
-                ],
-                "authors": [
-                    "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                ],
-                "limit": 400
-            }
-        ],
-        "contact_list_create": [
-            "EVENT",
-            {
-                "id": "141ddb3008ed1cc35fa09ff88d3b82da0351c6166c566e6220293136aa902a62",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675350109,
-                "kind": 3,
-                "tags": [
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                    ]
-                ],
-                "content": "",
-                "sig": "740972ce0335fe6be7194c995e407e440b4194e49ee2775a19dc36eb5e9d8302ea8d0ab93cdc11eb345a9f8bae32c14bcbd4b7f3fe9b97d197b8426dba139847"
-            }
-        ],
-        "contact_list_create_response": [
-            "OK",
-            "141ddb3008ed1cc35fa09ff88d3b82da0351c6166c566e6220293136aa902a62",
-            true,
-            ""
-        ],
-        "contact_list_update": [
-            "EVENT",
-            {
-                "id": "1439f08983433295bc54d24b8c3cda2fa137d86636535a408d2d9a7bac5f0c40",
-                "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
-                "created_at": 1675444161,
-                "kind": 3,
-                "tags": [
-                    [
-                        "p",
-                        "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
-                    ],
-                    [
-                        "p",
-                        "8d21cd7c3f204cbb8aaf7708445b49e6cef7da23a550f9a27d21b1122c0cb4e9"
-                    ]
-                ],
-                "content": "",
-                "sig": "648230464f6b79063da76c1c9d06cd290c65f95fca4bac2e055f84f003847a4b9a2e144b4d77ec9f2f5289d477353a21494548d1b1fbf8795602c8914a062d50"
-            }
-        ],
-        "contact_list_update_response": [
-            "OK",
-            "1439f08983433295bc54d24b8c3cda2fa137d86636535a408d2d9a7bac5f0c40",
-            true,
-            ""
+      }
+    ]
+  },
+  "bob": {
+    "meta": [
+      "EVENT",
+      {
+        "id": "a3591f44f9f12e8d745a79c19affc1f9ea267a716981116835ddb7b327096be5",
+        "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+        "created_at": 1675332410,
+        "kind": 0,
+        "tags": [],
+        "content": "{\"name\":\"Bob\"}",
+        "sig": "52b142eb5bf95e46424d8f146a0efcfd1be35ec2ae446152ccc875bc82eee66bef6df1af9a4456ec8984540ac4e21905544b5291334e2b18a24e534b788b2d81"
+      }
+    ],
+    "meta_response": [
+      "OK",
+      "a3591f44f9f12e8d745a79c19affc1f9ea267a716981116835ddb7b327096be5",
+      true,
+      ""
+    ],
+    "request_meta_alice": [
+      "REQ",
+      "profile",
+      {
+        "kinds": [0],
+        "authors": [
+          "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
         ]
-    }
+      }
+    ],
+    "request_posts_alice": [
+      "REQ",
+      "sub0",
+      {
+        "kinds": [1],
+        "authors": [
+          "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+        ],
+        "limit": 50
+      }
+    ],
+    "like_post01": [
+      "EVENT",
+      {
+        "id": "700da4df9029a049ddecd1c586b778f434afb55e56c3016d94334108e3829db7",
+        "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+        "created_at": 1675350162,
+        "kind": 7,
+        "tags": [
+          [
+            "e",
+            "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85"
+          ],
+          [
+            "p",
+            "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+          ]
+        ],
+        "content": "\u2764\ufe0f",
+        "sig": "3522d670f2e28bd63d32184aa9617df360684e5bc4b7c791b53c5401437e1bf91d1d335f016076fdee9afa99046dc9cc06a39738b25ff9a1562ac7321e3dca2e"
+      }
+    ],
+    "like_post02": [
+      "EVENT",
+      {
+        "id": "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
+        "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+        "created_at": 1675332450,
+        "kind": 7,
+        "tags": [
+          [
+            "e",
+            "79d89e66626c4c54b007259cf068a7ba9416ffb6262cc01ba8e7cebf79b9c0d5"
+          ],
+          [
+            "p",
+            "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+          ]
+        ],
+        "content": "\u2764\ufe0f",
+        "sig": "90fa8093088ed9280277f10a97c41d68d9f51d24254f7b27c28f5d84ac25426f1bfc217bca0c6712a9965164b07db219ee7e583b94c4d26f00aee87344c3f17a"
+      }
+    ],
+    "like_post02_response": [
+      "OK",
+      "920ee4e856acb3310e64415183da0dd7e2e2b7e7c5a517553b9a75981fbafcc9",
+      true,
+      ""
+    ],
+    "comment_on_alice_post01": [
+      "EVENT",
+      {
+        "id": "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
+        "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+        "created_at": 1675332468,
+        "kind": 1,
+        "tags": [
+          [
+            "e",
+            "05741bda9079cdf66f3be977a4d31287366470d1337b1aeb09506da4fbf7cd85"
+          ],
+          [
+            "p",
+            "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+          ]
+        ],
+        "content": "bob comment 01",
+        "sig": "f9bb53e2adc27f3a49ec42d681833742e28d734327107ebba3076be226340503048116947a75274e5262fa03aa0430da6fe697e46e19342639ef208e5690d8c5"
+      }
+    ],
+    "comment_on_alice_post01_response": [
+      "OK",
+      "bb34749ffd3eb0e393e54cc90b61a7dd5f34108d4931467861d20281c0b7daea",
+      true,
+      ""
+    ],
+    "direct_message01": [
+      "EVENT",
+      {
+        "id": "15f6e6bd6cb538167d4430ea6bd7c0cfb99b400ca3e8879a114e90f74b3f20b2",
+        "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+        "created_at": 1675412687,
+        "kind": 4,
+        "tags": [
+          [
+            "p",
+            "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+          ]
+        ],
+        "content": "jjBSyp36t555ywERY2fI4A==?iv=+8bg2vsltrXewAywxw9m6w==",
+        "sig": "091f4e8e5c497099bfe6af58126e022bc8babe648b8157c39f51e5d3906bfddf01f2f6d1a3ed36f94fbf07b009008fd448fbb8ce35b60260517aa0124a6c5c39"
+      }
+    ],
+    "direct_message01_response": [
+      "OK",
+      "15f6e6bd6cb538167d4430ea6bd7c0cfb99b400ca3e8879a114e90f74b3f20b2",
+      true,
+      ""
+    ],
+    "subscribe_to_direct_messages": [
+      "REQ",
+      "notifications:d685447c43c7c18dbbea61923cf0b63e1ab46bed",
+      {
+        "kinds": [4],
+        "#p": [
+          "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a"
+        ],
+        "limit": 400
+      }
+    ],
+    "subscribe_to_delete_from_alice": [
+      "REQ",
+      "notifications:delete",
+      {
+        "kinds": [5],
+        "authors": [
+          "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+        ],
+        "limit": 400
+      }
+    ],
+    "contact_list_create": [
+      "EVENT",
+      {
+        "id": "141ddb3008ed1cc35fa09ff88d3b82da0351c6166c566e6220293136aa902a62",
+        "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+        "created_at": 1675350109,
+        "kind": 3,
+        "tags": [
+          [
+            "p",
+            "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+          ]
+        ],
+        "content": "",
+        "sig": "740972ce0335fe6be7194c995e407e440b4194e49ee2775a19dc36eb5e9d8302ea8d0ab93cdc11eb345a9f8bae32c14bcbd4b7f3fe9b97d197b8426dba139847"
+      }
+    ],
+    "contact_list_create_response": [
+      "OK",
+      "141ddb3008ed1cc35fa09ff88d3b82da0351c6166c566e6220293136aa902a62",
+      true,
+      ""
+    ],
+    "contact_list_update": [
+      "EVENT",
+      {
+        "id": "1439f08983433295bc54d24b8c3cda2fa137d86636535a408d2d9a7bac5f0c40",
+        "pubkey": "d685447c43c7c18dbbea61923cf0b63e1ab46bed69b153a48279a95c40bd414a",
+        "created_at": 1675444161,
+        "kind": 3,
+        "tags": [
+          [
+            "p",
+            "0b29ecc73ba400e5b4bd1e4cb0d8f524e9958345749197ca21c8da38d0622816"
+          ],
+          [
+            "p",
+            "8d21cd7c3f204cbb8aaf7708445b49e6cef7da23a550f9a27d21b1122c0cb4e9"
+          ]
+        ],
+        "content": "",
+        "sig": "648230464f6b79063da76c1c9d06cd290c65f95fca4bac2e055f84f003847a4b9a2e144b4d77ec9f2f5289d477353a21494548d1b1fbf8795602c8914a062d50"
+      }
+    ],
+    "contact_list_update_response": [
+      "OK",
+      "1439f08983433295bc54d24b8c3cda2fa137d86636535a408d2d9a7bac5f0c40",
+      true,
+      ""
+    ]
+  }
 }
