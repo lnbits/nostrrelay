@@ -3,13 +3,14 @@ from http import HTTPStatus
 from fastapi import Depends, Request
 from fastapi.exceptions import HTTPException
 from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse, JSONResponse
+from starlette.responses import HTMLResponse
 
 from lnbits.core.models import User
 from lnbits.decorators import check_user_exists
 
 from . import nostrrelay_ext, nostrrelay_renderer
 from .crud import get_public_relay
+from .helpers import relay_info_response
 
 templates = Jinja2Templates(directory="templates")
 
@@ -32,14 +33,7 @@ async def nostrrelay(request: Request, relay_id: str):
         )
 
     if request.headers.get("accept") == "application/nostr+json":
-        return JSONResponse(
-            content=relay_public_data,
-            headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Allow-Methods": "GET",
-            },
-        )
+        return relay_info_response(relay_public_data)
 
     return nostrrelay_renderer().TemplateResponse(
         "nostrrelay/public.html", {"request": request, "relay": relay_public_data}

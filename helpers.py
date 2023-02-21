@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 
 from bech32 import bech32_decode, convertbits
+from starlette.responses import JSONResponse
 
 
 def normalize_public_key(pubkey: str) -> str:
@@ -23,3 +24,14 @@ def normalize_public_key(pubkey: str) -> str:
 
 def extract_domain(url: str) -> str:
     return urlparse(url).netloc
+
+
+def relay_info_response(relay_public_data: dict) -> JSONResponse:
+    return JSONResponse(
+        content=relay_public_data,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "GET",
+        },
+    )
