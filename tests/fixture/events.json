@@ -1,220 +1,215 @@
 {
-    "valid": [
-        {
-            "name": "kind 0, metadata",
-            "data": {
-                "id": "380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acf3440269e3bd2486f6",
-                "pubkey": "ae9d97d1627f6d02376cd0ce0ceed716d573deca355649d8e03a9323aaaa2491",
-                "created_at": 1675242172,
-                "kind": 0,
-                "tags": [],
-                "content": "{\"name\":\"chrome-snort\",\"display_name\":\"the ugly\",\"about\":\"meeeee\",\"website\":\"lnbits.com\",\"lud16\":\"nostr@lnbits.com\"}",
-                "sig": "2e3da396e6eb32962b31d490cefe422c02c5fa8a48a60f3ece27e1dcea374978b4a78b110e78dcff3859a6036287aceba1801df8877fc15266996d41235b7c4f"
-            }
-        },
-        {
-            "name": "kind 1, no tags",
-            "data": {
-                "kind": 1,
-                "content": "i126",
-                "tags": [],
-                "created_at": 1675239988,
-                "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
-                "id": "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96",
-                "sig": "b1791d17052cef2a65f487ecd976952a721680da9cda4e0f11f4ea04425b1e0a273b27233a4fc50b9d98ebdf1d0722e52634db9830ba53ad8caeb1e2afc9b7d1"
-            }
-        },
-        {
-            "name": "kind 1, reply, e & p tags",
-            "data": {
-                "kind": 1,
-                "content": "i126 reply",
-                "tags": [
-                    [
-                        "e",
-                        "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96",
-                        "",
-                        "root"
-                    ],
-                    [
-                        "p",
-                        "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
-                    ]
-                ],
-                "created_at": 1675240147,
-                "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
-                "id": "6b2b6cb9c72caaf3dfbc5baa5e68d75ac62f38ec011b36cc83832218c36e4894",
-                "sig": "ee855296f691880bac51148996b4200c21da7c8a54c65ab29a83a30bbace3bb5de49f6bdbe8102473211078d006b63bcc67a6e905bf22b3f2195b9e2feaa0957"
-            }
-        },
-        {
-            "name": "kind 3, contact list",
-            "data": {
-                "id": "d1e5db203ef5fb1699f106f132bae1a3b5c9c8acf4fbb6c4a50844a6827164f1",
-                "pubkey": "69795541a6635015b7e18b7f3f0f663fdec952bbd92642ee879610fae2e25718",
-                "created_at": 1675095502,
-                "kind": 3,
-                "tags": [
-                    [
-                        "p",
-                        "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
-                    ]
-                ],
-                "content": "",
-                "sig": "591cf6fd40c6fa6ed0b4ef47e22e52577f786a87aafcd293582076cb3ff75a9598f973fe93de833bb5a793bb3c756a853eab884323257207b2df7d217fabf9e9"
-            }
-        },
-        {
-            "name": "kind 3, relays",
-            "data": {
-                "id": "ee5fd14c3f8198bafbc70250c1c9d773069479ea456e8a11cfd889eb0eb63a9e",
-                "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
-                "created_at": 1675175242,
-                "kind": 3,
-                "tags": [
-                    [
-                        "p",
-                        "4b1b856e263836ef4e2ffc439f49b5f0f7b7c4bfc6fba79019ea5f0f648c55d5"
-                    ],
-                    [
-                        "p",
-                        "ba6dbec940142c806e5eebe02863968d2037ef50af33fd43b82309165eed1e2a"
-                    ],
-                    [
-                        "p",
-                        "ae9d97d1627f6d02376cd0ce0ceed716d573deca355649d8e03a9323aaaa2491"
-                    ],
-                    [
-                        "p",
-                        "69795541a6635015b7e18b7f3f0f663fdec952bbd92642ee879610fae2e25718"
-                    ]
-                ],
-                "content": "{\"wss://lnbits.link/nostrrelay/client\":{\"read\":true,\"write\":true}}",
-                "sig": "279940c52322467abcfcc10a9123f6e25542a40bc7751fef4b4941de1d5382f2bee7e0fc48a744efc4c227609d619009a0ab4557b36b35ec6df8f71e2e384b3a"
-            }
-        },
-        {
-            "name": "kind 4, direct message",
-            "data": {
-                "kind": 4,
-                "content": "gw8BFFM6anxgv77elHM5RQ==?iv=w1Qq4gPS3EZ4Csn1NfEgXg==",
-                "tags": [
-                    [
-                        "p",
-                        "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
-                    ]
-                ],
-                "created_at": 1675240247,
-                "pubkey": "99a566c374211fd7f3db531f296b574a726329f509fbf3285cf3feac4e9b488e",
-                "id": "e742abcd1befd0ef51fc047d5bcd3df360bf0d87f29702a333b06cb405ca40e5",
-                "sig": "eb7269eec350a3a1456261fe4e53a6a58b028497bdfc469c1579940ddcfe29688b420f33b7a9d69d41a9a689e00e661749cde5a44de16a341a8b2be3df6d770d"
-            }
-        },
-        {
-            "name": "kind 5, delete message",
-            "data": {
-                "kind": 5,
-                "content": "deleted",
-                "tags": [
-                    [
-                        "e",
-                        "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96"
-                    ]
-                ],
-                "created_at": 1675241034,
-                "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
-                "id": "31e27bb0133d48b4e27cc23ca533f305fd613b1485d0fc27b3d65354ae7bd4d1",
-                "sig": "e6f48d78f516212f3272c73eb2a6229b7f4d8254f453d8fe3f225ecf5e1367ed6d15859c678c7d00dee0d6b545fb4967c383b559fe20e59891e229428ed2c312"
-            }
-        },
-        {
-            "name": "kind 6, mention (?)",
-            "data": {
-                "kind": 6,
-                "tags": [
-                    [
-                        "e",
-                        "201eaebc2a3176eefa488558749a7978b5189794550c58aff885c2d362917bda",
-                        "",
-                        "mention"
-                    ],
-                    [
-                        "p",
-                        "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
-                    ]
-                ],
-                "content": "#[0]",
-                "created_at": 1675240471,
-                "pubkey": "99a566c374211fd7f3db531f296b574a726329f509fbf3285cf3feac4e9b488e",
-                "id": "64e69392dc44972433f80bdb4889d3a5a53b6ba7a18a0f5b9518e0bebfeb202e",
-                "sig": "6ae812a285be3a0bee8c4ae894bc3a92bbc4a78e03c3b1265e9e4f67668fd2c4fe59af69ab2248e49739e733e270b258384abe45f3b7e2a2fba9caebf405f74e"
-            }
-        },
-        {
-            "name": "kind 7, reaction",
-            "data": {
-                "kind": 7,
-                "content": "+",
-                "tags": [
-                    [
-                        "e",
-                        "8dacb8a9326d1b8e055386ba7f1ddf9df1cc0dd90ffe3d15802955227c311c14"
-                    ],
-                    [
-                        "p",
-                        "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
-                    ]
-                ],
-                "created_at": 1675240377,
-                "pubkey": "99a566c374211fd7f3db531f296b574a726329f509fbf3285cf3feac4e9b488e",
-                "id": "9ad503684485edc2d2c52d024e00d920f50c29e07c7b0e39d221c96f9eecc6da",
-                "sig": "2619c94b8ae65ac153f287de810a5447bcdd9bf177b149cc1f428a7aa750a3751881bb0ef6359017ab70a45b5062d0be7205fa2c71b6c990e886486a17875947"
-            }
-        },
-        {
-            "name": "kind 30,000, replaceable events, 'd' tag",
-            "data": {
-                "kind": 30000,
-                "tags": [
-                    [
-                        "d",
-                        "chats/null/lastOpened"
-                    ]
-                ],
-                "content": "1675242945",
-                "created_at": 1675242945,
-                "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
-                "id": "21248bddbab900b8c2f0713c925519f4f50d71eb081149f71221e69db3a5e2d1",
-                "sig": "f9be83b62cbbfd6070d434758d3fe7e709947abfff701b240fca5f20fc538f35018be97fd5b236c72f7021845f3a3c805ba878269b5ddf44fe03ec161f60e5d8"
-            }
-        }
-    ],
-    "invalid": [
-        {
-            "name": "invalid event id",
-            "exception": "Invalid event id. Expected: '380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acf3440269e3bd2486f6' got '380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acaaaaaaaaaaaaaaaaaa'",
-            "data": {
-                "id": "380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acaaaaaaaaaaaaaaaaaa",
-                "pubkey": "ae9d97d1627f6d02376cd0ce0ceed716d573deca355649d8e03a9323aaaa2491",
-                "created_at": 1675242172,
-                "kind": 0,
-                "tags": [],
-                "content": "{\"name\":\"chrome-snort\",\"display_name\":\"the ugly\",\"about\":\"meeeee\",\"website\":\"lnbits.com\",\"lud16\":\"nostr@lnbits.com\"}",
-                "sig": "2e3da396e6eb32962b31d490cefe422c02c5fa8a48a60f3ece27e1dcea374978b4a78b110e78dcff3859a6036287aceba1801df8877fc15266996d41235b7c4f"
-            }
-        },
-        {
-            "name": "invalid signature",
-            "exception": "Invalid signature: 'b1791d17052cef2a65f487ecd976952a721680da9cda4e0f11f4ea04425b1e0a273b27233a4fc50b9d98ebdf1d0722e52634dbaaaaaaaaaaaaaaaaaaaaaaaaaa' for event '3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96'",
-            "data": {
-                "kind": 1,
-                "content": "i126",
-                "tags": [],
-                "created_at": 1675239988,
-                "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
-                "id": "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96",
-                "sig": "b1791d17052cef2a65f487ecd976952a721680da9cda4e0f11f4ea04425b1e0a273b27233a4fc50b9d98ebdf1d0722e52634dbaaaaaaaaaaaaaaaaaaaaaaaaaa"
-            }
-        }
-    ]
+  "valid": [
+    {
+      "name": "kind 0, metadata",
+      "data": {
+        "id": "380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acf3440269e3bd2486f6",
+        "pubkey": "ae9d97d1627f6d02376cd0ce0ceed716d573deca355649d8e03a9323aaaa2491",
+        "created_at": 1675242172,
+        "kind": 0,
+        "tags": [],
+        "content": "{\"name\":\"chrome-snort\",\"display_name\":\"the ugly\",\"about\":\"meeeee\",\"website\":\"lnbits.com\",\"lud16\":\"nostr@lnbits.com\"}",
+        "sig": "2e3da396e6eb32962b31d490cefe422c02c5fa8a48a60f3ece27e1dcea374978b4a78b110e78dcff3859a6036287aceba1801df8877fc15266996d41235b7c4f"
+      }
+    },
+    {
+      "name": "kind 1, no tags",
+      "data": {
+        "kind": 1,
+        "content": "i126",
+        "tags": [],
+        "created_at": 1675239988,
+        "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
+        "id": "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96",
+        "sig": "b1791d17052cef2a65f487ecd976952a721680da9cda4e0f11f4ea04425b1e0a273b27233a4fc50b9d98ebdf1d0722e52634db9830ba53ad8caeb1e2afc9b7d1"
+      }
+    },
+    {
+      "name": "kind 1, reply, e & p tags",
+      "data": {
+        "kind": 1,
+        "content": "i126 reply",
+        "tags": [
+          [
+            "e",
+            "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96",
+            "",
+            "root"
+          ],
+          [
+            "p",
+            "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
+          ]
+        ],
+        "created_at": 1675240147,
+        "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
+        "id": "6b2b6cb9c72caaf3dfbc5baa5e68d75ac62f38ec011b36cc83832218c36e4894",
+        "sig": "ee855296f691880bac51148996b4200c21da7c8a54c65ab29a83a30bbace3bb5de49f6bdbe8102473211078d006b63bcc67a6e905bf22b3f2195b9e2feaa0957"
+      }
+    },
+    {
+      "name": "kind 3, contact list",
+      "data": {
+        "id": "d1e5db203ef5fb1699f106f132bae1a3b5c9c8acf4fbb6c4a50844a6827164f1",
+        "pubkey": "69795541a6635015b7e18b7f3f0f663fdec952bbd92642ee879610fae2e25718",
+        "created_at": 1675095502,
+        "kind": 3,
+        "tags": [
+          [
+            "p",
+            "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
+          ]
+        ],
+        "content": "",
+        "sig": "591cf6fd40c6fa6ed0b4ef47e22e52577f786a87aafcd293582076cb3ff75a9598f973fe93de833bb5a793bb3c756a853eab884323257207b2df7d217fabf9e9"
+      }
+    },
+    {
+      "name": "kind 3, relays",
+      "data": {
+        "id": "ee5fd14c3f8198bafbc70250c1c9d773069479ea456e8a11cfd889eb0eb63a9e",
+        "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
+        "created_at": 1675175242,
+        "kind": 3,
+        "tags": [
+          [
+            "p",
+            "4b1b856e263836ef4e2ffc439f49b5f0f7b7c4bfc6fba79019ea5f0f648c55d5"
+          ],
+          [
+            "p",
+            "ba6dbec940142c806e5eebe02863968d2037ef50af33fd43b82309165eed1e2a"
+          ],
+          [
+            "p",
+            "ae9d97d1627f6d02376cd0ce0ceed716d573deca355649d8e03a9323aaaa2491"
+          ],
+          [
+            "p",
+            "69795541a6635015b7e18b7f3f0f663fdec952bbd92642ee879610fae2e25718"
+          ]
+        ],
+        "content": "{\"wss://lnbits.link/nostrrelay/client\":{\"read\":true,\"write\":true}}",
+        "sig": "279940c52322467abcfcc10a9123f6e25542a40bc7751fef4b4941de1d5382f2bee7e0fc48a744efc4c227609d619009a0ab4557b36b35ec6df8f71e2e384b3a"
+      }
+    },
+    {
+      "name": "kind 4, direct message",
+      "data": {
+        "kind": 4,
+        "content": "gw8BFFM6anxgv77elHM5RQ==?iv=w1Qq4gPS3EZ4Csn1NfEgXg==",
+        "tags": [
+          [
+            "p",
+            "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
+          ]
+        ],
+        "created_at": 1675240247,
+        "pubkey": "99a566c374211fd7f3db531f296b574a726329f509fbf3285cf3feac4e9b488e",
+        "id": "e742abcd1befd0ef51fc047d5bcd3df360bf0d87f29702a333b06cb405ca40e5",
+        "sig": "eb7269eec350a3a1456261fe4e53a6a58b028497bdfc469c1579940ddcfe29688b420f33b7a9d69d41a9a689e00e661749cde5a44de16a341a8b2be3df6d770d"
+      }
+    },
+    {
+      "name": "kind 5, delete message",
+      "data": {
+        "kind": 5,
+        "content": "deleted",
+        "tags": [
+          [
+            "e",
+            "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96"
+          ]
+        ],
+        "created_at": 1675241034,
+        "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
+        "id": "31e27bb0133d48b4e27cc23ca533f305fd613b1485d0fc27b3d65354ae7bd4d1",
+        "sig": "e6f48d78f516212f3272c73eb2a6229b7f4d8254f453d8fe3f225ecf5e1367ed6d15859c678c7d00dee0d6b545fb4967c383b559fe20e59891e229428ed2c312"
+      }
+    },
+    {
+      "name": "kind 6, mention (?)",
+      "data": {
+        "kind": 6,
+        "tags": [
+          [
+            "e",
+            "201eaebc2a3176eefa488558749a7978b5189794550c58aff885c2d362917bda",
+            "",
+            "mention"
+          ],
+          [
+            "p",
+            "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
+          ]
+        ],
+        "content": "#[0]",
+        "created_at": 1675240471,
+        "pubkey": "99a566c374211fd7f3db531f296b574a726329f509fbf3285cf3feac4e9b488e",
+        "id": "64e69392dc44972433f80bdb4889d3a5a53b6ba7a18a0f5b9518e0bebfeb202e",
+        "sig": "6ae812a285be3a0bee8c4ae894bc3a92bbc4a78e03c3b1265e9e4f67668fd2c4fe59af69ab2248e49739e733e270b258384abe45f3b7e2a2fba9caebf405f74e"
+      }
+    },
+    {
+      "name": "kind 7, reaction",
+      "data": {
+        "kind": 7,
+        "content": "+",
+        "tags": [
+          [
+            "e",
+            "8dacb8a9326d1b8e055386ba7f1ddf9df1cc0dd90ffe3d15802955227c311c14"
+          ],
+          [
+            "p",
+            "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
+          ]
+        ],
+        "created_at": 1675240377,
+        "pubkey": "99a566c374211fd7f3db531f296b574a726329f509fbf3285cf3feac4e9b488e",
+        "id": "9ad503684485edc2d2c52d024e00d920f50c29e07c7b0e39d221c96f9eecc6da",
+        "sig": "2619c94b8ae65ac153f287de810a5447bcdd9bf177b149cc1f428a7aa750a3751881bb0ef6359017ab70a45b5062d0be7205fa2c71b6c990e886486a17875947"
+      }
+    },
+    {
+      "name": "kind 30,000, replaceable events, 'd' tag",
+      "data": {
+        "kind": 30000,
+        "tags": [["d", "chats/null/lastOpened"]],
+        "content": "1675242945",
+        "created_at": 1675242945,
+        "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
+        "id": "21248bddbab900b8c2f0713c925519f4f50d71eb081149f71221e69db3a5e2d1",
+        "sig": "f9be83b62cbbfd6070d434758d3fe7e709947abfff701b240fca5f20fc538f35018be97fd5b236c72f7021845f3a3c805ba878269b5ddf44fe03ec161f60e5d8"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "invalid event id",
+      "exception": "Invalid event id. Expected: '380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acf3440269e3bd2486f6' got '380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acaaaaaaaaaaaaaaaaaa'",
+      "data": {
+        "id": "380299ac06ef1bff58e7e5a04a2c5efcd0e15b113e71acaaaaaaaaaaaaaaaaaa",
+        "pubkey": "ae9d97d1627f6d02376cd0ce0ceed716d573deca355649d8e03a9323aaaa2491",
+        "created_at": 1675242172,
+        "kind": 0,
+        "tags": [],
+        "content": "{\"name\":\"chrome-snort\",\"display_name\":\"the ugly\",\"about\":\"meeeee\",\"website\":\"lnbits.com\",\"lud16\":\"nostr@lnbits.com\"}",
+        "sig": "2e3da396e6eb32962b31d490cefe422c02c5fa8a48a60f3ece27e1dcea374978b4a78b110e78dcff3859a6036287aceba1801df8877fc15266996d41235b7c4f"
+      }
+    },
+    {
+      "name": "invalid signature",
+      "exception": "Invalid signature: 'b1791d17052cef2a65f487ecd976952a721680da9cda4e0f11f4ea04425b1e0a273b27233a4fc50b9d98ebdf1d0722e52634dbaaaaaaaaaaaaaaaaaaaaaaaaaa' for event '3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96'",
+      "data": {
+        "kind": 1,
+        "content": "i126",
+        "tags": [],
+        "created_at": 1675239988,
+        "pubkey": "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211",
+        "id": "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96",
+        "sig": "b1791d17052cef2a65f487ecd976952a721680da9cda4e0f11f4ea04425b1e0a273b27233a4fc50b9d98ebdf1d0722e52634dbaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    }
+  ]
 }
