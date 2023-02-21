@@ -5,6 +5,7 @@ from fastapi import Depends, Request, WebSocket
 from fastapi.exceptions import HTTPException
 from loguru import logger
 from pydantic.types import UUID4
+from starlette.responses import JSONResponse
 
 from lnbits.core.services import create_invoice
 from lnbits.decorators import (
@@ -29,7 +30,7 @@ from .crud import (
     update_account,
     update_relay,
 )
-from .helpers import extract_domain, normalize_public_key
+from .helpers import extract_domain, normalize_public_key, relay_info_response
 from .models import BuyOrder, NostrAccount, NostrPartialAccount
 from .relay.client_manager import NostrClientConnection, NostrClientManager
 from .relay.relay import NostrRelay
@@ -124,6 +125,18 @@ async def api_get_relays(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot fetch relays",
         )
+@nostrrelay_ext.get("/api/v1/relay-info")
+async def api_get_relay_info( request: Request,
+) -> JSONResponse:
+
+    if request.headers.get("accept") == "application/nostr+json":
+        return relay_info_response({})
+            
+    raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Cannot fetch relays info",
+        )
+
 
 
 @nostrrelay_ext.get("/api/v1/relay/{relay_id}")
