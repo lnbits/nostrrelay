@@ -20,13 +20,13 @@ nostrrelay_static_files = [
     }
 ]
 
-redirect_paths = [
+nostrrelay_redirect_paths = [
   {
-    "from_path": "/",
+    "from_path": "/nostr",
     "redirect_to_path": "/api/v1/relay-info",
-    "header_filters": [{
+    "header_filters": {
         "accept": "application/nostr+json"
-    }]
+    }
   }
 ]
 
