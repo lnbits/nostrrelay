@@ -126,16 +126,8 @@ async def api_get_relays(
             detail="Cannot fetch relays",
         )
 @nostrrelay_ext.get("/api/v1/relay-info")
-async def api_get_relay_info( request: Request,
-) -> JSONResponse:
-
-    if request.headers.get("accept") == "application/nostr+json":
-        return relay_info_response({})
-            
-    raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail="Cannot fetch relays info",
-        )
+async def api_get_relay_info() -> JSONResponse:
+    return relay_info_response(NostrRelay.info())
 
 
 
