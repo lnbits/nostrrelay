@@ -20,6 +20,16 @@ nostrrelay_static_files = [
     }
 ]
 
+redirect_paths = [
+  {
+    "from_path": "/",
+    "redirect_to_path": "/api/v1/relay-info",
+    "header_filters": [{
+        "accept": "application/nostr+json"
+    }]
+  }
+]
+
 scheduled_tasks: List[asyncio.Task] = []
 
 def nostrrelay_renderer():
