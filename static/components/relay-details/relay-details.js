@@ -132,7 +132,6 @@ async function relayDetails(path) {
           )
           this.relay = data
 
-          console.log('###  this.relay', this.relay)
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
@@ -168,8 +167,6 @@ async function relayDetails(path) {
             this.inkey
           )
           this.accounts = data
-
-          console.log('###  this.accounts', this.accounts)
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
