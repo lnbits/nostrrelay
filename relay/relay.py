@@ -60,7 +60,7 @@ class StorageSpec(Spec):
         return value
 
 
-class AuthSpec(BaseModel):
+class AuthSpec(Spec):
     require_auth_events = Field(False, alias="requireAuthEvents")
     skiped_auth_events = Field([], alias="skipedAuthEvents")
     forced_auth_events = Field([], alias="forcedAuthEvents")
@@ -72,7 +72,7 @@ class AuthSpec(BaseModel):
         return kind in self.forced_auth_events
 
 
-class PaymentSpec(BaseModel):
+class PaymentSpec(Spec):
     is_paid_relay = Field(False, alias="isPaidRelay")
     cost_to_join = Field(0, alias="costToJoin")
 
