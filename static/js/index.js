@@ -100,9 +100,7 @@ const relays = async () => {
               this.relayLinks.find(old => old.id === c.id)
             )
           )
-          console.log('### relayLinks', this.relayLinks)
         } catch (error) {
-          console.log('### getRelays', error)
           LNbits.utils.notifyApiError(error)
         }
       },
@@ -123,7 +121,6 @@ const relays = async () => {
         }
       },
       showToggleRelayDialog: function (relay) {
-        console.log('### showToggleRelayDialog', relay)
         if (relay.active) {
           this.toggleRelay(relay)
           return
@@ -134,12 +131,10 @@ const relays = async () => {
             this.toggleRelay(relay)
           })
           .onCancel(async () => {
-            console.log('#### onCancel')
             relay.active = !relay.active
           })
       },
       toggleRelay: async function (relay) {
-        console.log('### toggleRelay', relay)
         try {
           await LNbits.api.request(
             'PUT',

@@ -237,7 +237,6 @@
             '',
             reqData
           )
-          console.log('### data.invoice', data.invoice)
           this.invoice = data.invoice
         } catch (error) {
           LNbits.utils.notifyApiError(error)
@@ -245,7 +244,6 @@
       }
     },
     created: function () {
-      console.log('### created', this.relay)
     }
   })
 </script>
