@@ -255,7 +255,7 @@ async function relayDetails(path) {
             position: position || 'bottom'
           })
         })
-      },
+      }
     },
 
     created: async function () {
