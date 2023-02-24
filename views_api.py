@@ -76,7 +76,7 @@ async def api_create_relay(
         )
 
 
-@nostrrelay_ext.put("/api/v1/relay/{relay_id}")
+@nostrrelay_ext.patch("/api/v1/relay/{relay_id}")
 async def api_update_relay(
     relay_id: str, data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)
 ) -> NostrRelay:
@@ -95,9 +95,43 @@ async def api_update_relay(
             )
         updated_relay = NostrRelay.parse_obj({**dict(relay), **dict(data)})
         updated_relay = await update_relay(wallet.wallet.user, updated_relay)
+        # activate & deactivate have their own endpoint
+        updated_relay.active = relay.active
 
         if updated_relay.active:
             await client_manager.enable_relay(relay_id, updated_relay.config)
+        else:
+            await client_manager.disable_relay(relay_id)
+
+        return updated_relay
+
+    except HTTPException as ex:
+        raise ex
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot update relay",
+        )
+
+
+@nostrrelay_ext.put("/api/v1/relay/{relay_id}")
+async def api_toggle_relay(
+    relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)
+) -> NostrRelay:
+
+    try:
+        relay = await get_relay(wallet.wallet.user,relay_id)
+        if not relay:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Relay not found",
+            )
+        relay.active = not relay.active
+        updated_relay = await update_relay(wallet.wallet.user, relay)
+
+        if relay.active:
+            await client_manager.enable_relay(relay_id, relay.config)
         else:
             await client_manager.disable_relay(relay_id)
 
