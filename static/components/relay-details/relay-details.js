@@ -245,7 +245,17 @@ async function relayDetails(path) {
         value = +eventKind
         this.relay.config.forcedAuthEvents =
           this.relay.config.forcedAuthEvents.filter(e => e !== value)
-      }
+      },
+      // todo: bad. base.js not present in custom components
+      copyText: function (text, message, position) {
+        var notify = this.$q.notify
+        Quasar.utils.copyToClipboard(text).then(function () {
+          notify({
+            message: message || 'Copied to clipboard!',
+            position: position || 'bottom'
+          })
+        })
+      },
     },
 
     created: async function () {
