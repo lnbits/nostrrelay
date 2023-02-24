@@ -283,11 +283,13 @@ async def api_pay_to_join(data: BuyOrder):
                 detail="Relay not found",
             )
 
-        if data.action == "join" and relay.is_free_to_join:
-            raise ValueError("Relay is free to join")
-
+        amount = 0
         storage_to_buy = 0
-        if data.action == "storage":
+        if data.action == "join":
+            if relay.is_free_to_join:
+                raise ValueError("Relay is free to join")
+            amount = int(relay.config.cost_to_join)        
+        elif data.action == "storage":
             if relay.config.storage_cost_value == 0:
                 raise ValueError("Relay storage cost is zero. Cannot buy!")
             if data.units_to_buy == 0:
@@ -295,10 +297,13 @@ async def api_pay_to_join(data: BuyOrder):
             storage_to_buy = data.units_to_buy * relay.config.storage_cost_value * 1024
             if relay.config.storage_cost_unit == "MB":
                 storage_to_buy *= 1024
+            amount = data.units_to_buy * relay.config.storage_cost_value
+        else:
+            raise ValueError(f"Unknown action: '{data.action}'")
 
         _, payment_request = await create_invoice(
             wallet_id=relay.config.wallet,
-            amount=int(relay.config.cost_to_join),
+            amount=amount,
             memo=f"Pubkey '{data.pubkey}' wants to join {relay.id}",
             extra={
                 "tag": "nostrrely",

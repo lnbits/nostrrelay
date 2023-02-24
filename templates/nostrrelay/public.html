@@ -11,43 +11,90 @@
           <q-card-section>
             <h4 v-text="relay.name" class="q-my-none"></h4>
           </q-card-section>
+          <div v-if="relay.description" class="q-ma-lg">
+            <q-separator></q-separator>
+            <span class="text-subtitle1" v-text="relay.description"></span>
+          </div>
         </q-card>
         <q-card class="q-pb-xl">
           <q-card-section>
-            <span class="text-bold">Public Key:</span>
-            <q-input
-              filled
-              dense
-              v-model.trim="pubkey"
-              type="text"
-              label="User Public Key"
-            ></q-input>
+            <div class="row">
+              <div class="col-2 q-pt-sm">
+                <span class="text-bold">Relay Link:</span>
+              </div>
+              <div class="col-8">
+                <q-input
+                  filled
+                  dense
+                  readonly
+                  v-model.trim="wssLink"
+                  type="text"
+                  label="Relay Link"
+                ></q-input>
+              </div>
+              <div class="col-2">
+                <q-btn
+                  outline
+                  color="grey"
+                  class="float-right"
+                  @click="copyText(wssLink)"
+                  >Copy</q-btn
+                >
+              </div>
+            </div>
           </q-card-section>
           <q-card-section v-if="relay.config.isPaidRelay">
-            <div class="row q-mb-md">
+            <div class="row">
+              <div class="col-2 q-pt-sm">
+                <span class="text-bold">Public Key:</span>
+              </div>
+              <div class="col-8">
+                <q-input
+                  filled
+                  dense
+                  v-model.trim="pubkey"
+                  type="text"
+                  label="User Public Key"
+                ></q-input>
+              </div>
+              <div class="col-2"></div>
+            </div>
+          </q-card-section>
+          <q-card-section v-if="relay.config.isPaidRelay">
+            <div class="row">
               <div class="col-2">
                 <span class="text-bold">Cost to join: </span>
               </div>
               <div class="col-6">
-                <span v-text="relay.config.costToJoin"></span>
-                <span class="text-bold q-ml-sm">sats</span>
+                <div>
+                  <span v-text="relay.config.costToJoin"></span>
+                  <span class="text-bold q-ml-sm">sats</span>
+                </div>
               </div>
               <div class="col-4">
-                <q-btn
-                  @click="createInvoice('join')"
-                  unelevated
-                  color="primary"
-                  class="float-right"
-                  >Pay to Join</q-btn
-                >
+                <div v-if="relay.config.costToJoin">
+                  <q-btn
+                    @click="createInvoice('join')"
+                    unelevated
+                    color="primary"
+                    class="float-right"
+                    >Pay to Join</q-btn
+                  >
+                </div>
+                <div v-else>
+                  <q-badge color="green" class="float-right"
+                    ><span>Free to join</span>
+                  </q-badge>
+                </div>
               </div>
             </div>
-            <q-separator></q-separator>
+          </q-card-section>
+          <q-card-section v-if="relay.config.isPaidRelay">
             <div class="row q-mt-md q-mb-md">
-              <div class="col-2">
+              <div class="col-2 q-pt-sm">
                 <span class="text-bold">Storage cost: </span>
               </div>
-              <div class="col-3">
+              <div class="col-3 q-pt-sm">
                 <span v-text="relay.config.storageCostValue"></span>
                 <span class="text-bold q-ml-sm"> sats per</span>
                 <q-badge color="orange">
@@ -56,6 +103,7 @@
               </div>
               <div class="col-2">
                 <q-input
+                  v-if="relay.config.storageCostValue"
                   filled
                   dense
                   v-model="unitsToBuy"
@@ -64,25 +112,36 @@
                   :label="relay.config.storageCostUnit"
                 ></q-input>
               </div>
-              <div class="col-2">
-                <span class="text-bold q-ml-md" v-text="storageCost"></span>
-                <span>sats</span>
+              <div class="col-2 q-pt-sm">
+                <div v-if="relay.config.storageCostValue">
+                  <span class="text-bold q-ml-md" v-text="storageCost"></span>
+                  <span>sats</span>
+                </div>
               </div>
               <div class="col-3">
-                <q-btn
-                  @click="createInvoice('storage')"
-                  unelevated
-                  color="primary"
-                  class="float-right"
-                  >Buy storage space</q-btn
-                >
+                <div v-if="relay.config.storageCostValue">
+                  <q-btn
+                    @click="createInvoice('storage')"
+                    unelevated
+                    color="primary"
+                    class="float-right"
+                    >Buy storage space</q-btn
+                  >
+                </div>
+                <div v-else>
+                  <q-badge color="green" class="float-right"
+                    ><span>Free storage</span>
+                  </q-badge>
+                </div>
               </div>
             </div>
             <q-separator></q-separator>
           </q-card-section>
           <q-card-section v-else>
             <q-badge color="yellow" text-color="black">
-              This is a free relay
+              <h5 class="text-subtitle1 q-my-none">
+                This is a free Nostr Relay
+              </h5>
             </q-badge>
           </q-card-section>
           <q-card-section v-if="invoice">
@@ -118,77 +177,6 @@
           </q-card-section>
         </q-card>
       </div>
-      <div class="col-12 col-md-4 q-gutter-y-md q-pa-xl">
-        <q-card>
-          <q-card-section>
-            <q-expansion-item
-              group="extras"
-              icon="sensors"
-              label="Relay Specs"
-              :content-inset-level="0.5"
-            >
-              <q-separator class="q-mt-md"></q-separator>
-              <span v-text="relay.description"></span>
-              <q-separator class="q-mb-md"></q-separator>
-              <q-expansion-item
-                group="api"
-                dense
-                expand-separator
-                label="Payment Spec"
-              >
-                <q-card>
-                  <q-card-section>
-                    <code
-                      ><span class="text-blue">GET</span>
-                      /lnurlp/api/v1/links</code
-                    >
-                    <h5 class="text-caption q-mt-sm q-mb-none">Headers</h5>
-                    <code>{"X-Api-Key": &lt;invoice_key&gt;}</code><br />
-                    <h5 class="text-caption q-mt-sm q-mb-none">
-                      Body (application/json)
-                    </h5>
-                    <h5 class="text-caption q-mt-sm q-mb-none">
-                      Returns 200 OK (application/json)
-                    </h5>
-                    <code>[&lt;pay_link_object&gt;, ...]</code>
-                    <h5 class="text-caption q-mt-sm q-mb-none">Curl example</h5>
-                  </q-card-section>
-                </q-card>
-              </q-expansion-item>
-              <q-expansion-item
-                group="api"
-                dense
-                expand-separator
-                label="Events Spec"
-              >
-                <q-card>
-                  <q-card-section> </q-card-section>
-                </q-card>
-              </q-expansion-item>
-              <q-expansion-item
-                group="api"
-                dense
-                expand-separator
-                label="Filters Spec"
-              >
-                <q-card>
-                  <q-card-section> </q-card-section>
-                </q-card>
-              </q-expansion-item>
-              <q-expansion-item
-                group="api"
-                dense
-                expand-separator
-                label="Storage Spec"
-              >
-                <q-card>
-                  <q-card-section> </q-card-section>
-                </q-card>
-              </q-expansion-item>
-            </q-expansion-item>
-          </q-card-section>
-        </q-card>
-      </div>
     </div>
   </q-page>
 </q-page-container>
@@ -211,11 +199,20 @@
       storageCost: function () {
         if (!this.relay || !this.relay.config.storageCostValue) return 0
         return this.unitsToBuy * this.relay.config.storageCostValue
+      },
+      wssLink: function () {
+        this.relay.config.domain =
+          this.relay.config.domain || window.location.hostname
+        return (
+          'wss://' + this.relay.config.domain + '/nostrrelay/' + this.relay.id
+        )
       }
     },
     methods: {
       createInvoice: async function (action) {
+        console.log('### action', action)
         if (!action) return
+        this.invoice = ''
         if (!this.pubkey) {
           this.$q.notify({
             timeout: 5000,
