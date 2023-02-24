@@ -92,6 +92,13 @@ async function relayDetails(path) {
           {value: 'block', label: 'Block New Events'},
           {value: 'prune', label: 'Prune Old Events'}
         ]
+      },
+      wssLink: function () {
+        this.relay.config.domain =
+          this.relay.config.domain || window.location.hostname
+        return (
+          'wss://' + this.relay.config.domain + '/nostrrelay/' + this.relay.id
+        )
       }
     },
 
@@ -131,7 +138,6 @@ async function relayDetails(path) {
             this.inkey
           )
           this.relay = data
-
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
@@ -139,7 +145,7 @@ async function relayDetails(path) {
       updateRelay: async function () {
         try {
           const {data} = await LNbits.api.request(
-            'PUT',
+            'PATCH',
             '/nostrrelay/api/v1/relay/' + this.relayId,
             this.adminkey,
             this.relay
