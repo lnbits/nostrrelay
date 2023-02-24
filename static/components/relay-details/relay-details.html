@@ -68,6 +68,26 @@
           </div>
           <div class="col-3 col-sm-1"></div>
         </div>
+        <div class="row items-center no-wrap q-mb-md">
+          <div class="col-3 q-pr-lg">Web Socket Link:</div>
+          <div class="col-6 col-sm-8 q-pr-lg">
+            <q-input
+              filled
+              dense
+              v-model.trim="wssLink"
+              type="text"
+              readonly
+            ></q-input>
+          </div>
+          <div class="col-3 col-sm-1">
+            <q-btn
+              outline
+              color="grey"
+              @click="copyText(disclaimerDialog.location.href)"
+              >Copy</q-btn
+            >
+          </div>
+        </div>
       </div>
     </q-tab-panel>
     <q-tab-panel name="payment">
