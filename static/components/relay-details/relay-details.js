@@ -131,7 +131,6 @@ async function relayDetails(path) {
             this.inkey
           )
           this.relay = data
-
         } catch (error) {
           LNbits.utils.notifyApiError(error)
         }
