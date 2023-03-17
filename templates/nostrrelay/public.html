@@ -144,8 +144,9 @@
               </h5>
             </q-badge>
           </q-card-section>
-          <q-card-section v-if="invoice">
+          <q-card-section>
             <q-expansion-item
+              v-if="invoice"
               group="join-invoice"
               label="Invoice"
               :content-inset-level="0.5"
@@ -174,6 +175,20 @@
                 <div class="col-3"></div>
               </div>
             </q-expansion-item>
+            <q-expansion-item v-else-if="invoiceResponse">
+              <div class="row">
+                <div class="col-3"></div>
+                <div class="col-6">
+                  <q-icon
+                    v-if="invoiceResponse.success"
+                    name="check"
+                    style="color: green; font-size: 21.4em"
+                  ></q-icon>
+                  <span v-else v-text="invoiceResponse.message"></span>
+                </div>
+                <div class="col-3"></div>
+              </div>
+            </q-expansion-item>
           </q-card-section>
         </q-card>
       </div>
@@ -192,6 +207,7 @@
         relay: JSON.parse('{{relay | tojson | safe}}'),
         pubkey: '',
         invoice: '',
+        invoiceResponse: null,
         unitsToBuy: 0
       }
     },
@@ -210,7 +226,6 @@
     },
     methods: {
       createInvoice: async function (action) {
-        console.log('### action', action)
         if (!action) return
         this.invoice = ''
         if (!this.pubkey) {
@@ -235,8 +250,33 @@
             reqData
           )
           this.invoice = data.invoice
+          const paymentHashTag = decode(data.invoice).data.tags.find(
+            t => t.description === 'payment_hash'
+          )
+          if (paymentHashTag) {
+            await this.waitForPaidInvoice(paymentHashTag.value)
+          }
         } catch (error) {
           LNbits.utils.notifyApiError(error)
+        }
+      },
+      waitForPaidInvoice: function (paymentHash) {
+        try {
+          const scheme = location.protocol === 'http:' ? 'ws' : 'wss'
+          const wsUrl = `${scheme}://${document.domain}:${location.port}/api/v1/ws/${paymentHash}`
+          const wsConnection = new WebSocket(wsUrl)
+          wsConnection.onmessage = e => {
+            this.invoiceResponse = JSON.parse(e.data)
+            this.invoice = null
+            wsConnection.close()
+          }
+        } catch (error) {
+          this.$q.notify({
+            timeout: 5000,
+            type: 'warning',
+            message: 'Failed to get invoice status',
+            caption: `${error}`
+          })
         }
       }
     },
