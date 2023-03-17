@@ -251,7 +251,7 @@
           )
           this.invoice = data.invoice
           const paymentHashTag = decode(data.invoice).data.tags.find(
-            t => t.description === 'payment_hash'
+            t => t && t.description === 'payment_hash'
           )
           if (paymentHashTag) {
             await this.waitForPaidInvoice(paymentHashTag.value)
