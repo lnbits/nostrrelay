@@ -21,16 +21,15 @@ nostrrelay_static_files = [
 ]
 
 nostrrelay_redirect_paths = [
-  {
-    "from_path": "/",
-    "redirect_to_path": "/api/v1/relay-info",
-    "header_filters": {
-        "accept": "application/nostr+json"
+    {
+        "from_path": "/",
+        "redirect_to_path": "/api/v1/relay-info",
+        "header_filters": {"accept": "application/nostr+json"},
     }
-  }
 ]
 
 scheduled_tasks: List[asyncio.Task] = []
+
 
 def nostrrelay_renderer():
     return template_renderer(["lnbits/extensions/nostrrelay/templates"])

@@ -121,7 +121,7 @@ async def api_toggle_relay(
 ) -> NostrRelay:
 
     try:
-        relay = await get_relay(wallet.wallet.user,relay_id)
+        relay = await get_relay(wallet.wallet.user, relay_id)
         if not relay:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
@@ -159,10 +159,11 @@ async def api_get_relays(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot fetch relays",
         )
+
+
 @nostrrelay_ext.get("/api/v1/relay-info")
 async def api_get_relay_info() -> JSONResponse:
     return relay_info_response(NostrRelay.info())
-
 
 
 @nostrrelay_ext.get("/api/v1/relay/{relay_id}")
@@ -288,7 +289,7 @@ async def api_pay_to_join(data: BuyOrder):
         if data.action == "join":
             if relay.is_free_to_join:
                 raise ValueError("Relay is free to join")
-            amount = int(relay.config.cost_to_join)        
+            amount = int(relay.config.cost_to_join)
         elif data.action == "storage":
             if relay.config.storage_cost_value == 0:
                 raise ValueError("Relay storage cost is zero. Cannot buy!")
