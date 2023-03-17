@@ -263,7 +263,8 @@
       waitForPaidInvoice: function (paymentHash) {
         try {
           const scheme = location.protocol === 'http:' ? 'ws' : 'wss'
-          const wsUrl = `${scheme}://${document.domain}:${location.port}/api/v1/ws/${paymentHash}`
+          const port = location.port ? `:${location.port}` : ''
+          const wsUrl = `${scheme}://${document.domain}${port}/api/v1/ws/${paymentHash}`
           const wsConnection = new WebSocket(wsUrl)
           wsConnection.onmessage = e => {
             this.invoiceResponse = JSON.parse(e.data)
