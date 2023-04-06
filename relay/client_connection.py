@@ -186,8 +186,9 @@ class NostrClientConnection:
         await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
 
     async def _handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
-        if not self.auth_pubkey and self.config.require_auth_filter:
-            return [["AUTH", self._current_auth_challenge()]]
+        if self.config.require_auth_filter:
+            if not self.auth_pubkey:
+                return [["AUTH", self._current_auth_challenge()]]
 
         filter.subscription_id = subscription_id
         self._remove_filter(subscription_id)
