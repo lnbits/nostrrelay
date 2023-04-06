@@ -79,6 +79,10 @@ class PaymentSpec(Spec):
     storage_cost_value = Field(0, alias="storageCostValue")
     storage_cost_unit = Field("MB", alias="storageCostUnit")
 
+    @property
+    def is_free_to_join(self):
+        return not self.is_paid_relay or self.cost_to_join == 0
+
 
 class WalletSpec(Spec):
     wallet = Field("")

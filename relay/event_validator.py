@@ -90,7 +90,7 @@ class EventValidator:
                 f"Public key '{pubkey}' is not allowed in relay '{self.relay_id}'!",
             )
 
-        if not account.can_join and self.config.is_paid_relay:
+        if not account.can_join and not self.config.is_free_to_join:
             return False, f"This is a paid relay: '{self.relay_id}'"
 
         stored_bytes = await get_storage_for_public_key(self.relay_id, pubkey)
