@@ -144,6 +144,7 @@ async def create_event(relay_id: str, e: NostrEvent, publisher: Optional[str]):
             size
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (relay_id, id) DO NOTHING
         """,
         (
             relay_id,
