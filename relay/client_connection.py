@@ -25,7 +25,7 @@ class NostrClientConnection:
         self.websocket = websocket
         self.relay_id = relay_id
         self.filters: List[NostrFilter] = []
-        self.pubkey: Optional[str] = None  # set if authenticated
+        self.auth_pubkey: Optional[str] = None  # set if authenticated
         self._auth_challenge: Optional[str] = None
         self._auth_challenge_created_at = 0
 
@@ -86,9 +86,9 @@ class NostrClientConnection:
             return False
         if not self.config.event_requires_auth(event.kind):
             return False
-        if not self.pubkey:
+        if not self.auth_pubkey:
             return True
-        if event.has_tag_value("p", self.pubkey):
+        if event.has_tag_value("p", self.auth_pubkey):
             return False
         return True
 
@@ -127,10 +127,10 @@ class NostrClientConnection:
                 resp_nip20 += [valid, message]
                 await self._send_msg(resp_nip20)
                 return None
-            self.pubkey = e.pubkey
+            self.auth_pubkey = e.pubkey
             return None
 
-        if not self.pubkey and self.config.event_requires_auth(e.kind):
+        if not self.auth_pubkey and self.config.event_requires_auth(e.kind):
             await self._send_msg(["AUTH", self._current_auth_challenge()])
             resp_nip20 += [
                 False,
@@ -139,7 +139,7 @@ class NostrClientConnection:
             await self._send_msg(resp_nip20)
             return None
 
-        publisher_pubkey = self.pubkey if self.pubkey else e.pubkey
+        publisher_pubkey = self.auth_pubkey if self.auth_pubkey else e.pubkey
         valid, message = await self.event_validator.validate_write(e, publisher_pubkey)
         if not valid:
             resp_nip20 += [valid, message]
@@ -153,7 +153,7 @@ class NostrClientConnection:
                     NostrFilter(kinds=[e.kind], authors=[e.pubkey], until=e.created_at),
                 )
             if not e.is_ephemeral_event:
-                await create_event(self.relay_id, e, self.pubkey)
+                await create_event(self.relay_id, e, self.auth_pubkey)
             await self._broadcast_event(e)
 
             if e.is_delete_event:
@@ -186,7 +186,7 @@ class NostrClientConnection:
         await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
 
     async def _handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
-        if not self.pubkey and self.config.require_auth_filter:
+        if not self.auth_pubkey and self.config.require_auth_filter:
             return [["AUTH", self._current_auth_challenge()]]
 
         filter.subscription_id = subscription_id
