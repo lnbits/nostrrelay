@@ -8,8 +8,10 @@ from loguru import logger
 from lnbits.helpers import urlsafe_short_hash
 
 from ..crud import (
+    NostrAccount,
     create_event,
     delete_events,
+    get_account,
     get_event,
     get_events,
     mark_events_deleted,
@@ -189,6 +191,20 @@ class NostrClientConnection:
         if self.config.require_auth_filter:
             if not self.auth_pubkey:
                 return [["AUTH", self._current_auth_challenge()]]
+            account = await get_account(self.relay_id, self.auth_pubkey)
+            if not account:
+                account = NostrAccount.null_account()
+
+            if account.blocked:
+                return [
+                    [
+                        "NOTICE",
+                        f"Public key '{self.auth_pubkey}' is not allowed in relay '{self.relay_id}'!",
+                    ]
+                ]
+
+            if not account.can_join and not self.config.is_free_to_join:
+                return [["NOTICE", f"This is a paid relay: '{self.relay_id}'"]]
 
         filter.subscription_id = subscription_id
         self._remove_filter(subscription_id)
