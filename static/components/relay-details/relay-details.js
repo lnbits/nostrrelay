@@ -24,6 +24,12 @@ async function relayDetails(path) {
         accountsTable: {
           columns: [
             {
+              name: 'action',
+              align: 'left',
+              label: '',
+              field: ''
+            },
+            {
               name: 'pubkey',
               align: 'left',
               label: 'Public Key',
@@ -158,6 +164,7 @@ async function relayDetails(path) {
             timeout: 5000
           })
         } catch (error) {
+          console.warn(error)
           LNbits.utils.notifyApiError(error)
         }
       },
@@ -182,6 +189,13 @@ async function relayDetails(path) {
       },
       blockPublicKey: async function (pubkey, blocked = true) {
         await this.updatePublicKey({pubkey, blocked})
+      },
+      removePublicKey: async function (pubkey) {
+        LNbits.utils
+          .confirmDialog('This public key will be removed from relay!')
+          .onOk(async () => {
+            await this.deletePublicKey(pubkey)
+          })
       },
       togglePublicKey: async function (account, action) {
         if (action === 'allow') {
@@ -216,6 +230,25 @@ async function relayDetails(path) {
             timeout: 5000
           })
           this.accountPubkey = ''
+          await this.getAccounts()
+        } catch (error) {
+          LNbits.utils.notifyApiError(error)
+        }
+      },
+
+      deletePublicKey: async function (pubkey) {
+        try {
+          await LNbits.api.request(
+            'DELETE',
+            `/nostrrelay/api/v1/account/${this.relay.id}/${pubkey}`,
+            this.adminkey,
+            {}
+          )
+          this.$q.notify({
+            type: 'positive',
+            message: 'Account Deleted',
+            timeout: 5000
+          })
           await this.getAccounts()
         } catch (error) {
           LNbits.utils.notifyApiError(error)

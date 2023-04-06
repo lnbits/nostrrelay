@@ -363,6 +363,16 @@ async def update_account(relay_id: str, a: NostrAccount) -> NostrAccount:
     return a
 
 
+async def delete_account(relay_id: str, pubkey: str):
+    await db.execute(
+        """
+        DELETE FROM nostrrelay.accounts
+        WHERE relay_id = ? AND pubkey = ?
+        """,
+        (relay_id, pubkey),
+    )
+
+
 async def get_account(
     relay_id: str,
     pubkey: str,

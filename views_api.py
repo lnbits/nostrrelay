@@ -20,6 +20,7 @@ from . import nostrrelay_ext, scheduled_tasks
 from .crud import (
     create_account,
     create_relay,
+    delete_account,
     delete_all_events,
     delete_relay,
     get_account,
@@ -209,6 +210,33 @@ async def api_create_or_update_account(
             account.allowed = data.allowed
 
         return await update_account(data.relay_id, account)
+
+    except ValueError as ex:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=str(ex),
+        )
+    except HTTPException as ex:
+        raise ex
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="Cannot create account",
+        )
+
+
+@nostrrelay_ext.delete("/api/v1/account/{relay_id}/{pubkey}")
+async def api_delete_account(
+    relay_id: str,
+    pubkey: str,
+    wallet: WalletTypeInfo = Depends(require_admin_key),
+):
+
+    try:
+        pubkey = normalize_public_key(pubkey)
+
+        return await delete_account(relay_id, pubkey)
 
     except ValueError as ex:
         raise HTTPException(

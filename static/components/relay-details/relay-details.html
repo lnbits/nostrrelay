@@ -545,7 +545,7 @@
           ><q-card-section>
             <div class="row items-center no-wrap q-mb-md">
               <div class="col-2 q-pr-lg">Public Key:</div>
-              <div class="col-6 q-pr-lg">
+              <div class="col-5 q-pr-lg">
                 <q-input
                   filled
                   dense
@@ -557,16 +557,16 @@
                 <q-btn
                   unelevated
                   color="green"
-                  class="float-right"
+                  class="float-left"
                   @click="allowPublicKey(accountPubkey, true)"
                   >Allow</q-btn
                 >
               </div>
-              <div class="col-2">
+              <div class="col-3">
                 <q-btn
                   unelevated
                   color="pink"
-                  class="float-right"
+                  class="float-left"
                   @click="blockPublicKey(accountPubkey, true)"
                   >Block</q-btn
                 >
@@ -613,6 +613,16 @@
             >
               <template v-slot:body="props">
                 <q-tr :props="props">
+                  <q-td key="action" :props="props">
+                    <q-btn
+                      dense
+                      color="pink"
+                      class="float-right"
+                      @click="removePublicKey(props.row.pubkey)"
+                      size="sm"
+                      >Delete</q-btn
+                    >
+                  </q-td>
                   <q-td key="pubkey" :props="props">
                     {{props.row.pubkey}}
                   </q-td>
