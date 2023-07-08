@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from .event import NostrEvent
 
+#from loguru import logger
 
 class NostrFilter(BaseModel):
     subscription_id: Optional[str]
@@ -18,10 +19,11 @@ class NostrFilter(BaseModel):
     limit: Optional[int]
 
     def matches(self, e: NostrEvent) -> bool:
-        # todo: starts with
-        if len(self.ids) != 0 and e.id not in self.ids:
+
+        #logger.debug(f"NostrFilter::matches: e.id:{e.id}, self.ids:{self.ids}, e.pubkey:{e.pubkey}, self.authors:{self.authors}")
+        if len(self.ids) != 0 and not e.id.startswith(tuple(self.ids)):
             return False
-        if len(self.authors) != 0 and e.pubkey not in self.authors:
+        if len(self.authors) != 0 and not e.pubkey.startswith(tuple(self.authors)):
             return False
         if len(self.kinds) != 0 and e.kind not in self.kinds:
             return False
@@ -36,6 +38,7 @@ class NostrFilter(BaseModel):
         if not found_e_tag or not found_p_tag:
             return False
 
+        #logger.debug(f"NostrFilter::matches: found a match")
         return True
 
     def tag_in_list(self, event_tags, tag_name) -> bool:
@@ -91,14 +94,12 @@ class NostrFilter(BaseModel):
             where.append(f" p_tags.value in ({p_s}) AND p_tags.name = 'p'")
 
         if len(self.ids) != 0:
-            ids = ",".join(["?"] * len(self.ids))
-            where.append(f"id IN ({ids})")
-            values += self.ids
+            ids = ",".join(tuple([id + "%" for id in self.ids]))
+            where.append(f"id LIKE ANY ('{{{ids}}}')")
 
         if len(self.authors) != 0:
-            authors = ",".join(["?"] * len(self.authors))
-            where.append(f"pubkey IN ({authors})")
-            values += self.authors
+            authors = ",".join(tuple([key + "%" for key in self.authors]))
+            where.append(f"pubkey LIKE ANY ('{{{authors}}}')")
 
         if len(self.kinds) != 0:
             kinds = ",".join(["?"] * len(self.kinds))
@@ -112,5 +113,7 @@ class NostrFilter(BaseModel):
         if self.until:
             where.append("created_at < ?")
             values += [self.until]
+
+        #logger.debug(f"NosterFilter::to_sql_components: inner_joins:{inner_joins}, where:{where}, values:{values}")
 
         return inner_joins, where, values
