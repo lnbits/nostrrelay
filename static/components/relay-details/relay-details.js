@@ -18,7 +18,6 @@ async function relayDetails(path) {
             description: ''
           }
         },
-        accountsFilter: '',
         showBlockedAccounts: true,
         showAllowedAccounts: false,
         accountsTable: {

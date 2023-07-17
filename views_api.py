@@ -195,6 +195,7 @@ async def api_create_or_update_account(
 
     try:
         data.pubkey = normalize_public_key(data.pubkey)
+        
         account = await get_account(data.relay_id, data.pubkey)
         if not account:
             account = NostrAccount(
@@ -208,7 +209,7 @@ async def api_create_or_update_account(
             account.blocked = data.blocked
         if data.allowed is not None:
             account.allowed = data.allowed
-
+        
         return await update_account(data.relay_id, account)
 
     except ValueError as ex:
@@ -256,8 +257,8 @@ async def api_delete_account(
 @nostrrelay_ext.get("/api/v1/account")
 async def api_get_accounts(
     relay_id: str,
-    allowed=False,
-    blocked=True,
+    allowed: bool = False,
+    blocked: bool = True,
     wallet: WalletTypeInfo = Depends(require_invoice_key),
 ) -> List[NostrAccount]:
     try:
