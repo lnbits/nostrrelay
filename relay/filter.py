@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field
 
 from .event import NostrEvent
 
-#from loguru import logger
 
 class NostrFilter(BaseModel):
     subscription_id: Optional[str]
@@ -20,7 +19,6 @@ class NostrFilter(BaseModel):
 
     def matches(self, e: NostrEvent) -> bool:
 
-        #logger.debug(f"NostrFilter::matches: e.id:{e.id}, self.ids:{self.ids}, e.pubkey:{e.pubkey}, self.authors:{self.authors}")
         if len(self.ids) != 0 and not e.id.startswith(tuple(self.ids)):
             return False
         if len(self.authors) != 0 and not e.pubkey.startswith(tuple(self.authors)):
@@ -38,7 +36,6 @@ class NostrFilter(BaseModel):
         if not found_e_tag or not found_p_tag:
             return False
 
-        #logger.debug(f"NostrFilter::matches: found a match")
         return True
 
     def tag_in_list(self, event_tags, tag_name) -> bool:
@@ -113,7 +110,5 @@ class NostrFilter(BaseModel):
         if self.until:
             where.append("created_at < ?")
             values += [self.until]
-
-        #logger.debug(f"NosterFilter::to_sql_components: inner_joins:{inner_joins}, where:{where}, values:{values}")
 
         return inner_joins, where, values
