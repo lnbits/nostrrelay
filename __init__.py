@@ -2,7 +2,6 @@ import asyncio
 from typing import List
 
 from fastapi import APIRouter
-from fastapi.staticfiles import StaticFiles
 
 from lnbits.db import Database
 from lnbits.helpers import template_renderer
@@ -15,7 +14,6 @@ nostrrelay_ext: APIRouter = APIRouter(prefix="/nostrrelay", tags=["NostrRelay"])
 nostrrelay_static_files = [
     {
         "path": "/nostrrelay/static",
-        "app": StaticFiles(directory="lnbits/extensions/nostrrelay/static"),
         "name": "nostrrelay_static",
     }
 ]
@@ -32,7 +30,7 @@ scheduled_tasks: List[asyncio.Task] = []
 
 
 def nostrrelay_renderer():
-    return template_renderer(["lnbits/extensions/nostrrelay/templates"])
+    return template_renderer(["nostrrelay/templates"])
 
 
 from .tasks import wait_for_paid_invoices
