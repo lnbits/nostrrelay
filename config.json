@@ -2,5 +2,6 @@
   "name": "Nostr Relay",
   "short_description": "One click launch your own relay!",
   "tile": "/nostrrelay/static/image/nostrrelay.png",
-  "contributors": ["arcbtc", "DCs"]
+  "contributors": ["arcbtc", "DCs"],
+  "min_lnbits_version": "0.11.0"
 }
