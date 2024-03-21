@@ -7,6 +7,7 @@ from loguru import logger
 from pydantic.types import UUID4
 from starlette.responses import JSONResponse
 
+from lnbits.core.crud import get_user
 from lnbits.core.services import create_invoice
 from lnbits.decorators import (
     WalletTypeInfo,
@@ -60,7 +61,9 @@ async def api_create_relay(
     wallet: WalletTypeInfo = Depends(require_admin_key),
 ) -> NostrRelay:
     if len(data.id):
-        await check_admin(UUID4(wallet.wallet.user))
+        user = await get_user(wallet.wallet.user)
+        assert user, "User not found."
+        assert user.admin, "Only admin users can set the relay ID"
     else:
         data.id = urlsafe_short_hash()[:8]
 
@@ -195,7 +198,7 @@ async def api_create_or_update_account(
 
     try:
         data.pubkey = normalize_public_key(data.pubkey)
-        
+
         account = await get_account(data.relay_id, data.pubkey)
         if not account:
             account = NostrAccount(
@@ -209,7 +212,7 @@ async def api_create_or_update_account(
             account.blocked = data.blocked
         if data.allowed is not None:
             account.allowed = data.allowed
-        
+
         return await update_account(data.relay_id, account)
 
     except ValueError as ex:
