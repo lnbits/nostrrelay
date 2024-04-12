@@ -4,7 +4,7 @@ import json
 from loguru import logger
 
 from lnbits.core.models import Payment
-from lnbits.core.services import websocketUpdater
+from lnbits.core.services import websocket_updater
 from lnbits.helpers import get_current_extension_name
 from lnbits.tasks import register_invoice_listener
 
@@ -32,13 +32,13 @@ async def on_invoice_paid(payment: Payment):
     if not relay_id or not pubkey:
         message = f"Invoice extra data missing for 'relay_id' and 'pubkey'. Payment hash: {hash}"
         logger.warning(message)
-        await websocketUpdater(hash, json.dumps({"success": False, "message": message}))
+        await websocket_updater(hash, json.dumps({"success": False, "message": message}))
         return
 
     action = payment.extra.get("action")
     if action == "join":
         await invoice_paid_to_join(relay_id, pubkey, payment.amount)
-        await websocketUpdater(hash, json.dumps({"success": True}))
+        await websocket_updater(hash, json.dumps({"success": True}))
         return
 
     if action == "storage":
@@ -50,10 +50,10 @@ async def on_invoice_paid(payment: Payment):
             logger.warning(message)
             return
         await invoice_paid_for_storage(relay_id, pubkey, storage_to_buy, payment.amount)
-        await websocketUpdater(hash, json.dumps({"success": True}))
+        await websocket_updater(hash, json.dumps({"success": True}))
         return
 
-    await websocketUpdater(
+    await websocket_updater(
         hash, json.dumps({"success": False, "message": f"Bad action name: '{action}'"})
     )
 
