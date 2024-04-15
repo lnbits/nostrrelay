@@ -4,20 +4,17 @@ from typing import List, Optional
 from fastapi import Depends, Request, WebSocket
 from fastapi.exceptions import HTTPException
 from loguru import logger
-from pydantic.types import UUID4
 from starlette.responses import JSONResponse
 
 from lnbits.core.crud import get_user
 from lnbits.core.services import create_invoice
 from lnbits.decorators import (
     WalletTypeInfo,
-    check_admin,
     require_admin_key,
     require_invoice_key,
 )
 from lnbits.helpers import urlsafe_short_hash
-
-from . import nostrrelay_ext, scheduled_tasks
+from . import nostrrelay_ext, client_manager
 from .crud import (
     create_account,
     create_relay,
@@ -34,10 +31,8 @@ from .crud import (
 )
 from .helpers import extract_domain, normalize_public_key, relay_info_response
 from .models import BuyOrder, NostrAccount, NostrPartialAccount
-from .relay.client_manager import NostrClientConnection, NostrClientManager
+from .relay.client_manager import NostrClientConnection
 from .relay.relay import NostrRelay
-
-client_manager = NostrClientManager()
 
 
 @nostrrelay_ext.websocket("/{relay_id}")
@@ -360,19 +355,3 @@ async def api_pay_to_join(data: BuyOrder):
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot create invoice for client to join",
         )
-
-
-@nostrrelay_ext.delete("/api/v1", status_code=HTTPStatus.OK)
-async def api_stop(wallet: WalletTypeInfo = Depends(check_admin)):
-    for t in scheduled_tasks:
-        try:
-            t.cancel()
-        except Exception as ex:
-            logger.warning(ex)
-
-    try:
-        await client_manager.stop()
-    except Exception as ex:
-        logger.warning(ex)
-
-    return {"success": True}
