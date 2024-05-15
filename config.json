@@ -2,6 +2,35 @@
   "name": "Nostr Relay",
   "short_description": "One click launch your own relay!",
   "tile": "/nostrrelay/static/image/nostrrelay.png",
-  "contributors": ["arcbtc", "DCs"],
-  "min_lnbits_version": "0.12.6"
+  "min_lnbits_version": "0.12.6",
+  "contributors": [
+    {
+      "name": "motorina0",
+      "uri": "https://github.com/motorina0",
+      "role": "Contributor"
+    }
+  ],
+  "images": [
+    {
+      "uri": "https://raw.githubusercontent.com/lnbits/tpos/main/static/image/1.png"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/lnbits/tpos/main/static/image/2.png"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/lnbits/tpos/main/static/image/3.png"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/lnbits/tpos/main/static/image/4.png"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/lnbits/tpos/main/static/image/5.png"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/lnbits/tpos/main/static/image/6.png"
+    }
+  ],
+  "description_md": "https://raw.githubusercontent.com/lnbits/tpos/main/description.md",
+  "terms_and_conditions_md": "https://raw.githubusercontent.com/lnbits/tpos/main/toc.md",
+  "license": "MIT"
 }
