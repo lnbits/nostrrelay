@@ -3,9 +3,6 @@ from typing import List, Optional
 
 from fastapi import Depends, Request, WebSocket
 from fastapi.exceptions import HTTPException
-from loguru import logger
-from starlette.responses import JSONResponse
-
 from lnbits.core.crud import get_user
 from lnbits.core.services import create_invoice
 from lnbits.decorators import (
@@ -14,7 +11,10 @@ from lnbits.decorators import (
     require_invoice_key,
 )
 from lnbits.helpers import urlsafe_short_hash
-from . import nostrrelay_ext, client_manager
+from loguru import logger
+from starlette.responses import JSONResponse
+
+from . import client_manager, nostrrelay_ext
 from .crud import (
     create_account,
     create_relay,

@@ -4,8 +4,6 @@ from typing import Optional
 
 import pytest
 from fastapi import WebSocket
-from loguru import logger
-
 from lnbits.extensions.nostrrelay.relay.client_connection import (  # type: ignore
     NostrClientConnection,
 )
@@ -13,6 +11,7 @@ from lnbits.extensions.nostrrelay.relay.client_manager import (  # type: ignore
     NostrClientManager,
 )
 from lnbits.extensions.nostrrelay.relay.relay import RelaySpec  # type: ignore
+from loguru import logger
 
 from .helpers import get_fixtures
 

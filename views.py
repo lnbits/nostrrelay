@@ -3,10 +3,9 @@ from http import HTTPStatus
 from fastapi import Depends, Request
 from fastapi.exceptions import HTTPException
 from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse
-
 from lnbits.core.models import User
 from lnbits.decorators import check_user_exists
+from starlette.responses import HTMLResponse
 
 from . import nostrrelay_ext, nostrrelay_renderer
 from .crud import get_public_relay

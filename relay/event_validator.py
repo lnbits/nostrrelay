@@ -61,7 +61,7 @@ class EventValidator:
 
     def _validate_event(self, e: NostrEvent) -> Tuple[bool, str]:
         if self._exceeded_max_events_per_hour():
-            return False, f"Exceeded max events per hour limit'!"
+            return False, "Exceeded max events per hour limit'!"
 
         try:
             e.check_signature()

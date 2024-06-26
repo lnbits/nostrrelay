@@ -394,7 +394,7 @@ async def get_accounts(
 
     if not allowed and not blocked:
         return []
-        
+
     rows = await db.fetchall(
         "SELECT * FROM nostrrelay.accounts WHERE relay_id = ? AND allowed = ? OR blocked = ?",
         (relay_id, allowed, blocked),

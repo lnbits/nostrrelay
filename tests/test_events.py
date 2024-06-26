@@ -2,9 +2,6 @@ import json
 from typing import List, Optional
 
 import pytest
-from loguru import logger
-from pydantic import BaseModel
-
 from lnbits.extensions.nostrrelay.crud import (  # type: ignore
     create_event,
     get_event,
@@ -12,6 +9,8 @@ from lnbits.extensions.nostrrelay.crud import (  # type: ignore
 )
 from lnbits.extensions.nostrrelay.relay.event import NostrEvent  # type: ignore
 from lnbits.extensions.nostrrelay.relay.filter import NostrFilter  # type: ignore
+from loguru import logger
+from pydantic import BaseModel
 
 from .helpers import get_fixtures
 
@@ -104,10 +103,10 @@ async def filter_by_id(all_events: List[NostrEvent], data: NostrEvent, test_name
 async def filter_by_author(all_events: List[NostrEvent], author):
     filter = NostrFilter(authors=[author])
     events_by_author = await get_events(RELAY_ID, filter)
-    assert len(events_by_author) == 5, f"Failed to query by authors"
+    assert len(events_by_author) == 5, "Failed to query by authors"
 
     filtered_events = [e for e in all_events if filter.matches(e)]
-    assert len(filtered_events) == 5, f"Failed to filter by authors"
+    assert len(filtered_events) == 5, "Failed to filter by authors"
 
 
 async def filter_by_tag_p(all_events: List[NostrEvent], author):
@@ -116,10 +115,10 @@ async def filter_by_tag_p(all_events: List[NostrEvent], author):
     filter.p.append(author)
 
     events_related_to_author = await get_events(RELAY_ID, filter)
-    assert len(events_related_to_author) == 5, f"Failed to query by tag 'p'"
+    assert len(events_related_to_author) == 5, "Failed to query by tag 'p'"
 
     filtered_events = [e for e in all_events if filter.matches(e)]
-    assert len(filtered_events) == 5, f"Failed to filter by tag 'p'"
+    assert len(filtered_events) == 5, "Failed to filter by tag 'p'"
 
 
 async def filter_by_tag_e(all_events: List[NostrEvent], event_id):
@@ -127,10 +126,10 @@ async def filter_by_tag_e(all_events: List[NostrEvent], event_id):
     filter.e.append(event_id)
 
     events_related_to_event = await get_events(RELAY_ID, filter)
-    assert len(events_related_to_event) == 2, f"Failed to query by tag 'e'"
+    assert len(events_related_to_event) == 2, "Failed to query by tag 'e'"
 
     filtered_events = [e for e in all_events if filter.matches(e)]
-    assert len(filtered_events) == 2, f"Failed to filter by tag 'e'"
+    assert len(filtered_events) == 2, "Failed to filter by tag 'e'"
 
 
 async def filter_by_tag_e_and_p(
@@ -141,16 +140,16 @@ async def filter_by_tag_e_and_p(
     filter.e.append(event_id)
 
     events_related_to_event = await get_events(RELAY_ID, filter)
-    assert len(events_related_to_event) == 1, f"Failed to quert by tags 'e' & 'p'"
+    assert len(events_related_to_event) == 1, "Failed to quert by tags 'e' & 'p'"
     assert (
         events_related_to_event[0].id == reply_event_id
-    ), f"Failed to query the right event by tags 'e' & 'p'"
+    ), "Failed to query the right event by tags 'e' & 'p'"
 
     filtered_events = [e for e in all_events if filter.matches(e)]
-    assert len(filtered_events) == 1, f"Failed to filter by tags 'e' & 'p'"
+    assert len(filtered_events) == 1, "Failed to filter by tags 'e' & 'p'"
     assert (
         filtered_events[0].id == reply_event_id
-    ), f"Failed to find the right event by tags 'e' & 'p'"
+    ), "Failed to find the right event by tags 'e' & 'p'"
 
 
 async def filter_by_tag_e_p_and_author(
@@ -162,13 +161,13 @@ async def filter_by_tag_e_p_and_author(
     events_related_to_event = await get_events(RELAY_ID, filter)
     assert (
         len(events_related_to_event) == 1
-    ), f"Failed to query by 'author' and tags 'e' & 'p'"
+    ), "Failed to query by 'author' and tags 'e' & 'p'"
     assert (
         events_related_to_event[0].id == reply_event_id
-    ), f"Failed to query the right event by 'author' and tags 'e' & 'p'"
+    ), "Failed to query the right event by 'author' and tags 'e' & 'p'"
 
     filtered_events = [e for e in all_events if filter.matches(e)]
-    assert len(filtered_events) == 1, f"Failed to filter by 'author' and tags 'e' & 'p'"
+    assert len(filtered_events) == 1, "Failed to filter by 'author' and tags 'e' & 'p'"
     assert (
         filtered_events[0].id == reply_event_id
-    ), f"Failed to filter the right event by 'author' and tags 'e' & 'p'"
+    ), "Failed to filter the right event by 'author' and tags 'e' & 'p'"

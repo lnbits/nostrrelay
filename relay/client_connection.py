@@ -3,9 +3,8 @@ import time
 from typing import Any, Awaitable, Callable, List, Optional
 
 from fastapi import WebSocket
-from loguru import logger
-
 from lnbits.helpers import urlsafe_short_hash
+from loguru import logger
 
 from ..crud import (
     NostrAccount,
@@ -64,9 +63,9 @@ class NostrClientConnection:
             pass
 
     def init_callbacks(self, broadcast_event: Callable, get_client_config: Callable):
-        setattr(self, "broadcast_event", broadcast_event)
-        setattr(self, "get_client_config", get_client_config)
-        setattr(self.event_validator, "get_client_config", get_client_config)
+        self.broadcast_event = broadcast_event
+        self.get_client_config = get_client_config
+        self.event_validator.get_client_config = get_client_config
 
     async def notify_event(self, event: NostrEvent) -> bool:
         if self._is_direct_message_for_other(event):
