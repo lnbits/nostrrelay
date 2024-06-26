@@ -1,0 +1,34 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    uses: lnbits/lnbits/.github/workflows/lint.yml@dev
+  tests:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lnbits/lnbits/.github/actions/prepare@dev
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run pytest
+        uses: pavelzw/pytest-action@v2
+        env:
+          LNBITS_BACKEND_WALLET_CLASS: FakeWallet
+          PYTHONUNBUFFERED: 1
+          DEBUG: true
+        with:
+          verbose: true
+          job-summary: true
+          emoji: false
+          click-to-expand: true
+          custom-pytest: poetry run pytest
+          report-title: 'test (${{ matrix.python-version }})'
