@@ -101,7 +101,7 @@ class EventValidator:
         if self.config.full_storage_action == "block":
             return (
                 False,
-                f"Cannot write event, no more storage available for public key: '{pubkey}'",
+                f"Cannot write event, no storage available for public key: '{pubkey}'",
             )
 
         if event_size_bytes > total_available_storage:

@@ -1,27 +1,33 @@
 from http import HTTPStatus
 
-from fastapi import Depends, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.exceptions import HTTPException
 from fastapi.templating import Jinja2Templates
 from lnbits.core.models import User
 from lnbits.decorators import check_user_exists
+from lnbits.helpers import template_renderer
 from starlette.responses import HTMLResponse
 
-from . import nostrrelay_ext, nostrrelay_renderer
 from .crud import get_public_relay
 from .helpers import relay_info_response
 
 templates = Jinja2Templates(directory="templates")
 
+nostrrelay_generic_router: APIRouter = APIRouter()
 
-@nostrrelay_ext.get("/", response_class=HTMLResponse)
+
+def nostrrelay_renderer():
+    return template_renderer(["nostrrelay/templates"])
+
+
+@nostrrelay_generic_router.get("/", response_class=HTMLResponse)
 async def index(request: Request, user: User = Depends(check_user_exists)):
     return nostrrelay_renderer().TemplateResponse(
         "nostrrelay/index.html", {"request": request, "user": user.dict()}
     )
 
 
-@nostrrelay_ext.get("/{relay_id}")
+@nostrrelay_generic_router.get("/{relay_id}")
 async def nostrrelay(request: Request, relay_id: str):
     relay_public_data = await get_public_relay(relay_id)
 

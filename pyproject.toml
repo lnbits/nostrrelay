@@ -32,7 +32,7 @@ module = [
   "fastapi.*",
   "pydantic.*",
   "embit.*",
-  "wallycore.*",
+  "secp256k1.*",
 ]
 ignore_missing_imports = "True"
 

@@ -34,8 +34,7 @@ class NostrEvent(BaseModel):
     @property
     def event_id(self) -> str:
         data = self.serialize_json()
-        id = hashlib.sha256(data.encode()).hexdigest()
-        return id
+        return hashlib.sha256(data.encode()).hexdigest()
 
     @property
     def size_bytes(self) -> int:
@@ -74,10 +73,10 @@ class NostrEvent(BaseModel):
             )
         try:
             pub_key = PublicKey(bytes.fromhex("02" + self.pubkey), True)
-        except Exception:
+        except Exception as exc:
             raise ValueError(
                 f"Invalid public key: '{self.pubkey}' for event '{self.id}'"
-            )
+            ) from exc
 
         valid_signature = pub_key.schnorr_verify(
             bytes.fromhex(event_id), bytes.fromhex(self.sig), None, raw=True

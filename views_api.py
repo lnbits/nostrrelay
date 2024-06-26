@@ -1,12 +1,12 @@
 from http import HTTPStatus
 from typing import List, Optional
 
-from fastapi import Depends, Request, WebSocket
+from fastapi import APIRouter, Depends, Request, WebSocket
 from fastapi.exceptions import HTTPException
 from lnbits.core.crud import get_user
+from lnbits.core.models import WalletTypeInfo
 from lnbits.core.services import create_invoice
 from lnbits.decorators import (
-    WalletTypeInfo,
     require_admin_key,
     require_invoice_key,
 )
@@ -14,7 +14,7 @@ from lnbits.helpers import urlsafe_short_hash
 from loguru import logger
 from starlette.responses import JSONResponse
 
-from . import client_manager, nostrrelay_ext
+from . import client_manager
 from .crud import (
     create_account,
     create_relay,
@@ -34,8 +34,10 @@ from .models import BuyOrder, NostrAccount, NostrPartialAccount
 from .relay.client_manager import NostrClientConnection
 from .relay.relay import NostrRelay
 
+nostrrelay_api_router = APIRouter()
 
-@nostrrelay_ext.websocket("/{relay_id}")
+
+@nostrrelay_api_router.websocket("/{relay_id}")
 async def websocket_endpoint(relay_id: str, websocket: WebSocket):
     client = NostrClientConnection(relay_id=relay_id, websocket=websocket)
     client_accepted = await client_manager.add_client(client)
@@ -49,7 +51,7 @@ async def websocket_endpoint(relay_id: str, websocket: WebSocket):
         client_manager.remove_client(client)
 
 
-@nostrrelay_ext.post("/api/v1/relay")
+@nostrrelay_api_router.post("/api/v1/relay")
 async def api_create_relay(
     data: NostrRelay,
     request: Request,
@@ -72,10 +74,10 @@ async def api_create_relay(
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot create relay",
-        )
+        ) from ex
 
 
-@nostrrelay_ext.patch("/api/v1/relay/{relay_id}")
+@nostrrelay_api_router.patch("/api/v1/relay/{relay_id}")
 async def api_update_relay(
     relay_id: str, data: NostrRelay, wallet: WalletTypeInfo = Depends(require_admin_key)
 ) -> NostrRelay:
@@ -111,10 +113,10 @@ async def api_update_relay(
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot update relay",
-        )
+        ) from ex
 
 
-@nostrrelay_ext.put("/api/v1/relay/{relay_id}")
+@nostrrelay_api_router.put("/api/v1/relay/{relay_id}")
 async def api_toggle_relay(
     relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)
 ) -> NostrRelay:
@@ -143,10 +145,10 @@ async def api_toggle_relay(
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot update relay",
-        )
+        ) from ex
 
 
-@nostrrelay_ext.get("/api/v1/relay")
+@nostrrelay_api_router.get("/api/v1/relay")
 async def api_get_relays(
     wallet: WalletTypeInfo = Depends(require_invoice_key),
 ) -> List[NostrRelay]:
@@ -157,15 +159,15 @@ async def api_get_relays(
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot fetch relays",
-        )
+        ) from ex
 
 
-@nostrrelay_ext.get("/api/v1/relay-info")
+@nostrrelay_api_router.get("/api/v1/relay-info")
 async def api_get_relay_info() -> JSONResponse:
     return relay_info_response(NostrRelay.info())
 
 
-@nostrrelay_ext.get("/api/v1/relay/{relay_id}")
+@nostrrelay_api_router.get("/api/v1/relay/{relay_id}")
 async def api_get_relay(
     relay_id: str, wallet: WalletTypeInfo = Depends(require_invoice_key)
 ) -> Optional[NostrRelay]:
@@ -176,7 +178,7 @@ async def api_get_relay(
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot fetch relay",
-        )
+        ) from ex
     if not relay:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
@@ -185,10 +187,9 @@ async def api_get_relay(
     return relay
 
 
-@nostrrelay_ext.put("/api/v1/account")
+@nostrrelay_api_router.put("/api/v1/account", dependencies=[Depends(require_admin_key)])
 async def api_create_or_update_account(
     data: NostrPartialAccount,
-    wallet: WalletTypeInfo = Depends(require_admin_key),
 ) -> NostrAccount:
 
     try:
@@ -214,7 +215,7 @@ async def api_create_or_update_account(
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=str(ex),
-        )
+        ) from ex
     except HTTPException as ex:
         raise ex
     except Exception as ex:
@@ -222,37 +223,27 @@ async def api_create_or_update_account(
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot create account",
-        )
+        ) from ex
 
 
-@nostrrelay_ext.delete("/api/v1/account/{relay_id}/{pubkey}")
+@nostrrelay_api_router.delete(
+    "/api/v1/account/{relay_id}/{pubkey}", dependencies=[Depends(require_admin_key)]
+)
 async def api_delete_account(
     relay_id: str,
     pubkey: str,
-    wallet: WalletTypeInfo = Depends(require_admin_key),
 ):
-
     try:
         pubkey = normalize_public_key(pubkey)
-
-        return await delete_account(relay_id, pubkey)
-
     except ValueError as ex:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=str(ex),
-        )
-    except HTTPException as ex:
-        raise ex
-    except Exception as ex:
-        logger.warning(ex)
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Cannot create account",
-        )
+            detail=f"Invalid pubkey: {ex!s}",
+        ) from ex
+    return await delete_account(relay_id, pubkey)
 
 
-@nostrrelay_ext.get("/api/v1/account")
+@nostrrelay_api_router.get("/api/v1/account")
 async def api_get_accounts(
     relay_id: str,
     allowed: bool = False,
@@ -273,7 +264,7 @@ async def api_get_accounts(
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=str(ex),
-        )
+        ) from ex
     except HTTPException as ex:
         raise ex
     except Exception as ex:
@@ -281,10 +272,10 @@ async def api_get_accounts(
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot fetch accounts",
-        )
+        ) from ex
 
 
-@nostrrelay_ext.delete("/api/v1/relay/{relay_id}")
+@nostrrelay_api_router.delete("/api/v1/relay/{relay_id}")
 async def api_delete_relay(
     relay_id: str, wallet: WalletTypeInfo = Depends(require_admin_key)
 ):
@@ -297,61 +288,55 @@ async def api_delete_relay(
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail="Cannot delete relay",
-        )
+        ) from ex
 
 
-@nostrrelay_ext.put("/api/v1/pay")
+@nostrrelay_api_router.put("/api/v1/pay")
 async def api_pay_to_join(data: BuyOrder):
-    try:
-        pubkey = normalize_public_key(data.pubkey)
-        relay = await get_relay_by_id(data.relay_id)
-        if not relay:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail="Relay not found",
-            )
-
-        amount = 0
-        storage_to_buy = 0
-        if data.action == "join":
-            if relay.is_free_to_join:
-                raise ValueError("Relay is free to join")
-            amount = int(relay.config.cost_to_join)
-        elif data.action == "storage":
-            if relay.config.storage_cost_value == 0:
-                raise ValueError("Relay storage cost is zero. Cannot buy!")
-            if data.units_to_buy == 0:
-                raise ValueError("Must specify how much storage to buy!")
-            storage_to_buy = data.units_to_buy * relay.config.storage_cost_value * 1024
-            if relay.config.storage_cost_unit == "MB":
-                storage_to_buy *= 1024
-            amount = data.units_to_buy * relay.config.storage_cost_value
-        else:
-            raise ValueError(f"Unknown action: '{data.action}'")
-
-        _, payment_request = await create_invoice(
-            wallet_id=relay.config.wallet,
-            amount=amount,
-            memo=f"Pubkey '{data.pubkey}' wants to join {relay.id}",
-            extra={
-                "tag": "nostrrely",
-                "action": data.action,
-                "relay_id": relay.id,
-                "pubkey": pubkey,
-                "storage_to_buy": storage_to_buy,
-            },
+    pubkey = normalize_public_key(data.pubkey)
+    relay = await get_relay_by_id(data.relay_id)
+    if not relay:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Relay not found",
         )
-        return {"invoice": payment_request}
-    except ValueError as ex:
+    amount = 0
+    storage_to_buy = 0
+    if data.action == "join":
+        if relay.is_free_to_join:
+            raise ValueError("Relay is free to join")
+        amount = int(relay.config.cost_to_join)
+    elif data.action == "storage":
+        if relay.config.storage_cost_value == 0:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Relay storage cost is zero. Cannot buy!",
+            )
+        if data.units_to_buy == 0:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Must specify how much storage to buy!",
+            )
+        storage_to_buy = data.units_to_buy * relay.config.storage_cost_value * 1024
+        if relay.config.storage_cost_unit == "MB":
+            storage_to_buy *= 1024
+        amount = data.units_to_buy * relay.config.storage_cost_value
+    else:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=str(ex),
+            detail=f"Unknown action: '{data.action}'",
         )
-    except HTTPException as ex:
-        raise ex
-    except Exception as ex:
-        logger.warning(ex)
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Cannot create invoice for client to join",
-        )
+
+    _, payment_request = await create_invoice(
+        wallet_id=relay.config.wallet,
+        amount=amount,
+        memo=f"Pubkey '{data.pubkey}' wants to join {relay.id}",
+        extra={
+            "tag": "nostrrely",
+            "action": data.action,
+            "relay_id": relay.id,
+            "pubkey": pubkey,
+            "storage_to_buy": storage_to_buy,
+        },
+    )
+    return {"invoice": payment_request}

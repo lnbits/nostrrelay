@@ -6,16 +6,15 @@ from .event import NostrEvent
 
 
 class NostrFilter(BaseModel):
-    subscription_id: Optional[str]
-
+    e: List[str] = Field([], alias="#e")
+    p: List[str] = Field([], alias="#p")
     ids: List[str] = []
     authors: List[str] = []
     kinds: List[int] = []
-    e: List[str] = Field([], alias="#e")
-    p: List[str] = Field([], alias="#p")
-    since: Optional[int]
-    until: Optional[int]
-    limit: Optional[int]
+    subscription_id: Optional[str] = None
+    since: Optional[int] = None
+    until: Optional[int] = None
+    limit: Optional[int] = None
 
     def matches(self, e: NostrEvent) -> bool:
         # todo: starts with
@@ -78,7 +77,8 @@ class NostrFilter(BaseModel):
             values += self.e
             e_s = ",".join(["?"] * len(self.e))
             inner_joins.append(
-                "INNER JOIN nostrrelay.event_tags e_tags ON nostrrelay.events.id = e_tags.event_id"
+                "INNER JOIN nostrrelay.event_tags e_tags "
+                "ON nostrrelay.events.id = e_tags.event_id"
             )
             where.append(f" (e_tags.value in ({e_s}) AND e_tags.name = 'e')")
 
@@ -86,7 +86,8 @@ class NostrFilter(BaseModel):
             values += self.p
             p_s = ",".join(["?"] * len(self.p))
             inner_joins.append(
-                "INNER JOIN nostrrelay.event_tags p_tags ON nostrrelay.events.id = p_tags.event_id"
+                "INNER JOIN nostrrelay.event_tags p_tags "
+                "ON nostrrelay.events.id = p_tags.event_id"
             )
             where.append(f" p_tags.value in ({p_s}) AND p_tags.name = 'p'")
 

@@ -54,12 +54,12 @@ class NostrClientConnection:
         message = reason if reason else "Server closed webocket"
         try:
             await self._send_msg(["NOTICE", message])
-        except:
+        except Exception:
             pass
 
         try:
             await self.websocket.close(reason=reason)
-        except:
+        except Exception:
             pass
 
     def init_callbacks(self, broadcast_event: Callable, get_client_config: Callable):
@@ -71,9 +71,9 @@ class NostrClientConnection:
         if self._is_direct_message_for_other(event):
             return False
 
-        for filter in self.filters:
-            if filter.matches(event):
-                resp = event.serialize_response(filter.subscription_id)
+        for nostr_filter in self.filters:
+            if nostr_filter.matches(event):
+                resp = event.serialize_response(nostr_filter.subscription_id)
                 await self._send_msg(resp)
                 return True
         return False
@@ -81,7 +81,8 @@ class NostrClientConnection:
     def _is_direct_message_for_other(self, event: NostrEvent) -> bool:
         """
         Direct messages are not inteded to be boradcast (even if encrypted).
-        If the server requires AUTH for kind '4' then direct message will be sent only to the intended client.
+        If the server requires AUTH for kind '4' then direct message will be
+        sent only to the intended client.
         """
         if not event.is_direct_message:
             return False
@@ -135,7 +136,7 @@ class NostrClientConnection:
             await self._send_msg(["AUTH", self._current_auth_challenge()])
             resp_nip20 += [
                 False,
-                f"restricted: Relay requires authentication for events of kind '{e.kind}'",
+                f"Relay requires authentication for events of kind '{e.kind}'",
             ]
             await self._send_msg(resp_nip20)
             return None
@@ -165,7 +166,7 @@ class NostrClientConnection:
             event = await get_event(self.relay_id, e.id)
             # todo: handle NIP20 in detail
             message = "error: failed to create event"
-            resp_nip20 += [event != None, message]
+            resp_nip20 += [event is not None, message]
 
         await self._send_msg(resp_nip20)
 
@@ -180,13 +181,15 @@ class NostrClientConnection:
 
     async def _handle_delete_event(self, event: NostrEvent):
         # NIP 09
-        filter = NostrFilter(authors=[event.pubkey])
-        filter.ids = [t[1] for t in event.tags if t[0] == "e"]
-        events_to_delete = await get_events(self.relay_id, filter, False)
+        nostr_filter = NostrFilter(authors=[event.pubkey])
+        nostr_filter.ids = [t[1] for t in event.tags if t[0] == "e"]
+        events_to_delete = await get_events(self.relay_id, nostr_filter, False)
         ids = [e.id for e in events_to_delete if not e.is_delete_event]
         await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
 
-    async def _handle_request(self, subscription_id: str, filter: NostrFilter) -> List:
+    async def _handle_request(
+        self, subscription_id: str, nostr_filter: NostrFilter
+    ) -> List:
         if self.config.require_auth_filter:
             if not self.auth_pubkey:
                 return [["AUTH", self._current_auth_challenge()]]
@@ -198,26 +201,30 @@ class NostrClientConnection:
                 return [
                     [
                         "NOTICE",
-                        f"Public key '{self.auth_pubkey}' is not allowed in relay '{self.relay_id}'!",
+                        (
+                            f"Public key '{self.auth_pubkey}' is not allowed "
+                            f"in relay '{self.relay_id}'!"
+                        ),
                     ]
                 ]
 
             if not account.can_join and not self.config.is_free_to_join:
                 return [["NOTICE", f"This is a paid relay: '{self.relay_id}'"]]
 
-        filter.subscription_id = subscription_id
+        nostr_filter.subscription_id = subscription_id
         self._remove_filter(subscription_id)
         if self._can_add_filter():
+            max_filters = self.config.max_client_filters
             return [
                 [
                     "NOTICE",
-                    f"Maximum number of filters ({self.config.max_client_filters}) exceeded.",
+                    f"Maximum number of filters ({max_filters}) exceeded.",
                 ]
             ]
 
-        filter.enforce_limit(self.config.limit_per_filter)
-        self.filters.append(filter)
-        events = await get_events(self.relay_id, filter)
+        nostr_filter.enforce_limit(self.config.limit_per_filter)
+        self.filters.append(nostr_filter)
+        events = await get_events(self.relay_id, nostr_filter)
         events = [e for e in events if not self._is_direct_message_for_other(e)]
         serialized_events = [
             event.serialize_response(subscription_id) for event in events

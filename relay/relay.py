@@ -93,7 +93,7 @@ class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
 
     @property
     def is_read_only_relay(self):
-        self.free_storage_value == 0 and not self.is_paid_relay
+        return self.free_storage_value == 0 and not self.is_paid_relay
 
 
 class RelaySpec(RelayPublicSpec, WalletSpec, AuthSpec):

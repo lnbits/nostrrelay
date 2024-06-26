@@ -70,6 +70,9 @@ async def test_alice_and_bob():
     await alice_deletes_post01__bob_is_notified(ws_alice, ws_bob)
 
 
+tasks = []
+
+
 async def init_clients():
     client_manager = NostrClientManager()
     await client_manager.enable_relay(RELAY_ID, RelaySpec())
@@ -77,12 +80,15 @@ async def init_clients():
     ws_alice = MockWebSocket()
     client_alice = NostrClientConnection(relay_id=RELAY_ID, websocket=ws_alice)
     await client_manager.add_client(client_alice)
-    asyncio.create_task(client_alice.start())
+    task1 = asyncio.create_task(client_alice.start())
+    tasks.append(task1)
 
     ws_bob = MockWebSocket()
     client_bob = NostrClientConnection(relay_id=RELAY_ID, websocket=ws_bob)
     await client_manager.add_client(client_bob)
-    asyncio.create_task(client_bob.start())
+    task2 = asyncio.create_task(client_bob.start())
+    tasks.append(task2)
+
     return ws_alice, ws_bob
 
 
