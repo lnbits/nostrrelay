@@ -1,15 +1,18 @@
 import asyncio
-from typing import List
 
 from fastapi import APIRouter
+from loguru import logger
 
 from lnbits.db import Database
 from lnbits.helpers import template_renderer
-from lnbits.tasks import catch_everything_and_restart
+from lnbits.tasks import create_permanent_unique_task
+from .relay.client_manager import NostrClientManager
 
 db = Database("ext_nostrrelay")
 
 nostrrelay_ext: APIRouter = APIRouter(prefix="/nostrrelay", tags=["NostrRelay"])
+
+client_manager: NostrClientManager = NostrClientManager()
 
 nostrrelay_static_files = [
     {
@@ -26,8 +29,6 @@ nostrrelay_redirect_paths = [
     }
 ]
 
-scheduled_tasks: List[asyncio.Task] = []
-
 
 def nostrrelay_renderer():
     return template_renderer(["nostrrelay/templates"])
@@ -38,7 +39,20 @@ from .views import *  # noqa
 from .views_api import *  # noqa
 
 
+scheduled_tasks: list[asyncio.Task] = []
+
+async def nostrrelay_stop():
+    for task in scheduled_tasks:
+        try:
+            task.cancel()
+        except Exception as ex:
+            logger.warning(ex)
+    try:
+        await client_manager.stop()
+    except Exception as ex:
+        logger.warning(ex)
+
+
 def nostrrelay_start():
-    loop = asyncio.get_event_loop()
-    task = loop.create_task(catch_everything_and_restart(wait_for_paid_invoices))
+    task = create_permanent_unique_task("ext_nostrrelay", wait_for_paid_invoices)
     scheduled_tasks.append(task)
