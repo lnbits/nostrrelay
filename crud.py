@@ -1,11 +1,14 @@
 import json
 from typing import List, Optional, Tuple
 
-from . import db
+from lnbits.db import Database
+
 from .models import NostrAccount
 from .relay.event import NostrEvent
 from .relay.filter import NostrFilter
 from .relay.relay import NostrRelay, RelayPublicSpec, RelaySpec
+
+db = Database("ext_nostrrelay")
 
 ########################## RELAYS ####################
 

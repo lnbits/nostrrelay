@@ -2,16 +2,16 @@ import json
 from typing import List, Optional
 
 import pytest
-from lnbits.extensions.nostrrelay.crud import (  # type: ignore
+from loguru import logger
+from pydantic import BaseModel
+
+from ..crud import (
     create_event,
     get_event,
     get_events,
 )
-from lnbits.extensions.nostrrelay.relay.event import NostrEvent  # type: ignore
-from lnbits.extensions.nostrrelay.relay.filter import NostrFilter  # type: ignore
-from loguru import logger
-from pydantic import BaseModel
-
+from ..relay.event import NostrEvent
+from ..relay.filter import NostrFilter
 from .helpers import get_fixtures
 
 RELAY_ID = "r1"
