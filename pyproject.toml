@@ -1,0 +1,97 @@
+[tool.poetry]
+name = "nostrrelay"
+version = "0.0.0"
+description = "nostrrelay"
+authors = ["dni <dni@lnbits.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10 | ^3.9"
+lnbits = "*"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3.0"
+pytest-asyncio = "^0.21.0"
+pytest = "^7.3.2"
+mypy = "^1.5.1"
+pre-commit = "^3.2.2"
+ruff = "^0.3.2"
+pytest-md = "^0.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+exclude = [
+  "boltz_client"
+]
+[[tool.mypy.overrides]]
+module = [
+  "lnbits.*",
+  "loguru.*",
+  "fastapi.*",
+  "pydantic.*",
+  "embit.*",
+  "secp256k1.*",
+]
+ignore_missing_imports = "True"
+
+[tool.pytest.ini_options]
+log_cli = false
+testpaths = [
+  "tests"
+]
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+# Same as Black. + 10% rule of black
+line-length = 88
+exclude = [
+    "boltz_client"
+]
+
+
+[tool.ruff.lint]
+# Enable:
+# F - pyflakes
+# E - pycodestyle errors
+# W - pycodestyle warnings
+# I - isort
+# A - flake8-builtins
+# C - mccabe
+# N - naming
+# UP - pyupgrade
+# RUF - ruff
+# B - bugbear
+select = ["F", "E", "W", "I", "A", "C", "N", "UP", "RUF", "B"]
+# UP007: pyupgrade: use X | Y instead of Optional. (python3.10)
+ignore = ["UP007"]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# needed for pydantic
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = [
+    "root_validator",
+]
+
+# Ignore unused imports in __init__.py files.
+# [tool.ruff.lint.extend-per-file-ignores]
+# "views_api.py" = ["F401"]
+
+# [tool.ruff.lint.mccabe]
+# max-complexity = 10
+
+[tool.ruff.lint.flake8-bugbear]
+# Allow default arguments like, e.g., `data: List[str] = fastapi.Query(None)`.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+]

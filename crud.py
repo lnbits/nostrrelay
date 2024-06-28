@@ -1,11 +1,14 @@
 import json
 from typing import List, Optional, Tuple
 
-from . import db
+from lnbits.db import Database
+
 from .models import NostrAccount
 from .relay.event import NostrEvent
 from .relay.filter import NostrFilter
 from .relay.relay import NostrRelay, RelayPublicSpec, RelaySpec
+
+db = Database("ext_nostrrelay")
 
 ########################## RELAYS ####################
 
@@ -13,7 +16,8 @@ from .relay.relay import NostrRelay, RelayPublicSpec, RelaySpec
 async def create_relay(user_id: str, r: NostrRelay) -> NostrRelay:
     await db.execute(
         """
-        INSERT INTO nostrrelay.relays (user_id, id, name, description, pubkey, contact, meta)
+        INSERT INTO nostrrelay.relays
+        (user_id, id, name, description, pubkey, contact, meta)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
         (
@@ -167,9 +171,9 @@ async def create_event(relay_id: str, e: NostrEvent, publisher: Optional[str]):
 
 
 async def get_events(
-    relay_id: str, filter: NostrFilter, include_tags=True
+    relay_id: str, nostr_filter: NostrFilter, include_tags=True
 ) -> List[NostrEvent]:
-    query, values = build_select_events_query(relay_id, filter)
+    query, values = build_select_events_query(relay_id, nostr_filter)
 
     rows = await db.fetchall(query, tuple(values))
 
@@ -183,27 +187,33 @@ async def get_events(
     return events
 
 
-async def get_event(relay_id: str, id: str) -> Optional[NostrEvent]:
+async def get_event(relay_id: str, event_id: str) -> Optional[NostrEvent]:
     row = await db.fetchone(
         "SELECT * FROM nostrrelay.events WHERE relay_id = ? AND id = ?",
         (
             relay_id,
-            id,
+            event_id,
         ),
     )
     if not row:
         return None
 
     event = NostrEvent.from_row(row)
-    event.tags = await get_event_tags(relay_id, id)
+    event.tags = await get_event_tags(relay_id, event_id)
     return event
 
 
 async def get_storage_for_public_key(relay_id: str, publisher_pubkey: str) -> int:
-    """Returns the storage space in bytes for all the events of a public key. Deleted events are also counted"""
+    """
+    Returns the storage space in bytes for all the events of a public key.
+    Deleted events are also counted
+    """
 
     row = await db.fetchone(
-        "SELECT SUM(size) as sum FROM nostrrelay.events WHERE relay_id = ? AND publisher = ? GROUP BY publisher",
+        """
+        SELECT SUM(size) as sum FROM nostrrelay.events
+        WHERE relay_id = ? AND publisher = ? GROUP BY publisher
+        """,
         (
             relay_id,
             publisher_pubkey,
@@ -216,7 +226,10 @@ async def get_storage_for_public_key(relay_id: str, publisher_pubkey: str) -> in
 
 
 async def get_prunable_events(relay_id: str, pubkey: str) -> List[Tuple[str, int]]:
-    """Return the oldest 10 000 events. Only the `id` and the size are returned, so the data size should be small"""
+    """
+    Return the oldest 10 000 events. Only the `id` and the size are returned,
+    so the data size should be small
+    """
     query = """
             SELECT id, size FROM nostrrelay.events
             WHERE relay_id = ? AND pubkey = ?
@@ -228,10 +241,10 @@ async def get_prunable_events(relay_id: str, pubkey: str) -> List[Tuple[str, int
     return [(r["id"], r["size"]) for r in rows]
 
 
-async def mark_events_deleted(relay_id: str, filter: NostrFilter):
-    if filter.is_empty():
+async def mark_events_deleted(relay_id: str, nostr_filter: NostrFilter):
+    if nostr_filter.is_empty():
         return None
-    _, where, values = filter.to_sql_components(relay_id)
+    _, where, values = nostr_filter.to_sql_components(relay_id)
 
     await db.execute(
         f"""UPDATE nostrrelay.events SET deleted=true WHERE {" AND ".join(where)}""",
@@ -239,10 +252,10 @@ async def mark_events_deleted(relay_id: str, filter: NostrFilter):
     )
 
 
-async def delete_events(relay_id: str, filter: NostrFilter):
-    if filter.is_empty():
+async def delete_events(relay_id: str, nostr_filter: NostrFilter):
+    if nostr_filter.is_empty():
         return None
-    _, where, values = filter.to_sql_components(relay_id)
+    _, where, values = nostr_filter.to_sql_components(relay_id)
 
     query = f"""DELETE from nostrrelay.events WHERE {" AND ".join(where)}"""
     await db.execute(query, tuple(values))
@@ -309,20 +322,20 @@ async def get_event_tags(relay_id: str, event_id: str) -> List[List[str]]:
     return tags
 
 
-def build_select_events_query(relay_id: str, filter: NostrFilter):
-    inner_joins, where, values = filter.to_sql_components(relay_id)
+def build_select_events_query(relay_id: str, nostr_filter: NostrFilter):
+    inner_joins, where, values = nostr_filter.to_sql_components(relay_id)
 
     query = f"""
-        SELECT id, pubkey, created_at, kind, content, sig 
-        FROM nostrrelay.events 
-        {" ".join(inner_joins)} 
+        SELECT id, pubkey, created_at, kind, content, sig
+        FROM nostrrelay.events
+        {" ".join(inner_joins)}
         WHERE { " AND ".join(where)}
         ORDER BY created_at DESC
         """
 
     # todo: check & enforce range
-    if filter.limit and filter.limit > 0:
-        query += f" LIMIT {filter.limit}"
+    if nostr_filter.limit and nostr_filter.limit > 0:
+        query += f" LIMIT {nostr_filter.limit}"
 
     return query, values
 
@@ -333,7 +346,8 @@ def build_select_events_query(relay_id: str, filter: NostrFilter):
 async def create_account(relay_id: str, a: NostrAccount) -> NostrAccount:
     await db.execute(
         """
-        INSERT INTO nostrrelay.accounts (relay_id, pubkey, sats, storage, paid_to_join, allowed, blocked)
+        INSERT INTO nostrrelay.accounts
+        (relay_id, pubkey, sats, storage, paid_to_join, allowed, blocked)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
         (
@@ -394,9 +408,12 @@ async def get_accounts(
 
     if not allowed and not blocked:
         return []
-        
+
     rows = await db.fetchall(
-        "SELECT * FROM nostrrelay.accounts WHERE relay_id = ? AND allowed = ? OR blocked = ?",
+        """
+        SELECT * FROM nostrrelay.accounts
+        WHERE relay_id = ? AND allowed = ? OR blocked = ?"
+        """,
         (relay_id, allowed, blocked),
     )
     return [NostrAccount.from_row(row) for row in rows]

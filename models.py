@@ -8,26 +8,26 @@ class BuyOrder(BaseModel):
     action: str
     relay_id: str
     pubkey: str
-    units_to_buy = 0
+    units_to_buy: int = 0
 
-    def is_valid_action(self):
+    def is_valid_action(self) -> bool:
         return self.action in ["join", "storage"]
 
 
 class NostrPartialAccount(BaseModel):
     relay_id: str
     pubkey: str
-    allowed: Optional[bool]
-    blocked: Optional[bool]
+    allowed: Optional[bool] = None
+    blocked: Optional[bool] = None
 
 
 class NostrAccount(BaseModel):
     pubkey: str
-    allowed = False
-    blocked = False
-    sats = 0
-    storage = 0
-    paid_to_join = False
+    sats: int = 0
+    storage: int = 0
+    paid_to_join: bool = False
+    allowed: bool = False
+    blocked: bool = False
 
     @property
     def can_join(self):

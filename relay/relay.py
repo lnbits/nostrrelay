@@ -11,22 +11,22 @@ class Spec(BaseModel):
 
 
 class FilterSpec(Spec):
-    max_client_filters = Field(0, alias="maxClientFilters")
-    limit_per_filter = Field(1000, alias="limitPerFilter")
+    max_client_filters: int = Field(default=0, alias="maxClientFilters")
+    limit_per_filter: int = Field(default=1000, alias="limitPerFilter")
 
 
 class EventSpec(Spec):
-    max_events_per_hour = Field(0, alias="maxEventsPerHour")
+    max_events_per_hour: int = Field(default=0, alias="maxEventsPerHour")
 
-    created_at_days_past = Field(0, alias="createdAtDaysPast")
-    created_at_hours_past = Field(0, alias="createdAtHoursPast")
-    created_at_minutes_past = Field(0, alias="createdAtMinutesPast")
-    created_at_seconds_past = Field(0, alias="createdAtSecondsPast")
+    created_at_days_past: int = Field(default=0, alias="createdAtDaysPast")
+    created_at_hours_past: int = Field(default=0, alias="createdAtHoursPast")
+    created_at_minutes_past: int = Field(default=0, alias="createdAtMinutesPast")
+    created_at_seconds_past: int = Field(default=0, alias="createdAtSecondsPast")
 
-    created_at_days_future = Field(0, alias="createdAtDaysFuture")
-    created_at_hours_future = Field(0, alias="createdAtHoursFuture")
-    created_at_minutes_future = Field(0, alias="createdAtMinutesFuture")
-    created_at_seconds_future = Field(0, alias="createdAtSecondsFuture")
+    created_at_days_future: int = Field(default=0, alias="createdAtDaysFuture")
+    created_at_hours_future: int = Field(default=0, alias="createdAtHoursFuture")
+    created_at_minutes_future: int = Field(default=0, alias="createdAtMinutesFuture")
+    created_at_seconds_future: int = Field(default=0, alias="createdAtSecondsFuture")
 
     @property
     def created_at_in_past(self) -> int:
@@ -48,9 +48,9 @@ class EventSpec(Spec):
 
 
 class StorageSpec(Spec):
-    free_storage_value = Field(1, alias="freeStorageValue")
-    free_storage_unit = Field("MB", alias="freeStorageUnit")
-    full_storage_action = Field("prune", alias="fullStorageAction")
+    free_storage_value: int = Field(default=1, alias="freeStorageValue")
+    free_storage_unit: str = Field(default="MB", alias="freeStorageUnit")
+    full_storage_action: str = Field(default="prune", alias="fullStorageAction")
 
     @property
     def free_storage_bytes_value(self):
@@ -61,10 +61,10 @@ class StorageSpec(Spec):
 
 
 class AuthSpec(Spec):
-    require_auth_events = Field(False, alias="requireAuthEvents")
-    skiped_auth_events = Field([], alias="skipedAuthEvents")
-    forced_auth_events = Field([], alias="forcedAuthEvents")
-    require_auth_filter = Field(False, alias="requireAuthFilter")
+    require_auth_events: bool = Field(default=False, alias="requireAuthEvents")
+    skiped_auth_events: list = Field(default=[], alias="skipedAuthEvents")
+    forced_auth_events: list = Field(default=[], alias="forcedAuthEvents")
+    require_auth_filter: bool = Field(default=False, alias="requireAuthFilter")
 
     def event_requires_auth(self, kind: int) -> bool:
         if self.require_auth_events:
@@ -73,11 +73,11 @@ class AuthSpec(Spec):
 
 
 class PaymentSpec(Spec):
-    is_paid_relay = Field(False, alias="isPaidRelay")
-    cost_to_join = Field(0, alias="costToJoin")
+    is_paid_relay: bool = Field(default=False, alias="isPaidRelay")
+    cost_to_join: int = Field(default=0, alias="costToJoin")
 
-    storage_cost_value = Field(0, alias="storageCostValue")
-    storage_cost_unit = Field("MB", alias="storageCostUnit")
+    storage_cost_value: int = Field(default=0, alias="storageCostValue")
+    storage_cost_unit: str = Field(default="MB", alias="storageCostUnit")
 
     @property
     def is_free_to_join(self):
@@ -85,7 +85,7 @@ class PaymentSpec(Spec):
 
 
 class WalletSpec(Spec):
-    wallet = Field("")
+    wallet: str = Field(default="")
 
 
 class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
@@ -93,7 +93,7 @@ class RelayPublicSpec(FilterSpec, EventSpec, StorageSpec, PaymentSpec):
 
     @property
     def is_read_only_relay(self):
-        self.free_storage_value == 0 and not self.is_paid_relay
+        return self.free_storage_value == 0 and not self.is_paid_relay
 
 
 class RelaySpec(RelayPublicSpec, WalletSpec, AuthSpec):
@@ -108,7 +108,7 @@ class NostrRelay(BaseModel):
     contact: Optional[str]
     active: bool = False
 
-    config: "RelaySpec" = RelaySpec()
+    config = RelaySpec()
 
     @property
     def is_free_to_join(self):
