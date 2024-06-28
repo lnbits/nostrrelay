@@ -14,7 +14,7 @@ from lnbits.helpers import urlsafe_short_hash
 from loguru import logger
 from starlette.responses import JSONResponse
 
-from . import client_manager
+from .client_manager import client_manager
 from .crud import (
     create_account,
     create_relay,

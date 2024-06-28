@@ -6,8 +6,8 @@ from .event import NostrEvent
 
 
 class NostrFilter(BaseModel):
-    e: List[str] = Field([], alias="#e")
-    p: List[str] = Field([], alias="#p")
+    e: List[str] = Field(default=[], alias="#e")
+    p: List[str] = Field(default=[], alias="#p")
     ids: List[str] = []
     authors: List[str] = []
     kinds: List[int] = []

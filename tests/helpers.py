@@ -1,6 +1,6 @@
 import json
 
-FIXTURES_PATH = "tests/extensions/nostrrelay/fixture"
+FIXTURES_PATH = "./tests/fixture"
 
 
 def get_fixtures(file):
