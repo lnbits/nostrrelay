@@ -71,5 +71,5 @@ class NostrClientManager:
         def get_client_config() -> RelaySpec:
             return self.get_relay_config(client.relay_id)
 
-        setattr(client, "get_client_config", get_client_config)
+        client.get_client_config = get_client_config
         client.init_callbacks(self.broadcast_event, get_client_config)
