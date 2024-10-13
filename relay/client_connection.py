@@ -130,7 +130,6 @@ class NostrClientConnection:
                 await self._send_msg(resp_nip20)
                 return None
             self.auth_pubkey = e.pubkey
-            return None
 
         if not self.auth_pubkey and self.config.event_requires_auth(e.kind):
             await self._send_msg(["AUTH", self._current_auth_challenge()])
