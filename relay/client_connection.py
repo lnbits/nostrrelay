@@ -154,7 +154,7 @@ class NostrClientConnection:
                     NostrFilter(kinds=[e.kind], authors=[e.pubkey], until=e.created_at),
                 )
             if not e.is_ephemeral_event:
-                await create_event(self.relay_id, e, self.auth_pubkey)
+                await create_event(e)
             await self._broadcast_event(e)
 
             if e.is_delete_event:

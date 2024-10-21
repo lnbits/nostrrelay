@@ -197,12 +197,10 @@
 </q-page-container>
 {% endblock %} {% block scripts %}
 <script>
-  Vue.component(VueQrcode.name, VueQrcode)
-
-  new Vue({
+  window.app = Vue.createApp({
     el: '#vue',
     mixins: [windowMixin],
-    data: function () {
+    data() {
       return {
         relay: JSON.parse('{{relay | tojson | safe}}'),
         pubkey: '',
@@ -272,7 +270,7 @@
             wsConnection.close()
           }
         } catch (error) {
-          this.$q.notify({
+          Quasar.Notify.create({
             timeout: 5000,
             type: 'warning',
             message: 'Failed to get invoice status',
@@ -280,8 +278,7 @@
           })
         }
       }
-    },
-    created: function () {}
+    }
   })
 </script>
 {% endblock %}

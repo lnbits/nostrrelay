@@ -1,5 +1,3 @@
-import json
-from sqlite3 import Row
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -102,23 +100,17 @@ class RelaySpec(RelayPublicSpec, WalletSpec, AuthSpec):
 
 class NostrRelay(BaseModel):
     id: str
+    user_id: str
     name: str
     description: Optional[str]
     pubkey: Optional[str]
     contact: Optional[str]
     active: bool = False
-
-    config = RelaySpec()
+    meta: RelaySpec = RelaySpec()
 
     @property
     def is_free_to_join(self):
-        return not self.config.is_paid_relay or self.config.cost_to_join == 0
-
-    @classmethod
-    def from_row(cls, row: Row) -> "NostrRelay":
-        relay = cls(**dict(row))
-        relay.config = RelaySpec(**json.loads(row["meta"]))
-        return relay
+        return not self.meta.is_paid_relay or self.meta.cost_to_join == 0
 
     @classmethod
     def info(

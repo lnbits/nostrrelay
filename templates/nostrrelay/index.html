@@ -1,10 +1,12 @@
 {% extends "base.html" %} {% from "macros.jinja" import window_vars with context
 %} {% block page %}
+<template id="relay-details">
+  {% include("nostrrelay/relay-details.html") %}
+</template>
 <div class="row q-col-gutter-md">
   <div class="col-12 col-md-7 q-gutter-y-md">
     <q-card>
       <q-card-section>
-        {% raw %}
         <q-btn unelevated color="primary" @click="openCreateRelayDialog()"
           >New relay
         </q-btn>
@@ -49,10 +51,10 @@
         <q-table
           flat
           dense
-          :data="relayLinks"
+          :rows="relayLinks"
           row-key="id"
           :columns="relaysTable.columns"
-          :pagination.sync="relaysTable.pagination"
+          v-model:pagination="relaysTable.pagination"
           :filter="filter"
         >
           <template v-slot:body="props">
@@ -69,9 +71,12 @@
               </q-td>
 
               <q-td key="id" :props="props">
-                <a style="color: unset" :href="props.row.id" target="_blank">
-                  {{props.row.id}}</a
-                >
+                <a
+                  style="color: unset"
+                  :href="props.row.id"
+                  target="_blank"
+                  v-text="props.row.id"
+                ></a>
               </q-td>
               <q-td key="toggle" :props="props">
                 <q-toggle
@@ -81,16 +86,22 @@
                   @input="showToggleRelayDialog(props.row)"
                 ></q-toggle>
               </q-td>
-              <q-td auto-width> {{props.row.name}} </q-td>
-              <q-td key="description" :props="props">
-                {{props.row.description}}
-              </q-td>
-              <q-td key="pubkey" :props="props">
-                <div>{{props.row.pubkey}}</div>
-              </q-td>
-              <q-td key="contact" :props="props">
-                <div>{{props.row.contact}}</div>
-              </q-td>
+              <q-td auto-width v-text="props.row.name"></q-td>
+              <q-td
+                key="description"
+                :props="props"
+                v-text="props.row.description"
+              ></q-td>
+              <q-td
+                key="pubkey"
+                :props="props"
+                v-text="props.row.pubkey"
+              ></q-td>
+              <q-td
+                key="contact"
+                :props="props"
+                v-text="props.row.contact"
+              ></q-td>
             </q-tr>
             <q-tr v-if="props.row.expanded" :props="props">
               <q-td colspan="100%">
@@ -109,7 +120,6 @@
               </q-td>
             </q-tr>
           </template>
-          {% endraw %}
         </q-table>
       </q-card-section>
     </q-card>
@@ -189,8 +199,8 @@
   </q-dialog>
 </div>
 {% endblock %} {% block scripts %} {{ window_vars(user) }}
-<script src="{{ url_for('nostrrelay_static', path='js/utils.js') }}"></script>
-<script src="{{ url_for('nostrrelay_static', path='components/relay-details/relay-details.js') }}"></script>
-<script src="{{ url_for('nostrrelay_static', path='js/index.js') }}"></script>
+<script src="{{ static_url_for('nostrrelay/static', path='js/utils.js') }}"></script>
+<script src="{{ static_url_for('nostrrelay/static', path='components/relay-details/relay-details.js') }}"></script>
+<script src="{{ static_url_for('nostrrelay/static', path='js/index.js') }}"></script>
 
 {% endblock %}

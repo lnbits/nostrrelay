@@ -1,8 +1,6 @@
 import hashlib
 import json
 from enum import Enum
-from sqlite3 import Row
-from typing import List
 
 from pydantic import BaseModel
 from secp256k1 import PublicKey
@@ -17,14 +15,15 @@ class NostrEventType(str, Enum):
 
 class NostrEvent(BaseModel):
     id: str
+    relay_id: str
     pubkey: str
     created_at: int
     kind: int
-    tags: List[List[str]] = []
+    tags: list[list[str]] = []
     content: str = ""
     sig: str
 
-    def serialize(self) -> List:
+    def serialize(self) -> list:
         return [0, self.pubkey, self.created_at, self.kind, self.tags, self.content]
 
     def serialize_json(self) -> str:
@@ -87,7 +86,7 @@ class NostrEvent(BaseModel):
     def serialize_response(self, subscription_id):
         return [NostrEventType.EVENT, subscription_id, dict(self)]
 
-    def tag_values(self, tag_name: str) -> List[str]:
+    def tag_values(self, tag_name: str) -> list[str]:
         return [t[1] for t in self.tags if t[0] == tag_name]
 
     def has_tag_value(self, tag_name: str, tag_value: str) -> bool:
@@ -95,7 +94,3 @@ class NostrEvent(BaseModel):
 
     def is_direct_message_for_pubkey(self, pubkey: str) -> bool:
         return self.is_direct_message and self.has_tag_value("p", pubkey)
-
-    @classmethod
-    def from_row(cls, row: Row) -> "NostrEvent":
-        return cls(**dict(row))

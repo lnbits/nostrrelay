@@ -61,7 +61,7 @@ async def test_valid_event_crud(valid_events: List[EventFixture]):
 
     # insert all events in DB before doing an query
     for e in all_events:
-        await create_event(RELAY_ID, e, None)
+        await create_event(e)
 
     for f in valid_events:
         await get_by_id(f.data, f.name)
