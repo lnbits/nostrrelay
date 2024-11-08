@@ -43,7 +43,7 @@
               </div>
             </div>
           </q-card-section>
-          <q-card-section v-if="relay.config.isPaidRelay">
+          <q-card-section v-if="relay.meta.isPaidRelay">
             <div class="row">
               <div class="col-2 q-pt-sm">
                 <span class="text-bold">Public Key:</span>
@@ -60,19 +60,19 @@
               <div class="col-2"></div>
             </div>
           </q-card-section>
-          <q-card-section v-if="relay.config.isPaidRelay">
+          <q-card-section v-if="relay.meta.isPaidRelay">
             <div class="row">
               <div class="col-2">
                 <span class="text-bold">Cost to join: </span>
               </div>
               <div class="col-6">
                 <div>
-                  <span v-text="relay.config.costToJoin"></span>
+                  <span v-text="relay.meta.costToJoin"></span>
                   <span class="text-bold q-ml-sm">sats</span>
                 </div>
               </div>
               <div class="col-4">
-                <div v-if="relay.config.costToJoin">
+                <div v-if="relay.meta.costToJoin">
                   <q-btn
                     @click="createInvoice('join')"
                     unelevated
@@ -89,37 +89,37 @@
               </div>
             </div>
           </q-card-section>
-          <q-card-section v-if="relay.config.isPaidRelay">
+          <q-card-section v-if="relay.meta.isPaidRelay">
             <div class="row q-mt-md q-mb-md">
               <div class="col-2 q-pt-sm">
                 <span class="text-bold">Storage cost: </span>
               </div>
               <div class="col-3 q-pt-sm">
-                <span v-text="relay.config.storageCostValue"></span>
+                <span v-text="relay.meta.storageCostValue"></span>
                 <span class="text-bold q-ml-sm"> sats per</span>
                 <q-badge color="orange">
-                  <span v-text="relay.config.storageCostUnit"></span>
+                  <span v-text="relay.meta.storageCostUnit"></span>
                 </q-badge>
               </div>
               <div class="col-2">
                 <q-input
-                  v-if="relay.config.storageCostValue"
+                  v-if="relay.meta.storageCostValue"
                   filled
                   dense
                   v-model="unitsToBuy"
                   type="number"
                   min="0"
-                  :label="relay.config.storageCostUnit"
+                  :label="relay.meta.storageCostUnit"
                 ></q-input>
               </div>
               <div class="col-2 q-pt-sm">
-                <div v-if="relay.config.storageCostValue">
+                <div v-if="relay.meta.storageCostValue">
                   <span class="text-bold q-ml-md" v-text="storageCost"></span>
                   <span>sats</span>
                 </div>
               </div>
               <div class="col-3">
-                <div v-if="relay.config.storageCostValue">
+                <div v-if="relay.meta.storageCostValue">
                   <q-btn
                     @click="createInvoice('storage')"
                     unelevated
@@ -211,14 +211,14 @@
     },
     computed: {
       storageCost: function () {
-        if (!this.relay || !this.relay.config.storageCostValue) return 0
-        return this.unitsToBuy * this.relay.config.storageCostValue
+        if (!this.relay || !this.relay.meta.storageCostValue) return 0
+        return this.unitsToBuy * this.relay.meta.storageCostValue
       },
       wssLink: function () {
-        this.relay.config.domain =
-          this.relay.config.domain || window.location.hostname
+        this.relay.meta.domain =
+          this.relay.meta.domain || window.location.hostname
         return (
-          'wss://' + this.relay.config.domain + '/nostrrelay/' + this.relay.id
+          'wss://' + this.relay.meta.domain + '/nostrrelay/' + this.relay.id
         )
       }
     },

@@ -96,10 +96,10 @@ window.app.component('relay-details', {
       ]
     },
     wssLink() {
-      this.relay.config.domain =
-        this.relay.config.domain || window.location.hostname
+      this.relay.meta.domain =
+        this.relay.meta.domain || window.location.hostname
       return (
-        'wss://' + this.relay.config.domain + '/nostrrelay/' + this.relay.id
+        'wss://' + this.relay.meta.domain + '/nostrrelay/' + this.relay.id
       )
     }
   },
@@ -164,8 +164,8 @@ window.app.component('relay-details', {
       }
     },
     togglePaidRelay: async function () {
-      this.relay.config.wallet =
-        this.relay.config.wallet || this.walletOptions[0].value
+      this.relay.meta.wallet =
+        this.relay.meta.wallet || this.walletOptions[0].value
     },
     getAccounts: async function () {
       try {
@@ -252,27 +252,27 @@ window.app.component('relay-details', {
 
     addSkipAuthForEvent: function () {
       value = +this.skipEventKind
-      if (this.relay.config.skipedAuthEvents.indexOf(value) != -1) {
+      if (this.relay.meta.skipedAuthEvents.indexOf(value) != -1) {
         return
       }
-      this.relay.config.skipedAuthEvents.push(value)
+      this.relay.meta.skipedAuthEvents.push(value)
     },
     removeSkipAuthForEvent: function (eventKind) {
       value = +eventKind
-      this.relay.config.skipedAuthEvents =
-        this.relay.config.skipedAuthEvents.filter(e => e !== value)
+      this.relay.meta.skipedAuthEvents =
+        this.relay.meta.skipedAuthEvents.filter(e => e !== value)
     },
     addForceAuthForEvent: function () {
       value = +this.forceEventKind
-      if (this.relay.config.forcedAuthEvents.indexOf(value) != -1) {
+      if (this.relay.meta.forcedAuthEvents.indexOf(value) != -1) {
         return
       }
-      this.relay.config.forcedAuthEvents.push(value)
+      this.relay.meta.forcedAuthEvents.push(value)
     },
     removeForceAuthForEvent: function (eventKind) {
       value = +eventKind
-      this.relay.config.forcedAuthEvents =
-        this.relay.config.forcedAuthEvents.filter(e => e !== value)
+      this.relay.meta.forcedAuthEvents =
+        this.relay.meta.forcedAuthEvents.filter(e => e !== value)
     },
     // todo: bad. base.js not present in custom components
     copyText: function (text, message, position) {
