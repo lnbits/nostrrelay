@@ -6,7 +6,7 @@ authors = ["dni <dni@lnbits.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10 | ^3.9"
-lnbits = "*"
+lnbits = {allow-prereleases = true, version = "*"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"

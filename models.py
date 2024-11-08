@@ -1,4 +1,3 @@
-from sqlite3 import Row
 from typing import Optional
 
 from pydantic import BaseModel
@@ -23,6 +22,7 @@ class NostrPartialAccount(BaseModel):
 
 class NostrAccount(BaseModel):
     pubkey: str
+    relay_id: str
     sats: int = 0
     storage: int = 0
     paid_to_join: bool = False
@@ -36,8 +36,11 @@ class NostrAccount(BaseModel):
 
     @classmethod
     def null_account(cls) -> "NostrAccount":
-        return NostrAccount(pubkey="")
+        return NostrAccount(pubkey="", relay_id="")
 
-    @classmethod
-    def from_row(cls, row: Row) -> "NostrAccount":
-        return cls(**dict(row))
+
+class NostrEventTags(BaseModel):
+    event_id: str
+    name: str
+    value: str
+    extra: Optional[str] = None

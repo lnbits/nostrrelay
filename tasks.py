@@ -3,7 +3,6 @@ import json
 
 from lnbits.core.models import Payment
 from lnbits.core.services import websocket_updater
-from lnbits.helpers import get_current_extension_name
 from lnbits.tasks import register_invoice_listener
 from loguru import logger
 
@@ -13,7 +12,7 @@ from .models import NostrAccount
 
 async def wait_for_paid_invoices():
     invoice_queue = asyncio.Queue()
-    register_invoice_listener(invoice_queue, get_current_extension_name())
+    register_invoice_listener(invoice_queue, "ext_nostrrelay")
 
     while True:
         payment = await invoice_queue.get()
@@ -65,43 +64,36 @@ async def on_invoice_paid(payment: Payment):
 
 
 async def invoice_paid_to_join(relay_id: str, pubkey: str, amount: int):
-    try:
-        account = await get_account(relay_id, pubkey)
-        if not account:
-            await create_account(
-                relay_id, NostrAccount(pubkey=pubkey, paid_to_join=True, sats=amount)
-            )
-            return
+    account = await get_account(relay_id, pubkey)
+    if not account:
+        account = NostrAccount(
+            relay_id=relay_id, pubkey=pubkey, paid_to_join=True, sats=amount
+        )
+        await create_account(account)
+        return
 
-        if account.blocked or account.paid_to_join:
-            return
+    if account.blocked or account.paid_to_join:
+        return
 
-        account.paid_to_join = True
-        account.sats += amount
-        await update_account(relay_id, account)
-
-    except Exception as ex:
-        logger.warning(ex)
+    account.paid_to_join = True
+    account.sats += amount
+    await update_account(account)
 
 
 async def invoice_paid_for_storage(
     relay_id: str, pubkey: str, storage_to_buy: int, amount: int
 ):
-    try:
-        account = await get_account(relay_id, pubkey)
-        if not account:
-            await create_account(
-                relay_id,
-                NostrAccount(pubkey=pubkey, storage=storage_to_buy, sats=amount),
-            )
-            return
+    account = await get_account(relay_id, pubkey)
+    if not account:
+        account = NostrAccount(
+            relay_id=relay_id, pubkey=pubkey, storage=storage_to_buy, sats=amount
+        )
+        await create_account(account)
+        return
 
-        if account.blocked:
-            return
+    if account.blocked:
+        return
 
-        account.storage = storage_to_buy
-        account.sats += amount
-        await update_account(relay_id, account)
-
-    except Exception as ex:
-        logger.warning(ex)
+    account.storage = storage_to_buy
+    account.sats += amount
+    await update_account(account)

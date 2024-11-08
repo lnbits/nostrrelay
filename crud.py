@@ -1,115 +1,72 @@
 import json
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from lnbits.db import Database
 
-from .models import NostrAccount
+from .models import NostrAccount, NostrEventTags
 from .relay.event import NostrEvent
 from .relay.filter import NostrFilter
-from .relay.relay import NostrRelay, RelayPublicSpec, RelaySpec
+from .relay.relay import NostrRelay, RelayPublicSpec
 
 db = Database("ext_nostrrelay")
 
-########################## RELAYS ####################
 
-
-async def create_relay(user_id: str, r: NostrRelay) -> NostrRelay:
-    await db.execute(
-        """
-        INSERT INTO nostrrelay.relays
-        (user_id, id, name, description, pubkey, contact, meta)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            user_id,
-            r.id,
-            r.name,
-            r.description,
-            r.pubkey,
-            r.contact,
-            json.dumps(dict(r.config)),
-        ),
-    )
-    relay = await get_relay(user_id, r.id)
-    assert relay, "Created relay cannot be retrieved"
+async def create_relay(relay: NostrRelay) -> NostrRelay:
+    await db.insert("nostrrelay.relays", relay)
     return relay
 
 
-async def update_relay(user_id: str, r: NostrRelay) -> NostrRelay:
-    await db.execute(
-        """
-        UPDATE nostrrelay.relays
-        SET (name, description, pubkey, contact, active, meta) = (?, ?, ?, ?, ?, ?)
-        WHERE user_id = ? AND id = ?
-        """,
-        (
-            r.name,
-            r.description,
-            r.pubkey,
-            r.contact,
-            r.active,
-            json.dumps(dict(r.config)),
-            user_id,
-            r.id,
-        ),
-    )
-
-    return r
+async def update_relay(relay: NostrRelay) -> NostrRelay:
+    await db.update("nostrrelay.relays", relay, "WHERE user_id = :user_id AND id = :id")
+    return relay
 
 
 async def get_relay(user_id: str, relay_id: str) -> Optional[NostrRelay]:
-    row = await db.fetchone(
-        """SELECT * FROM nostrrelay.relays WHERE user_id = ? AND id = ?""",
-        (
-            user_id,
-            relay_id,
-        ),
+    return await db.fetchone(
+        "SELECT * FROM nostrrelay.relays WHERE user_id = :user_id AND id = :id",
+        {"user_id": user_id, "id": relay_id},
+        NostrRelay,
     )
-
-    return NostrRelay.from_row(row) if row else None
 
 
 async def get_relay_by_id(relay_id: str) -> Optional[NostrRelay]:
     """Note: it does not require `user_id`. Can read any relay. Use it with care."""
-    row = await db.fetchone(
-        """SELECT * FROM nostrrelay.relays WHERE id = ?""",
-        (relay_id,),
+    return await db.fetchone(
+        "SELECT * FROM nostrrelay.relays WHERE id = :id",
+        {"id": relay_id},
+        NostrRelay,
     )
 
-    return NostrRelay.from_row(row) if row else None
 
-
-async def get_relays(user_id: str) -> List[NostrRelay]:
-    rows = await db.fetchall(
-        """SELECT * FROM nostrrelay.relays WHERE user_id = ? ORDER BY id ASC""",
-        (user_id,),
+async def get_relays(user_id: str) -> list[NostrRelay]:
+    return await db.fetchall(
+        "SELECT * FROM nostrrelay.relays WHERE user_id = :user_id ORDER BY id ASC",
+        {"user_id": user_id},
+        NostrRelay,
     )
-
-    return [NostrRelay.from_row(row) for row in rows]
 
 
 async def get_config_for_all_active_relays() -> dict:
-    rows = await db.fetchall(
+    relays = await db.fetchall(
         "SELECT id, meta FROM nostrrelay.relays WHERE active = true",
+        model=NostrRelay,
     )
     active_relay_configs = {}
-    for r in rows:
-        active_relay_configs[r["id"]] = RelaySpec(
-            **json.loads(r["meta"])
-        )  # todo: from_json
+    for relay in relays:
+        active_relay_configs[relay.id] = relay.meta.dict()
 
     return active_relay_configs
 
 
 async def get_public_relay(relay_id: str) -> Optional[dict]:
-    row = await db.fetchone(
-        """SELECT * FROM nostrrelay.relays WHERE id = ?""", (relay_id,)
+    relay = await db.fetchone(
+        "SELECT * FROM nostrrelay.relays WHERE id = :id",
+        {"id": relay_id},
+        NostrRelay,
     )
-
-    if not row:
+    if not relay:
         return None
 
-    relay = NostrRelay.from_row(row)
     return {
         **NostrRelay.info(),
         "id": relay.id,
@@ -117,88 +74,66 @@ async def get_public_relay(relay_id: str) -> Optional[dict]:
         "description": relay.description,
         "pubkey": relay.pubkey,
         "contact": relay.contact,
-        "config": RelayPublicSpec(**dict(relay.config)).dict(by_alias=True),
+        "config": RelayPublicSpec(**relay.meta.dict()).dict(by_alias=True),
     }
 
 
 async def delete_relay(user_id: str, relay_id: str):
     await db.execute(
-        """DELETE FROM nostrrelay.relays WHERE user_id = ? AND id = ?""",
-        (
-            user_id,
-            relay_id,
-        ),
+        "DELETE FROM nostrrelay.relays WHERE user_id = :user_id AND id = :id",
+        {"user_id": user_id, "id": relay_id},
     )
 
 
-########################## EVENTS ####################
-async def create_event(relay_id: str, e: NostrEvent, publisher: Optional[str]):
-    publisher = publisher if publisher else e.pubkey
-    await db.execute(
-        """
-        INSERT INTO nostrrelay.events (
-            relay_id,
-            publisher,
-            id,
-            pubkey,
-            created_at,
-            kind,
-            content,
-            sig,
-            size
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT (relay_id, id) DO NOTHING
-        """,
-        (
-            relay_id,
-            publisher,
-            e.id,
-            e.pubkey,
-            e.created_at,
-            e.kind,
-            e.content,
-            e.sig,
-            e.size_bytes,
-        ),
-    )
+async def create_event(event: NostrEvent):
+    await db.update("nostrrelay.events", event)
 
     # todo: optimize with bulk insert
-    for tag in e.tags:
+    for tag in event.tags:
         name, value, *rest = tag
         extra = json.dumps(rest) if rest else None
-        await create_event_tags(relay_id, e.id, name, value, extra)
+        _tag = NostrEventTags(
+            event_id=event.id,
+            name=name,
+            value=value,
+            extra=extra,
+        )
+        await create_event_tags(_tag)
 
 
 async def get_events(
     relay_id: str, nostr_filter: NostrFilter, include_tags=True
-) -> List[NostrEvent]:
-    query, values = build_select_events_query(relay_id, nostr_filter)
+) -> list[NostrEvent]:
 
-    rows = await db.fetchall(query, tuple(values))
+    inner_joins, where, values = nostr_filter.to_sql_components(relay_id)
+    query = f"""
+        SELECT * FROM nostrrelay.events
+        {" ".join(inner_joins)}
+        WHERE { " AND ".join(where)}
+        ORDER BY created_at DESC
+        """
 
-    events = []
-    for row in rows:
-        event = NostrEvent.from_row(row)
+    # todo: check & enforce range
+    if nostr_filter.limit and nostr_filter.limit > 0:
+        query += f" LIMIT {nostr_filter.limit}"
+
+    events = await db.fetchall(query, values, NostrEvent)
+
+    for event in events:
         if include_tags:
             event.tags = await get_event_tags(relay_id, event.id)
-        events.append(event)
 
     return events
 
 
 async def get_event(relay_id: str, event_id: str) -> Optional[NostrEvent]:
-    row = await db.fetchone(
-        "SELECT * FROM nostrrelay.events WHERE relay_id = ? AND id = ?",
-        (
-            relay_id,
-            event_id,
-        ),
+    event = await db.fetchone(
+        "SELECT * FROM nostrrelay.events WHERE relay_id = :relay_id AND id = :id",
+        {"relay_id": relay_id, "id": event_id},
+        NostrEvent,
     )
-    if not row:
+    if not event:
         return None
-
-    event = NostrEvent.from_row(row)
     event.tags = await get_event_tags(relay_id, event_id)
     return event
 
@@ -209,36 +144,36 @@ async def get_storage_for_public_key(relay_id: str, publisher_pubkey: str) -> in
     Deleted events are also counted
     """
 
-    row = await db.fetchone(
+    result = await db.execute(
         """
         SELECT SUM(size) as sum FROM nostrrelay.events
-        WHERE relay_id = ? AND publisher = ? GROUP BY publisher
+        WHERE relay_id = :relay_id AND publisher = :publisher GROUP BY publisher
         """,
-        (
-            relay_id,
-            publisher_pubkey,
-        ),
+        {"relay_id": relay_id, "publisher": publisher_pubkey},
     )
+    row = await result.mappings().first()
     if not row:
         return 0
 
     return round(row["sum"])
 
 
-async def get_prunable_events(relay_id: str, pubkey: str) -> List[Tuple[str, int]]:
+async def get_prunable_events(relay_id: str, pubkey: str) -> list[tuple[str, int]]:
     """
     Return the oldest 10 000 events. Only the `id` and the size are returned,
     so the data size should be small
     """
-    query = """
-            SELECT id, size FROM nostrrelay.events
-            WHERE relay_id = ? AND pubkey = ?
-            ORDER BY created_at ASC LIMIT 10000
+    events = await db.fetchall(
         """
+        SELECT * FROM nostrrelay.events
+        WHERE relay_id = :relay_id AND pubkey = :pubkey
+        ORDER BY created_at ASC LIMIT 10000
+        """,
+        {"relay_id": relay_id, "pubkey": pubkey},
+        NostrEvent,
+    )
 
-    rows = await db.fetchall(query, (relay_id, pubkey))
-
-    return [(r["id"], r["size"]) for r in rows]
+    return [(event.id, event.size_bytes) for event in events]
 
 
 async def mark_events_deleted(relay_id: str, nostr_filter: NostrFilter):
@@ -247,8 +182,8 @@ async def mark_events_deleted(relay_id: str, nostr_filter: NostrFilter):
     _, where, values = nostr_filter.to_sql_components(relay_id)
 
     await db.execute(
-        f"""UPDATE nostrrelay.events SET deleted=true WHERE {" AND ".join(where)}""",
-        tuple(values),
+        f"UPDATE nostrrelay.events SET deleted=true WHERE {' AND '.join(where)}",
+        values,
     )
 
 
@@ -257,11 +192,12 @@ async def delete_events(relay_id: str, nostr_filter: NostrFilter):
         return None
     _, where, values = nostr_filter.to_sql_components(relay_id)
 
-    query = f"""DELETE from nostrrelay.events WHERE {" AND ".join(where)}"""
-    await db.execute(query, tuple(values))
+    query = f"DELETE from nostrrelay.events WHERE {' AND '.join(where)}"
+    await db.execute(query, values)
     # todo: delete tags
 
 
+# move to services
 async def prune_old_events(relay_id: str, pubkey: str, space_to_regain: int):
     prunable_events = await get_prunable_events(relay_id, pubkey)
     prunable_event_ids = []
@@ -278,113 +214,58 @@ async def prune_old_events(relay_id: str, pubkey: str, space_to_regain: int):
 
 
 async def delete_all_events(relay_id: str):
-    query = "DELETE from nostrrelay.events WHERE relay_id = ?"
-    await db.execute(query, (relay_id,))
+    await db.execute(
+        "DELETE from nostrrelay.events WHERE relay_id = :id",
+        {"id": relay_id},
+    )
     # todo: delete tags
 
 
-async def create_event_tags(
-    relay_id: str,
-    event_id: str,
-    tag_name: str,
-    tag_value: str,
-    extra_values: Optional[str],
-):
-    await db.execute(
+async def create_event_tags(tag: NostrEventTags):
+    await db.insert("nostrrelay.event_tags", tag)
+
+
+async def get_event_tags(relay_id: str, event_id: str) -> list[list[str]]:
+    _tags = await db.fetchall(
         """
-        INSERT INTO nostrrelay.event_tags (
-            relay_id,
-            event_id,
-            name,
-            value,
-            extra
-        )
-        VALUES (?, ?, ?, ?, ?)
+        SELECT * FROM nostrrelay.event_tags
+        WHERE relay_id = :relay_id and event_id = :event_id
         """,
-        (relay_id, event_id, tag_name, tag_value, extra_values),
+        {"relay_id": relay_id, "event_id": event_id},
+        model=NostrEventTags,
     )
 
-
-async def get_event_tags(relay_id: str, event_id: str) -> List[List[str]]:
-    rows = await db.fetchall(
-        "SELECT * FROM nostrrelay.event_tags WHERE relay_id = ? and event_id = ?",
-        (relay_id, event_id),
-    )
-
-    tags: List[List[str]] = []
-    for row in rows:
-        tag = [row["name"], row["value"]]
-        extra = row["extra"]
-        if extra:
-            tag += json.loads(extra)
-        tags.append(tag)
+    tags: list[list[str]] = []
+    for tag in _tags:
+        _tag = [tag.name, tag.value]
+        if tag.extra:
+            _tag += json.loads(tag.extra)
+        tags.append(_tag)
 
     return tags
 
 
-def build_select_events_query(relay_id: str, nostr_filter: NostrFilter):
-    inner_joins, where, values = nostr_filter.to_sql_components(relay_id)
-
-    query = f"""
-        SELECT id, pubkey, created_at, kind, content, sig
-        FROM nostrrelay.events
-        {" ".join(inner_joins)}
-        WHERE { " AND ".join(where)}
-        ORDER BY created_at DESC
-        """
-
-    # todo: check & enforce range
-    if nostr_filter.limit and nostr_filter.limit > 0:
-        query += f" LIMIT {nostr_filter.limit}"
-
-    return query, values
-
-
-########################## ACCOUNTS ####################
-
-
-async def create_account(relay_id: str, a: NostrAccount) -> NostrAccount:
-    await db.execute(
-        """
-        INSERT INTO nostrrelay.accounts
-        (relay_id, pubkey, sats, storage, paid_to_join, allowed, blocked)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            relay_id,
-            a.pubkey,
-            a.sats,
-            a.storage,
-            a.paid_to_join,
-            a.allowed,
-            a.blocked,
-        ),
-    )
-    account = await get_account(relay_id, a.pubkey)
-    assert account, "Created account cannot be retrieved"
+async def create_account(account: NostrAccount) -> NostrAccount:
+    await db.insert("nostrrelay.accounts", account)
     return account
 
 
-async def update_account(relay_id: str, a: NostrAccount) -> NostrAccount:
-    await db.execute(
-        """
-        UPDATE nostrrelay.accounts
-        SET (sats, storage, paid_to_join, allowed, blocked) = (?, ?, ?, ?, ?)
-        WHERE relay_id = ? AND pubkey = ?
-        """,
-        (a.sats, a.storage, a.paid_to_join, a.allowed, a.blocked, relay_id, a.pubkey),
+async def update_account(account: NostrAccount) -> NostrAccount:
+    await db.update(
+        "nostrrelay.accounts",
+        account,
+        "WHERE relay_id = :relay_id AND pubkey = :pubkey",
     )
-
-    return a
+    return account
 
 
 async def delete_account(relay_id: str, pubkey: str):
     await db.execute(
         """
         DELETE FROM nostrrelay.accounts
-        WHERE relay_id = ? AND pubkey = ?
+        WHERE relay_id = :id AND pubkey = :pubkey
         """,
-        (relay_id, pubkey),
+        {"id": relay_id, "pubkey": pubkey},
     )
 
 
@@ -392,28 +273,28 @@ async def get_account(
     relay_id: str,
     pubkey: str,
 ) -> Optional[NostrAccount]:
-    row = await db.fetchone(
-        "SELECT * FROM nostrrelay.accounts WHERE relay_id = ? AND pubkey = ?",
-        (relay_id, pubkey),
+    return await db.fetchone(
+        """
+        SELECT * FROM nostrrelay.accounts
+        WHERE relay_id = :id AND pubkey = :pubkey
+        """,
+        {"id": relay_id, "pubkey": pubkey},
+        NostrAccount,
     )
-
-    return NostrAccount.from_row(row) if row else None
 
 
 async def get_accounts(
     relay_id: str,
     allowed=True,
     blocked=False,
-) -> List[NostrAccount]:
-
+) -> list[NostrAccount]:
     if not allowed and not blocked:
         return []
-
-    rows = await db.fetchall(
+    return await db.fetchall(
         """
         SELECT * FROM nostrrelay.accounts
-        WHERE relay_id = ? AND allowed = ? OR blocked = ?"
+        WHERE relay_id = :id AND allowed = :allowed OR blocked = :blocked
         """,
-        (relay_id, allowed, blocked),
+        {"id": relay_id, "allowed": allowed, "blocked": blocked},
+        NostrAccount,
     )
-    return [NostrAccount.from_row(row) for row in rows]

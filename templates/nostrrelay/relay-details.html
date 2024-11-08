@@ -62,7 +62,7 @@
             <q-input
               filled
               dense
-              v-model.trim="relay.config.domain"
+              v-model.trim="relay.meta.domain"
               type="text"
             ></q-input>
           </div>
@@ -93,7 +93,7 @@
             <q-input
               filled
               dense
-              v-model.trim="relay.config.freeStorageValue"
+              v-model.trim="relay.meta.freeStorageValue"
               type="number"
               hint="Value"
               min="0"
@@ -103,7 +103,7 @@
             <q-select
               filled
               dense
-              v-model="relay.config.freeStorageUnit"
+              v-model="relay.meta.freeStorageUnit"
               type="text"
               hint="Unit"
               :options="storageUnits"
@@ -119,7 +119,7 @@
           </div>
           <div class="col-md-4 col-sm-2">
             <q-badge
-              v-if="relay.config.freeStorageValue == 0"
+              v-if="relay.meta.freeStorageValue == 0"
               color="orange"
               class="float-right q-mb-md"
               ><span>No free storage</span>
@@ -132,13 +132,13 @@
           <div class="col-md-3 q-pr-lg">
             <q-toggle
               color="secodary"
-              v-model="relay.config.isPaidRelay"
-              @input="togglePaidRelay"
+              v-model="relay.meta.isPaidRelay"
+              @update:model-value="togglePaidRelay"
             ></q-toggle>
           </div>
           <div class="col-6">
             <q-badge
-              v-if="!relay.config.isPaidRelay && relay.config.freeStorageValue == 0"
+              v-if="!relay.meta.isPaidRelay && relay.meta.freeStorageValue == 0"
               color="orange"
               class="float-right q-mb-md"
               ><span>No data will be stored. Read-only relay.</span>
@@ -146,7 +146,7 @@
           </div>
         </div>
 
-        <div v-if="relay.config.isPaidRelay && relay.config.wallet">
+        <div v-if="relay.meta.isPaidRelay && relay.meta.wallet">
           <div class="row items-center no-wrap q-mb-md">
             <div class="col-3 q-pr-lg">Wallet:</div>
             <div class="col-md-6 col-sm-8 q-pr-lg">
@@ -154,7 +154,7 @@
                 filled
                 dense
                 emit-value
-                v-model="relay.config.wallet"
+                v-model="relay.meta.wallet"
                 :options="walletOptions"
                 label="Wallet *"
               >
@@ -174,7 +174,7 @@
               <q-input
                 filled
                 dense
-                v-model.trim="relay.config.costToJoin"
+                v-model.trim="relay.meta.costToJoin"
                 type="number"
                 hint="sats"
                 min="0"
@@ -189,7 +189,7 @@
             </div>
             <div class="col-md-6 col-sm-4">
               <q-badge
-                v-if="relay.config.costToJoin == 0"
+                v-if="relay.meta.costToJoin == 0"
                 color="green"
                 class="float-right"
                 ><span>Free to join</span>
@@ -202,7 +202,7 @@
               <q-input
                 filled
                 dense
-                v-model.trim="relay.config.storageCostValue"
+                v-model.trim="relay.meta.storageCostValue"
                 type="number"
                 hint="sats"
                 min="0"
@@ -212,7 +212,7 @@
               <q-select
                 filled
                 dense
-                v-model="relay.config.storageCostUnit"
+                v-model="relay.meta.storageCostUnit"
                 type="text"
                 hint="Unit"
                 :options="storageUnits"
@@ -227,7 +227,7 @@
             </div>
             <div class="col-md-4 col-sm-0">
               <q-badge
-                v-if="relay.config.storageCostValue == 0"
+                v-if="relay.meta.storageCostValue == 0"
                 color="green"
                 class="float-right"
                 ><span>Unlimited storage</span>
@@ -245,7 +245,7 @@
             <q-input
               filled
               dense
-              v-model.trim="relay.config.createdAtDaysPast"
+              v-model.trim="relay.meta.createdAtDaysPast"
               type="number"
               min="0"
               hint="Days"
@@ -255,7 +255,7 @@
             <q-select
               filled
               dense
-              v-model="relay.config.createdAtHoursPast"
+              v-model="relay.meta.createdAtHoursPast"
               type="number"
               hint="Hours"
               :options="hours"
@@ -265,7 +265,7 @@
             <q-select
               filled
               dense
-              v-model="relay.config.createdAtMinutesPast"
+              v-model="relay.meta.createdAtMinutesPast"
               type="number"
               hint="Minutes"
               :options="range60"
@@ -275,7 +275,7 @@
             <q-select
               filled
               dense
-              v-model="relay.config.createdAtSecondsPast"
+              v-model="relay.meta.createdAtSecondsPast"
               type="number"
               hint="Seconds"
               :options="range60"
@@ -296,7 +296,7 @@
             <q-input
               filled
               dense
-              v-model.trim="relay.config.createdAtDaysFuture"
+              v-model.trim="relay.meta.createdAtDaysFuture"
               type="number"
               min="0"
               hint="Days"
@@ -306,7 +306,7 @@
             <q-select
               filled
               dense
-              v-model="relay.config.createdAtHoursFuture"
+              v-model="relay.meta.createdAtHoursFuture"
               type="number"
               hint="Hours"
               :options="hours"
@@ -316,7 +316,7 @@
             <q-select
               filled
               dense
-              v-model="relay.config.createdAtMinutesFuture"
+              v-model="relay.meta.createdAtMinutesFuture"
               type="number"
               hint="Minutes"
               :options="range60"
@@ -326,7 +326,7 @@
             <q-select
               filled
               dense
-              v-model="relay.config.createdAtSecondsFuture"
+              v-model="relay.meta.createdAtSecondsFuture"
               type="number"
               hint="Seconds"
               :options="range60"
@@ -348,7 +348,7 @@
             <q-toggle
               color="secodary"
               class="q-ml-md q-mr-md"
-              v-model="relay.config.requireAuthFilter"
+              v-model="relay.meta.requireAuthFilter"
               >For Filters</q-toggle
             >
           </div>
@@ -356,7 +356,7 @@
             <q-toggle
               color="secodary"
               class="q-ml-md q-mr-md"
-              v-model="relay.config.requireAuthEvents"
+              v-model="relay.meta.requireAuthEvents"
               >For All Events</q-toggle
             >
           </div>
@@ -370,7 +370,7 @@
           </div>
         </div>
         <div
-          v-if="relay.config.requireAuthEvents"
+          v-if="relay.meta.requireAuthEvents"
           class="row items-center no-wrap q-mb-md q-mt-md"
         >
           <div class="col-3 q-pr-lg">Skip Auth For Events:</div>
@@ -393,14 +393,14 @@
           </div>
           <div class="col-7">
             <q-chip
-              v-for="e in relay.config.skipedAuthEvents"
+              v-for="e in relay.meta.skipedAuthEvents"
               :key="e"
               removable
               @remove="removeSkipAuthForEvent(e)"
               color="primary"
               text-color="white"
             >
-              {{ e }}
+              <span v-text="e"></span>
             </q-chip>
           </div>
         </div>
@@ -425,14 +425,14 @@
           </div>
           <div class="col-7">
             <q-chip
-              v-for="e in relay.config.forcedAuthEvents"
+              v-for="e in relay.meta.forcedAuthEvents"
               :key="e"
               removable
               @remove="removeForceAuthForEvent(e)"
               color="primary"
               text-color="white"
             >
-              {{ e }}
+              <span v-text="e"></span>
             </q-chip>
           </div>
         </div>
@@ -444,7 +444,7 @@
               filled
               dense
               emit-value
-              v-model="relay.config.fullStorageAction"
+              v-model="relay.meta.fullStorageAction"
               type="text"
               :options="fullStorageActions"
             ></q-select>
@@ -464,7 +464,7 @@
             <q-input
               filled
               dense
-              v-model.trim="relay.config.limitPerFilter"
+              v-model.trim="relay.meta.limitPerFilter"
               type="number"
               min="0"
             ></q-input>
@@ -477,7 +477,7 @@
               </q-tooltip></q-icon
             >
             <q-badge
-              v-if="relay.config.limitPerFilter == 0"
+              v-if="relay.meta.limitPerFilter == 0"
               color="green"
               class="float-right"
               ><span>No Limit</span>
@@ -490,7 +490,7 @@
             <q-input
               filled
               dense
-              v-model.trim="relay.config.maxClientFilters"
+              v-model.trim="relay.meta.maxClientFilters"
               type="number"
               min="0"
             ></q-input>
@@ -504,7 +504,7 @@
               </q-tooltip></q-icon
             >
             <q-badge
-              v-if="relay.config.maxClientFilters == 0"
+              v-if="relay.meta.maxClientFilters == 0"
               color="green"
               class="float-right"
               ><span>Unlimited Filters</span>
@@ -517,7 +517,7 @@
             <q-input
               filled
               dense
-              v-model.trim="relay.config.maxEventsPerHour"
+              v-model.trim="relay.meta.maxEventsPerHour"
               type="number"
               min="0"
             ></q-input>
@@ -530,7 +530,7 @@
               </q-tooltip></q-icon
             >
             <q-badge
-              v-if="relay.config.maxEventsPerHour == 0"
+              v-if="relay.meta.maxEventsPerHour == 0"
               color="green"
               class="float-right"
               ><span>No Limit</span>
@@ -584,7 +584,7 @@
                   color="secodary"
                   class="q-mr-lg"
                   v-model="showAllowedAccounts"
-                  @input="getAccounts()"
+                  @update:model-value="getAccounts()"
                   >Show Allowed Account</q-toggle
                 >
                 <q-toggle
@@ -592,7 +592,7 @@
                   color="secodary"
                   class="q-mr-lg"
                   v-model="showBlockedAccounts"
-                  @input="getAccounts()"
+                  @update:model-value="getAccounts()"
                 >
                   Show Blocked Accounts</q-toggle
                 >
@@ -605,7 +605,7 @@
             <q-table
               flat
               dense
-              :data="accounts"
+              :rows="accounts"
               row-key="pubkey"
               :columns="accountsTable.columns"
               :pagination.sync="accountsTable.pagination"
@@ -623,14 +623,14 @@
                     >
                   </q-td>
                   <q-td key="pubkey" :props="props">
-                    {{props.row.pubkey}}
+                    <span v-text="props.row.pubkey"></span>
                   </q-td>
                   <q-td key="allowed" :props="props">
                     <q-toggle
                       size="sm"
                       color="secodary"
                       v-model="props.row.allowed"
-                      @input="togglePublicKey(props.row, 'allow')"
+                      @update:model-value="togglePublicKey(props.row, 'allow')"
                     ></q-toggle>
                   </q-td>
                   <q-td key="blocked" :props="props">
@@ -638,12 +638,17 @@
                       size="sm"
                       color="secodary"
                       v-model="props.row.blocked"
-                      @input="togglePublicKey(props.row, 'block')"
+                      @update:model-value="togglePublicKey(props.row, 'block')"
                     ></q-toggle>
                   </q-td>
-                  <q-td auto-width> {{props.row.paid_to_join}} </q-td>
-                  <q-td auto-width> {{props.row.sats}} </q-td>
-                  <q-td auto-width> {{props.row.storage}} </q-td>
+
+                  <q-td auto-width
+                    ><span v-text="props.row.paid_to_join"></span>
+                  </q-td>
+                  <q-td auto-width> <span v-text="props.row.sats"></span></q-td>
+                  <q-td auto-width
+                    ><span v-text="props.row.storage"></span>
+                  </q-td>
                 </q-tr>
               </template>
             </q-table>
