@@ -93,7 +93,6 @@ async def create_event(event: NostrEvent):
         name, value, *rest = tag
         extra = json.dumps(rest) if rest else None
         _tag = NostrEventTags(
-            relay_id=event.relay_id,
             event_id=event.id,
             name=name,
             value=value,

@@ -98,9 +98,7 @@ window.app.component('relay-details', {
     wssLink() {
       this.relay.meta.domain =
         this.relay.meta.domain || window.location.hostname
-      return (
-        'wss://' + this.relay.meta.domain + '/nostrrelay/' + this.relay.id
-      )
+      return 'wss://' + this.relay.meta.domain + '/nostrrelay/' + this.relay.id
     }
   },
 

@@ -15,7 +15,6 @@ class NostrEventType(str, Enum):
 
 class NostrEvent(BaseModel):
     id: str
-    relay_id: str
     pubkey: str
     created_at: int
     kind: int
