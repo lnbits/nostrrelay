@@ -294,7 +294,7 @@ async def get_accounts(
     return await db.fetchall(
         """
         SELECT * FROM nostrrelay.accounts
-        WHERE relay_id = :id AND allowed = :allowed OR blocked = :blocked"
+        WHERE relay_id = :id AND allowed = :allowed OR blocked = :blocked
         """,
         {"id": relay_id, "allowed": allowed, "blocked": blocked},
         NostrAccount,

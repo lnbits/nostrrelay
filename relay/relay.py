@@ -100,11 +100,11 @@ class RelaySpec(RelayPublicSpec, WalletSpec, AuthSpec):
 
 class NostrRelay(BaseModel):
     id: str
-    user_id: str
+    user_id: Optional[str] = None
     name: str
-    description: Optional[str]
-    pubkey: Optional[str]
-    contact: Optional[str]
+    description: Optional[str] = None
+    pubkey: Optional[str] = None
+    contact: Optional[str] = None
     active: bool = False
     meta: RelaySpec = RelaySpec()
 

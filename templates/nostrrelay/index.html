@@ -1,8 +1,6 @@
 {% extends "base.html" %} {% from "macros.jinja" import window_vars with context
 %} {% block page %}
-<template id="relay-details">
-  {% include("nostrrelay/relay-details.html") %}
-</template>
+
 <div class="row q-col-gutter-md">
   <div class="col-12 col-md-7 q-gutter-y-md">
     <q-card>
@@ -107,7 +105,13 @@
               <q-td colspan="100%">
                 <div class="row items-center q-mb-lg">
                   <div class="col-12">
+                    wwww<br/>
+                    <span v-text="props.row.id"></span><br/>
+                    <span v-text="g.user.wallets[0].inkey"></span><br/>
+                    <span v-text="g.user.wallets[0].adminkey"></span><br/>
+                    <span v-text="g.user.walletOptions"></span><br/>
                     <relay-details
+                    
                       :relay-id="props.row.id"
                       :adminkey="g.user.wallets[0].adminkey"
                       :inkey="g.user.wallets[0].inkey"
@@ -198,9 +202,15 @@
     </q-card>
   </q-dialog>
 </div>
+{% endblock %} {% block vue_templates %}
+<template id="relay-details">
+  {% include("nostrrelay/relay-details.html") %}
+</template>
+
 {% endblock %} {% block scripts %} {{ window_vars(user) }}
 <script src="{{ static_url_for('nostrrelay/static', path='js/utils.js') }}"></script>
-<script src="{{ static_url_for('nostrrelay/static', path='components/relay-details.js') }}"></script>
 <script src="{{ static_url_for('nostrrelay/static', path='js/index.js') }}"></script>
+<script src="{{ static_url_for('nostrrelay/static', path='components/relay-details.js') }}"></script>
+
 
 {% endblock %}
