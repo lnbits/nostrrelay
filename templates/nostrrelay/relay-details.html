@@ -400,7 +400,8 @@
               color="primary"
               text-color="white"
             >
-              {{ e }}
+            <span v-text="e"></span>
+              
             </q-chip>
           </div>
         </div>
@@ -432,7 +433,7 @@
               color="primary"
               text-color="white"
             >
-              {{ e }}
+            <span v-text="e"></span>
             </q-chip>
           </div>
         </div>
@@ -623,7 +624,7 @@
                     >
                   </q-td>
                   <q-td key="pubkey" :props="props">
-                    {{props.row.pubkey}}
+                    <span v-text="props.row.pubkey"></span>
                   </q-td>
                   <q-td key="allowed" :props="props">
                     <q-toggle
@@ -641,9 +642,10 @@
                       @input="togglePublicKey(props.row, 'block')"
                     ></q-toggle>
                   </q-td>
-                  <q-td auto-width> {{props.row.paid_to_join}} </q-td>
-                  <q-td auto-width> {{props.row.sats}} </q-td>
-                  <q-td auto-width> {{props.row.storage}} </q-td>
+                  
+                  <q-td auto-width><span v-text="props.row.paid_to_join"></span> </q-td>
+                  <q-td auto-width> <span v-text="props.row.sats"></span></q-td>
+                  <q-td auto-width><span v-text="props.row.storage"></span> </q-td>
                 </q-tr>
               </template>
             </q-table>
