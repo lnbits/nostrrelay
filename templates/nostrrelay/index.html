@@ -81,7 +81,7 @@
                   size="sm"
                   color="secodary"
                   v-model="props.row.active"
-                  @input="showToggleRelayDialog(props.row)"
+                  @update:model-value="showToggleRelayDialog(props.row)"
                 ></q-toggle>
               </q-td>
               <q-td auto-width v-text="props.row.name"></q-td>

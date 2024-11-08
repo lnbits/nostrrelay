@@ -133,7 +133,7 @@
             <q-toggle
               color="secodary"
               v-model="relay.meta.isPaidRelay"
-              @input="togglePaidRelay"
+              @update:model-value="togglePaidRelay"
             ></q-toggle>
           </div>
           <div class="col-6">
@@ -584,7 +584,7 @@
                   color="secodary"
                   class="q-mr-lg"
                   v-model="showAllowedAccounts"
-                  @input="getAccounts()"
+                  @update:model-value="getAccounts()"
                   >Show Allowed Account</q-toggle
                 >
                 <q-toggle
@@ -592,7 +592,7 @@
                   color="secodary"
                   class="q-mr-lg"
                   v-model="showBlockedAccounts"
-                  @input="getAccounts()"
+                  @update:model-value="getAccounts()"
                 >
                   Show Blocked Accounts</q-toggle
                 >
@@ -605,7 +605,7 @@
             <q-table
               flat
               dense
-              :data="accounts"
+              :rows="accounts"
               row-key="pubkey"
               :columns="accountsTable.columns"
               :pagination.sync="accountsTable.pagination"
@@ -630,7 +630,7 @@
                       size="sm"
                       color="secodary"
                       v-model="props.row.allowed"
-                      @input="togglePublicKey(props.row, 'allow')"
+                      @update:model-value="togglePublicKey(props.row, 'allow')"
                     ></q-toggle>
                   </q-td>
                   <q-td key="blocked" :props="props">
@@ -638,7 +638,7 @@
                       size="sm"
                       color="secodary"
                       v-model="props.row.blocked"
-                      @input="togglePublicKey(props.row, 'block')"
+                      @update:model-value="togglePublicKey(props.row, 'block')"
                     ></q-toggle>
                   </q-td>
 

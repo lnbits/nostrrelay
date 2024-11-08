@@ -37,6 +37,7 @@ nostrrelay_api_router = APIRouter()
 
 
 @nostrrelay_api_router.websocket("/{relay_id}")
+@nostrrelay_api_router.websocket("/{relay_id}/")
 async def websocket_endpoint(relay_id: str, websocket: WebSocket):
     client = NostrClientConnection(relay_id=relay_id, websocket=websocket)
     client_accepted = await client_manager.add_client(client)
