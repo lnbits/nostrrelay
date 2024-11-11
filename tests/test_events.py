@@ -1,9 +1,8 @@
 import json
-from typing import List, Optional
+from typing import List
 
 import pytest
 from loguru import logger
-from pydantic import BaseModel
 
 from ..crud import (
     create_event,
@@ -12,27 +11,9 @@ from ..crud import (
 )
 from ..relay.event import NostrEvent
 from ..relay.filter import NostrFilter
-from .helpers import get_fixtures
+from .conftest import EventFixture
 
 RELAY_ID = "r1"
-
-
-class EventFixture(BaseModel):
-    name: str
-    exception: Optional[str]
-    data: NostrEvent
-
-
-@pytest.fixture
-def valid_events() -> List[EventFixture]:
-    data = get_fixtures("events")
-    return [EventFixture.parse_obj(e) for e in data["valid"]]
-
-
-@pytest.fixture
-def invalid_events() -> List[EventFixture]:
-    data = get_fixtures("events")
-    return [EventFixture.parse_obj(e) for e in data["invalid"]]
 
 
 def test_valid_event_id_and_signature(valid_events: List[EventFixture]):

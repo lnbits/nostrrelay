@@ -31,6 +31,7 @@ checkeditorconfig:
 	editorconfig-checker
 
 test:
+	LNBITS_DATA_FOLDER="./tests/data" \
 	PYTHONUNBUFFERED=1 \
 	DEBUG=true \
 	poetry run pytest
