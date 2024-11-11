@@ -14,4 +14,4 @@ async def test_router():
 @pytest.mark.asyncio
 async def test_start_and_stop():
     nostrrelay_start()
-    nostrrelay_stop()
+    await nostrrelay_stop()

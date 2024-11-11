@@ -52,7 +52,7 @@ def test_invalid_event_id_and_signature(invalid_events: List[EventFixture]):
 
 # TODO: make them work
 @pytest.mark.asyncio
-@pytest.mark.xfail
+# @pytest.mark.xfail
 async def test_valid_event_crud(valid_events: List[EventFixture]):
     author = "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
     event_id = "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96"
