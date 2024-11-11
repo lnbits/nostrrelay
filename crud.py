@@ -86,13 +86,14 @@ async def delete_relay(user_id: str, relay_id: str):
 
 
 async def create_event(event: NostrEvent):
-    await db.update("nostrrelay.events", event)
+    await db.insert("nostrrelay.events", event)
 
     # todo: optimize with bulk insert
     for tag in event.tags:
         name, value, *rest = tag
         extra = json.dumps(rest) if rest else None
         _tag = NostrEventTags(
+            relay_id=event.relay_id,
             event_id=event.id,
             name=name,
             value=value,
@@ -104,6 +105,7 @@ async def create_event(event: NostrEvent):
 async def get_events(
     relay_id: str, nostr_filter: NostrFilter, include_tags=True
 ) -> list[NostrEvent]:
+    # print("#### get_events", relay_id, nostr_filter)
 
     inner_joins, where, values = nostr_filter.to_sql_components(relay_id)
     query = f"""
@@ -113,6 +115,8 @@ async def get_events(
         ORDER BY created_at DESC
         """
 
+    # print("### query", query)
+    # print("### values", values)
     # todo: check & enforce range
     if nostr_filter.limit and nostr_filter.limit > 0:
         query += f" LIMIT {nostr_filter.limit}"
