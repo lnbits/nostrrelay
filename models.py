@@ -40,6 +40,7 @@ class NostrAccount(BaseModel):
 
 
 class NostrEventTags(BaseModel):
+    relay_id: str
     event_id: str
     name: str
     value: str

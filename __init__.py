@@ -32,14 +32,14 @@ nostrrelay_redirect_paths = [
 scheduled_tasks: list[asyncio.Task] = []
 
 
-def nostrrelay_stop():
+async def nostrrelay_stop():
     for task in scheduled_tasks:
         try:
             task.cancel()
         except Exception as ex:
             logger.warning(ex)
     try:
-        asyncio.run(client_manager.stop())
+        await client_manager.stop()
     except Exception as ex:
         logger.warning(ex)
 
