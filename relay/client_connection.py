@@ -103,8 +103,16 @@ class NostrClientConnection:
             return []
 
         message_type = data[0]
+
         if message_type == NostrEventType.EVENT:
-            await self._handle_event(NostrEvent.parse_obj(data[1]))
+            event_dict = {
+                "relay_id": self.relay_id,
+                "publisher": data[1]["pubkey"],
+                **data[1],
+            }
+
+            event = NostrEvent(**event_dict)
+            await self._handle_event(event)
             return []
         if message_type == NostrEventType.REQ:
             if len(data) != 3:
@@ -146,7 +154,6 @@ class NostrClientConnection:
             resp_nip20 += [valid, message]
             await self._send_msg(resp_nip20)
             return None
-
         try:
             if e.is_replaceable_event:
                 await delete_events(

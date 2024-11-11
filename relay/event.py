@@ -24,6 +24,12 @@ class NostrEvent(BaseModel):
     content: str = ""
     sig: str
 
+    def nostr_dict(self) -> dict:
+        _nostr_dict = dict(self)
+        _nostr_dict.pop("relay_id")
+        _nostr_dict.pop("publisher")
+        return _nostr_dict
+
     def serialize(self) -> list:
         return [0, self.pubkey, self.created_at, self.kind, self.tags, self.content]
 
@@ -38,7 +44,7 @@ class NostrEvent(BaseModel):
 
     @property
     def size_bytes(self) -> int:
-        s = json.dumps(dict(self), separators=(",", ":"), ensure_ascii=False)
+        s = json.dumps(self.nostr_dict(), separators=(",", ":"), ensure_ascii=False)
         return len(s.encode())
 
     @property
@@ -85,7 +91,7 @@ class NostrEvent(BaseModel):
             raise ValueError(f"Invalid signature: '{self.sig}' for event '{self.id}'")
 
     def serialize_response(self, subscription_id):
-        return [NostrEventType.EVENT, subscription_id, dict(self)]
+        return [NostrEventType.EVENT, subscription_id, self.nostr_dict()]
 
     def tag_values(self, tag_name: str) -> list[str]:
         return [t[1] for t in self.tags if t[0] == tag_name]

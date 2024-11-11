@@ -86,6 +86,9 @@ async def delete_relay(user_id: str, relay_id: str):
 
 
 async def create_event(event: NostrEvent):
+    event_ = await get_event(event.relay_id, event.id)
+    if event_:
+        return None
     await db.insert("nostrrelay.events", event)
 
     # todo: optimize with bulk insert
@@ -144,15 +147,14 @@ async def get_storage_for_public_key(relay_id: str, publisher_pubkey: str) -> in
     Returns the storage space in bytes for all the events of a public key.
     Deleted events are also counted
     """
-
-    result = await db.execute(
+    row: dict = await db.fetchone(
         """
         SELECT SUM(size) as sum FROM nostrrelay.events
         WHERE relay_id = :relay_id AND publisher = :publisher GROUP BY publisher
         """,
         {"relay_id": relay_id, "publisher": publisher_pubkey},
     )
-    row = await result.mappings().first()
+
     if not row:
         return 0
 
