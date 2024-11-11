@@ -159,9 +159,6 @@ async def bob_wires_contact_list(ws_alice: MockWebSocket, ws_bob: MockWebSocket)
     await ws_alice.wire_mock_data(alice["subscribe_to_bob_contact_list"])
     await asyncio.sleep(0.1)
 
-    print("### ws_alice.sent_message", ws_alice.sent_messages)
-    print("### ws_bob.sent_message", ws_bob.sent_messages)
-
     assert (
         len(ws_bob.sent_messages) == 2
     ), "Bob: Expected 1 confirmation for create contact list"

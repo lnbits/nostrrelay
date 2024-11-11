@@ -193,12 +193,7 @@
       "name": "kind 30,000, replaceable events, 'd' tag",
       "data": {
         "kind": 30000,
-        "tags": [
-          [
-            "d",
-            "chats/null/lastOpened"
-          ]
-        ],
+        "tags": [["d", "chats/null/lastOpened"]],
         "content": "1675242945",
         "created_at": 1675242945,
         "relay_id": "r1",
