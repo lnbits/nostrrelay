@@ -2,7 +2,7 @@ import hashlib
 import json
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from secp256k1 import PublicKey
 
 
@@ -15,10 +15,11 @@ class NostrEventType(str, Enum):
 
 class NostrEvent(BaseModel):
     id: str
+    relay_id: str
     pubkey: str
     created_at: int
     kind: int
-    tags: list[list[str]] = []
+    tags: list[list[str]] = Field(default=[], no_database=True)
     content: str = ""
     sig: str
 
