@@ -48,12 +48,12 @@ async def get_relays(user_id: str) -> list[NostrRelay]:
 
 async def get_config_for_all_active_relays() -> dict:
     relays = await db.fetchall(
-        "SELECT id, meta FROM nostrrelay.relays WHERE active = true",
+        "SELECT * FROM nostrrelay.relays WHERE active = true",
         model=NostrRelay,
     )
     active_relay_configs = {}
     for relay in relays:
-        active_relay_configs[relay.id] = relay.meta.dict()
+        active_relay_configs[relay.id] = relay.meta
 
     return active_relay_configs
 
