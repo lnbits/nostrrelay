@@ -8,6 +8,7 @@ from .event import NostrEvent
 class NostrFilter(BaseModel):
     e: list[str] = Field(default=[], alias="#e")
     p: list[str] = Field(default=[], alias="#p")
+    d: list[str] = Field(default=[], alias="#d")
     ids: list[str] = []
     authors: list[str] = []
     kinds: list[int] = []
@@ -33,6 +34,8 @@ class NostrFilter(BaseModel):
         found_e_tag = self.tag_in_list(e.tags, "e")
         found_p_tag = self.tag_in_list(e.tags, "p")
         if not found_e_tag or not found_p_tag:
+            return False
+        if not self.tag_in_list(e.tags, "d"):
             return False
 
         return True
@@ -86,6 +89,14 @@ class NostrFilter(BaseModel):
                 "ON nostrrelay.events.id = p_tags.event_id"
             )
             where.append(f" p_tags.value in ({p_s}) AND p_tags.name = 'p'")
+
+        if len(self.d):
+            d_s = ",".join([f"'{d}'" for d in self.d])
+            inner_joins.append(
+                "INNER JOIN nostrrelay.event_tags d_tags "
+                "ON nostrrelay.events.id = d_tags.event_id"
+            )
+            where.append(f" d_tags.value in ({d_s}) AND d_tags.name = 'd'")
 
         if len(self.ids) != 0:
             ids = ",".join([f"'{_id}'" for _id in self.ids])
