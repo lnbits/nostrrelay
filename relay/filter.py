@@ -31,9 +31,10 @@ class NostrFilter(BaseModel):
         if self.until and self.until > 0 and e.created_at > self.until:
             return False
 
-        found_e_tag = self.tag_in_list(e.tags, "e")
-        found_p_tag = self.tag_in_list(e.tags, "p")
-        if not found_e_tag or not found_p_tag:
+        # Check tag filters - only fail if filter is specified and no match found
+        if not self.tag_in_list(e.tags, "e"):
+            return False
+        if not self.tag_in_list(e.tags, "p"):
             return False
         if not self.tag_in_list(e.tags, "d"):
             return False
