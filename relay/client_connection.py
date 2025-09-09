@@ -160,8 +160,8 @@ class NostrClientConnection:
                     self.relay_id,
                     NostrFilter(kinds=[e.kind], authors=[e.pubkey], until=e.created_at),
                 )
-            if e.is_parameterized_replaceable_event:
-                # Extract 'd' tag value for parameterized replacement (NIP-16)
+            if e.is_addressable_event:
+                # Extract 'd' tag value for addressable replacement (NIP-01)
                 d_tag_value = next((t[1] for t in e.tags if t[0] == "d"), None)
                 if d_tag_value:
                     await delete_events(

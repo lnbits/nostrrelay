@@ -72,7 +72,7 @@ class NostrEvent(BaseModel):
         return self.kind >= 20000 and self.kind < 30000
 
     @property
-    def is_parameterized_replaceable_event(self) -> bool:
+    def is_addressable_event(self) -> bool:
         return self.kind >= 30000 and self.kind < 40000
 
     def check_signature(self):
