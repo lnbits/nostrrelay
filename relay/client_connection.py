@@ -115,9 +115,15 @@ class NostrClientConnection:
             await self._handle_event(event)
             return []
         if message_type == NostrEventType.REQ:
-            if len(data) != 3:
+            if len(data) < 3:
                 return []
-            return await self._handle_request(data[1], NostrFilter.parse_obj(data[2]))
+            subscription_id = data[1]
+            # Handle multiple filters in REQ message
+            responses = []
+            for filter_data in data[2:]:
+                response = await self._handle_request(subscription_id, NostrFilter.parse_obj(filter_data))
+                responses.extend(response)
+            return responses
         if message_type == NostrEventType.CLOSE:
             self._handle_close(data[1])
         if message_type == NostrEventType.AUTH:
