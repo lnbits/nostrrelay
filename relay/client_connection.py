@@ -166,6 +166,19 @@ class NostrClientConnection:
                     self.relay_id,
                     NostrFilter(kinds=[e.kind], authors=[e.pubkey], until=e.created_at),
                 )
+            if e.is_addressable_event:
+                # Extract 'd' tag value for addressable replacement (NIP-01)
+                d_tag_value = next((t[1] for t in e.tags if t[0] == "d"), None)
+
+                if d_tag_value:
+                    deletion_filter = NostrFilter(
+                        kinds=[e.kind], 
+                        authors=[e.pubkey],
+                        **{"#d": [d_tag_value]},
+                        until=e.created_at
+                    )
+                    
+                    await delete_events(self.relay_id, deletion_filter)
             if not e.is_ephemeral_event:
                 await create_event(e)
             await self._broadcast_event(e)

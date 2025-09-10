@@ -15,6 +15,10 @@
 ## Supported NIPs
 
 - [x] **NIP-01**: Basic protocol flow
+  - [x] Regular Events
+  - [x] Replaceable Events (kinds 10000-19999)
+  - [x] Ephemeral Events (kinds 20000-29999)
+  - [x] Addressable Events (kinds 30000-39999)
 - [x] **NIP-02**: Contact List and Petnames
   - `kind: 3`: delete past contact lists as soon as the relay receives a new one
 - [x] **NIP-04**: Encrypted Direct Message
@@ -36,8 +40,8 @@
   - not planned
 - [x] **NIP-28** Public Chat
   - `kind: 41`: handled similar to `kind 0` metadata events
-- [ ] **NIP-33**: Parameterized Replaceable Events
-  - todo
+- [x] **NIP-33**: Addressable Events (moved to NIP-01)
+  - ✅ Implemented as part of NIP-01 addressable events
 - [ ] **NIP-40**: Expiration Timestamp
   - todo
 - [x] **NIP-42**: Authentication of clients to relays
