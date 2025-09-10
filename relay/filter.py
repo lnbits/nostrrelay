@@ -93,9 +93,12 @@ class NostrFilter(BaseModel):
 
         if len(self.d):
             d_s = ",".join([f"'{d}'" for d in self.d])
-            d_join = "INNER JOIN nostrrelay.event_tags d_tags ON nostrrelay.events.id = d_tags.event_id"
+            d_join = (
+                "INNER JOIN nostrrelay.event_tags d_tags"
+                " ON nostrrelay.events.id = d_tags.event_id"
+            )
             d_where = f" d_tags.value in ({d_s}) AND d_tags.name = 'd'"
-            
+
             inner_joins.append(d_join)
             where.append(d_where)
 

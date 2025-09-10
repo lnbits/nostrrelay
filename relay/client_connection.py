@@ -121,7 +121,9 @@ class NostrClientConnection:
             # Handle multiple filters in REQ message
             responses = []
             for filter_data in data[2:]:
-                response = await self._handle_request(subscription_id, NostrFilter.parse_obj(filter_data))
+                response = await self._handle_request(
+                    subscription_id, NostrFilter.parse_obj(filter_data)
+                )
                 responses.extend(response)
             return responses
         if message_type == NostrEventType.CLOSE:
@@ -160,6 +162,13 @@ class NostrClientConnection:
             resp_nip20 += [valid, message]
             await self._send_msg(resp_nip20)
             return None
+        more_nip20 = await self._handle_more_nip20(e)
+        resp_nip20 += more_nip20
+
+        await self._send_msg(resp_nip20)
+
+    async def _handle_more_nip20(self, e: NostrEvent) -> List[Any]:
+        resp_nip20: List[Any] = []
         try:
             if e.is_replaceable_event:
                 await delete_events(
@@ -172,12 +181,12 @@ class NostrClientConnection:
 
                 if d_tag_value:
                     deletion_filter = NostrFilter(
-                        kinds=[e.kind], 
+                        kinds=[e.kind],
                         authors=[e.pubkey],
-                        **{"#d": [d_tag_value]},
-                        until=e.created_at
+                        until=e.created_at,
                     )
-                    
+                    deletion_filter.d.append(d_tag_value)
+
                     await delete_events(self.relay_id, deletion_filter)
             if not e.is_ephemeral_event:
                 await create_event(e)
@@ -192,8 +201,7 @@ class NostrClientConnection:
             # todo: handle NIP20 in detail
             message = "error: failed to create event"
             resp_nip20 += [event is not None, message]
-
-        await self._send_msg(resp_nip20)
+        return resp_nip20
 
     @property
     def config(self) -> RelaySpec:
