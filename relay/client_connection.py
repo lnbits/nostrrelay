@@ -33,7 +33,9 @@ class NostrClientConnection:
 
         self.event_validator = EventValidator(self.relay_id)
 
-        self.broadcast_event: Callable[[NostrClientConnection, NostrEvent], Awaitable[None]] | None = None
+        self.broadcast_event: (
+            Callable[[NostrClientConnection, NostrEvent], Awaitable[None]] | None
+        ) = None
         self.get_client_config: Callable[[], RelaySpec] | None = None
 
     async def start(self):
@@ -175,7 +177,7 @@ class NostrClientConnection:
                     deletion_filter = NostrFilter(
                         kinds=[e.kind],
                         authors=[e.pubkey],
-                        **{"#d": [d_tag_value]},
+                        **{"#d": [d_tag_value]},  # type: ignore
                         until=e.created_at,
                     )
 

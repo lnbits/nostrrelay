@@ -1,4 +1,3 @@
-
 from ..crud import get_config_for_all_active_relays
 from .client_connection import NostrClientConnection
 from .event import NostrEvent
