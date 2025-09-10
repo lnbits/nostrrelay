@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,10 +11,10 @@ class NostrFilter(BaseModel):
     ids: list[str] = []
     authors: list[str] = []
     kinds: list[int] = []
-    subscription_id: Optional[str] = None
-    since: Optional[int] = None
-    until: Optional[int] = None
-    limit: Optional[int] = None
+    subscription_id: str | None = None
+    since: int | None = None
+    until: int | None = None
+    limit: int | None = None
 
     def matches(self, e: NostrEvent) -> bool:
         # todo: starts with
@@ -95,7 +94,7 @@ class NostrFilter(BaseModel):
             d_s = ",".join([f"'{d}'" for d in self.d])
             d_join = "INNER JOIN nostrrelay.event_tags d_tags ON nostrrelay.events.id = d_tags.event_id"
             d_where = f" d_tags.value in ({d_s}) AND d_tags.name = 'd'"
-            
+
             inner_joins.append(d_join)
             where.append(d_where)
 

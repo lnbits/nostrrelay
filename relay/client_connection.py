@@ -1,6 +1,7 @@
 import json
 import time
-from typing import Any, Awaitable, Callable, List, Optional
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from fastapi import WebSocket
 from lnbits.helpers import urlsafe_short_hash
@@ -25,17 +26,15 @@ class NostrClientConnection:
     def __init__(self, relay_id: str, websocket: WebSocket):
         self.websocket = websocket
         self.relay_id = relay_id
-        self.filters: List[NostrFilter] = []
-        self.auth_pubkey: Optional[str] = None  # set if authenticated
-        self._auth_challenge: Optional[str] = None
+        self.filters: list[NostrFilter] = []
+        self.auth_pubkey: str | None = None  # set if authenticated
+        self._auth_challenge: str | None = None
         self._auth_challenge_created_at = 0
 
         self.event_validator = EventValidator(self.relay_id)
 
-        self.broadcast_event: Optional[
-            Callable[[NostrClientConnection, NostrEvent], Awaitable[None]]
-        ] = None
-        self.get_client_config: Optional[Callable[[], RelaySpec]] = None
+        self.broadcast_event: Callable[[NostrClientConnection, NostrEvent], Awaitable[None]] | None = None
+        self.get_client_config: Callable[[], RelaySpec] | None = None
 
     async def start(self):
         await self.websocket.accept()
@@ -50,7 +49,7 @@ class NostrClientConnection:
             except Exception as e:
                 logger.warning(e)
 
-    async def stop(self, reason: Optional[str]):
+    async def stop(self, reason: str | None):
         message = reason if reason else "Server closed webocket"
         try:
             await self._send_msg(["NOTICE", message])
@@ -98,7 +97,7 @@ class NostrClientConnection:
         if self.broadcast_event:
             await self.broadcast_event(self, e)
 
-    async def _handle_message(self, data: List) -> List:
+    async def _handle_message(self, data: list) -> list:
         if len(data) < 2:
             return []
 
@@ -121,7 +120,9 @@ class NostrClientConnection:
             # Handle multiple filters in REQ message
             responses = []
             for filter_data in data[2:]:
-                response = await self._handle_request(subscription_id, NostrFilter.parse_obj(filter_data))
+                response = await self._handle_request(
+                    subscription_id, NostrFilter.parse_obj(filter_data)
+                )
                 responses.extend(response)
             return responses
         if message_type == NostrEventType.CLOSE:
@@ -133,7 +134,7 @@ class NostrClientConnection:
 
     async def _handle_event(self, e: NostrEvent):
         logger.info(f"nostr event: [{e.kind}, {e.pubkey}, '{e.content}']")
-        resp_nip20: List[Any] = ["OK", e.id]
+        resp_nip20: list[Any] = ["OK", e.id]
 
         if e.is_auth_response_event:
             valid, message = self.event_validator.validate_auth_event(
@@ -172,12 +173,12 @@ class NostrClientConnection:
 
                 if d_tag_value:
                     deletion_filter = NostrFilter(
-                        kinds=[e.kind], 
+                        kinds=[e.kind],
                         authors=[e.pubkey],
                         **{"#d": [d_tag_value]},
-                        until=e.created_at
+                        until=e.created_at,
                     )
-                    
+
                     await delete_events(self.relay_id, deletion_filter)
             if not e.is_ephemeral_event:
                 await create_event(e)
@@ -201,7 +202,7 @@ class NostrClientConnection:
             raise Exception("Client not ready!")
         return self.get_client_config()
 
-    async def _send_msg(self, data: List):
+    async def _send_msg(self, data: list):
         await self.websocket.send_text(json.dumps(data))
 
     async def _handle_delete_event(self, event: NostrEvent):
@@ -214,7 +215,7 @@ class NostrClientConnection:
 
     async def _handle_request(
         self, subscription_id: str, nostr_filter: NostrFilter
-    ) -> List:
+    ) -> list:
         if self.config.require_auth_filter:
             if not self.auth_pubkey:
                 return [["AUTH", self._current_auth_challenge()]]

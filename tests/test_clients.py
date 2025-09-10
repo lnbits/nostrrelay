@@ -1,6 +1,5 @@
 import asyncio
 from json import dumps, loads
-from typing import Optional
 
 import pytest
 from fastapi import WebSocket
@@ -41,7 +40,7 @@ class MockWebSocket(WebSocket):
     async def wire_mock_data(self, data: dict):
         await self.fake_wire.put(dumps(data))
 
-    async def close(self, code: int = 1000, reason: Optional[str] = None) -> None:
+    async def close(self, code: int = 1000, reason: str | None = None) -> None:
         logger.info(f"{code}: {reason}")
 
 

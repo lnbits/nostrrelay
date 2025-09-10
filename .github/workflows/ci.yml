@@ -11,14 +11,9 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     needs: [lint]
-    strategy:
-      matrix:
-        python-version: ['3.9', '3.10']
     steps:
       - uses: actions/checkout@v4
       - uses: lnbits/lnbits/.github/actions/prepare@dev
-        with:
-          python-version: ${{ matrix.python-version }}
       - name: Run pytest
         uses: pavelzw/pytest-action@v2
         env:
@@ -30,5 +25,5 @@ jobs:
           job-summary: true
           emoji: false
           click-to-expand: true
-          custom-pytest: poetry run pytest
-          report-title: 'test (${{ matrix.python-version }})'
+          custom-pytest: uv run pytest
+          report-title: 'test'

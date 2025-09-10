@@ -1,4 +1,3 @@
-from typing import List
 
 from ..crud import get_config_for_all_active_relays
 from .client_connection import NostrClientConnection
@@ -47,7 +46,7 @@ class NostrClientManager:
     def get_relay_config(self, relay_id: str) -> RelaySpec:
         return self._active_relays[relay_id]
 
-    def clients(self, relay_id: str) -> List[NostrClientConnection]:
+    def clients(self, relay_id: str) -> list[NostrClientConnection]:
         if relay_id not in self._clients:
             self._clients[relay_id] = []
         return self._clients[relay_id]

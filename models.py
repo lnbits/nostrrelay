@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -16,8 +15,8 @@ class BuyOrder(BaseModel):
 class NostrPartialAccount(BaseModel):
     relay_id: str
     pubkey: str
-    allowed: Optional[bool] = None
-    blocked: Optional[bool] = None
+    allowed: bool | None = None
+    blocked: bool | None = None
 
 
 class NostrAccount(BaseModel):
@@ -44,4 +43,4 @@ class NostrEventTags(BaseModel):
     event_id: str
     name: str
     value: str
-    extra: Optional[str] = None
+    extra: str | None = None
