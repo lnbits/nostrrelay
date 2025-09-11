@@ -17,8 +17,8 @@ class EventFixture(BaseModel):
     data: NostrEvent
 
 
-@pytest_asyncio.fixture(scope="session")
-async def event_loop():
+@pytest_asyncio.fixture(scope="session")  # type: ignore
+def event_loop():
     loop = asyncio.get_event_loop()
     yield loop
     loop.close()
@@ -35,13 +35,13 @@ async def migrate_db():
     return migrations
 
 
-@pytest_asyncio.fixture(scope="session")
-async def valid_events(migrate_db) -> list[EventFixture]:
+@pytest_asyncio.fixture(scope="session")  # type: ignore
+def valid_events(migrate_db) -> list[EventFixture]:
     data = get_fixtures("events")
     return [EventFixture.parse_obj(e) for e in data["valid"]]
 
 
-@pytest_asyncio.fixture(scope="session")
-async def invalid_events(migrate_db) -> list[EventFixture]:
+@pytest_asyncio.fixture(scope="session")  # type: ignore
+def invalid_events(migrate_db) -> list[EventFixture]:
     data = get_fixtures("events")
     return [EventFixture.parse_obj(e) for e in data["invalid"]]
