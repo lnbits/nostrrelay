@@ -1,5 +1,4 @@
 import json
-from typing import List
 
 import pytest
 from loguru import logger
@@ -16,7 +15,7 @@ from .conftest import EventFixture
 RELAY_ID = "r1"
 
 
-def test_valid_event_id_and_signature(valid_events: List[EventFixture]):
+def test_valid_event_id_and_signature(valid_events: list[EventFixture]):
     for f in valid_events:
         try:
             f.data.check_signature()
@@ -25,14 +24,14 @@ def test_valid_event_id_and_signature(valid_events: List[EventFixture]):
             raise e
 
 
-def test_invalid_event_id_and_signature(invalid_events: List[EventFixture]):
+def test_invalid_event_id_and_signature(invalid_events: list[EventFixture]):
     for f in invalid_events:
         with pytest.raises(ValueError, match=f.exception):
             f.data.check_signature()
 
 
 @pytest.mark.asyncio
-async def test_valid_event_crud(valid_events: List[EventFixture]):
+async def test_valid_event_crud(valid_events: list[EventFixture]):
     author = "a24496bca5dd73300f4e5d5d346c73132b7354c597fcbb6509891747b4689211"
     event_id = "3219eec7427e365585d5adf26f5d2dd2709d3f0f2c0e1f79dc9021e951c67d96"
     reply_event_id = "6b2b6cb9c72caaf3dfbc5baa5e68d75ac62f38ec011b36cc83832218c36e4894"
@@ -65,7 +64,7 @@ async def get_by_id(data: NostrEvent, test_name: str):
     ), f"Restored event is different for fixture '{test_name}'"
 
 
-async def filter_by_id(all_events: List[NostrEvent], data: NostrEvent, test_name: str):
+async def filter_by_id(all_events: list[NostrEvent], data: NostrEvent, test_name: str):
     nostr_filter = NostrFilter(ids=[data.id])
 
     events = await get_events(RELAY_ID, nostr_filter)
@@ -81,7 +80,7 @@ async def filter_by_id(all_events: List[NostrEvent], data: NostrEvent, test_name
     ), f"Filtered event is different for fixture '{test_name}'"
 
 
-async def filter_by_author(all_events: List[NostrEvent], author):
+async def filter_by_author(all_events: list[NostrEvent], author):
     nostr_filter = NostrFilter(authors=[author])
     events_by_author = await get_events(RELAY_ID, nostr_filter)
     assert len(events_by_author) == 5, "Failed to query by authors"
@@ -90,7 +89,7 @@ async def filter_by_author(all_events: List[NostrEvent], author):
     assert len(filtered_events) == 5, "Failed to filter by authors"
 
 
-async def filter_by_tag_p(all_events: List[NostrEvent], author):
+async def filter_by_tag_p(all_events: list[NostrEvent], author):
     # todo: check why constructor does not work for fields with aliases (#e, #p)
     nostr_filter = NostrFilter()
     nostr_filter.p.append(author)
@@ -102,7 +101,7 @@ async def filter_by_tag_p(all_events: List[NostrEvent], author):
     assert len(filtered_events) == 5, "Failed to filter by tag 'p'"
 
 
-async def filter_by_tag_e(all_events: List[NostrEvent], event_id):
+async def filter_by_tag_e(all_events: list[NostrEvent], event_id):
     nostr_filter = NostrFilter()
     nostr_filter.e.append(event_id)
 
@@ -114,7 +113,7 @@ async def filter_by_tag_e(all_events: List[NostrEvent], event_id):
 
 
 async def filter_by_tag_e_and_p(
-    all_events: List[NostrEvent], author, event_id, reply_event_id
+    all_events: list[NostrEvent], author, event_id, reply_event_id
 ):
     nostr_filter = NostrFilter()
     nostr_filter.p.append(author)
@@ -134,7 +133,7 @@ async def filter_by_tag_e_and_p(
 
 
 async def filter_by_tag_e_p_and_author(
-    all_events: List[NostrEvent], author, event_id, reply_event_id
+    all_events: list[NostrEvent], author, event_id, reply_event_id
 ):
     nostr_filter = NostrFilter(authors=[author])
     nostr_filter.p.append(author)
