@@ -76,6 +76,10 @@ class NostrClientConnection:
                 resp = event.serialize_response(nostr_filter.subscription_id)
                 await self._send_msg(resp)
                 return True
+            else:
+                logger.info(
+                    f"[NOSTRRELAY CLIENT] ❌ Filter didn't match for event {event.id}"
+                )
         return False
 
     def _is_direct_message_for_other(self, event: NostrEvent) -> bool:
@@ -97,6 +101,10 @@ class NostrClientConnection:
     async def _broadcast_event(self, e: NostrEvent):
         if self.broadcast_event:
             await self.broadcast_event(self, e)
+        else:
+            logger.warning(
+                f"[NOSTRRELAY CLIENT] ❌ No broadcast_event callback available for event {e.id}"
+            )
 
     async def _handle_message(self, data: List) -> List:
         if len(data) < 2:
