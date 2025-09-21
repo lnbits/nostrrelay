@@ -76,6 +76,10 @@ class NostrClientConnection:
                 resp = event.serialize_response(nostr_filter.subscription_id)
                 await self._send_msg(resp)
                 return True
+            else:
+                logger.info(
+                    f"[NOSTRRELAY CLIENT] ❌ Filter didn't match for event {event.id}"
+                )
         return False
 
     def _is_direct_message_for_other(self, event: NostrEvent) -> bool:
@@ -97,6 +101,10 @@ class NostrClientConnection:
     async def _broadcast_event(self, e: NostrEvent):
         if self.broadcast_event:
             await self.broadcast_event(self, e)
+        else:
+            logger.warning(
+                f"[NOSTRRELAY CLIENT] ❌ No broadcast_event callback available for event {e.id}"
+            )
 
     async def _handle_message(self, data: List) -> List:
         if len(data) < 2:
@@ -119,9 +127,13 @@ class NostrClientConnection:
                 return []
             subscription_id = data[1]
             # Handle multiple filters in REQ message
+            # First remove existing filters for this subscription_id
+            self._remove_filter(subscription_id)
             responses = []
             for filter_data in data[2:]:
-                response = await self._handle_request(subscription_id, NostrFilter.parse_obj(filter_data))
+                response = await self._handle_request(
+                    subscription_id, NostrFilter.parse_obj(filter_data)
+                )
                 responses.extend(response)
             return responses
         if message_type == NostrEventType.CLOSE:
@@ -172,12 +184,12 @@ class NostrClientConnection:
 
                 if d_tag_value:
                     deletion_filter = NostrFilter(
-                        kinds=[e.kind], 
+                        kinds=[e.kind],
                         authors=[e.pubkey],
                         **{"#d": [d_tag_value]},
-                        until=e.created_at
+                        until=e.created_at,
                     )
-                    
+
                     await delete_events(self.relay_id, deletion_filter)
             if not e.is_ephemeral_event:
                 await create_event(e)
@@ -237,8 +249,7 @@ class NostrClientConnection:
                 return [["NOTICE", f"This is a paid relay: '{self.relay_id}'"]]
 
         nostr_filter.subscription_id = subscription_id
-        self._remove_filter(subscription_id)
-        if self._can_add_filter():
+        if not self._can_add_filter():
             max_filters = self.config.max_client_filters
             return [
                 [
@@ -269,8 +280,8 @@ class NostrClientConnection:
 
     def _can_add_filter(self) -> bool:
         return (
-            self.config.max_client_filters != 0
-            and len(self.filters) >= self.config.max_client_filters
+            self.config.max_client_filters == 0
+            or len(self.filters) < self.config.max_client_filters
         )
 
     def _auth_challenge_expired(self):
