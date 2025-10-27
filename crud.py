@@ -205,8 +205,8 @@ async def delete_events(relay_id: str, nostr_filter: NostrFilter):
         query = f"DELETE FROM nostrrelay.events WHERE id IN ({subquery})"
     else:
         # Simple DELETE without JOINs
-        query = f"DELETE FROM events WHERE {' AND '.join(where)}"
-    
+        query = f"DELETE FROM nostrrelay.events WHERE {' AND '.join(where)}"
+
     await db.execute(query, values)
     # todo: delete tags
 
