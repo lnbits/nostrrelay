@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket
 from lnbits.core.crud import get_user
@@ -138,7 +137,7 @@ async def api_get_relay_info() -> JSONResponse:
 @nostrrelay_api_router.get("/api/v1/relay/{relay_id}")
 async def api_get_relay(
     relay_id: str, wallet: WalletTypeInfo = Depends(require_invoice_key)
-) -> Optional[NostrRelay]:
+) -> NostrRelay | None:
     relay = await get_relay(wallet.wallet.user, relay_id)
     if not relay:
         raise HTTPException(

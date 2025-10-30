@@ -1,7 +1,7 @@
 import asyncio
 import inspect
-from typing import List, Optional
 
+import pytest
 import pytest_asyncio
 from lnbits.db import Database
 from loguru import logger
@@ -14,11 +14,11 @@ from .helpers import get_fixtures
 
 class EventFixture(BaseModel):
     name: str
-    exception: Optional[str]
+    exception: str | None
     data: NostrEvent
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.get_event_loop()
     yield loop
@@ -33,16 +33,16 @@ async def migrate_db():
         print("### 1000")
         logger.info(f"Running migration '{key}'.")
         await migrate(db)
-    return migrations
+    return db
 
 
-@pytest_asyncio.fixture(scope="session")
-def valid_events(migrate_db) -> List[EventFixture]:
+@pytest.fixture(scope="session")
+def valid_events(migrate_db) -> list[EventFixture]:
     data = get_fixtures("events")
     return [EventFixture.parse_obj(e) for e in data["valid"]]
 
 
-@pytest_asyncio.fixture(scope="session")
-def invalid_events(migrate_db) -> List[EventFixture]:
+@pytest.fixture(scope="session")
+def invalid_events(migrate_db) -> list[EventFixture]:
     data = get_fixtures("events")
     return [EventFixture.parse_obj(e) for e in data["invalid"]]

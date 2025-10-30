@@ -1,5 +1,5 @@
 import time
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
 
 from ..crud import get_account, get_storage_for_public_key, prune_old_events
 from ..helpers import extract_domain
@@ -15,11 +15,11 @@ class EventValidator:
         self._last_event_timestamp = 0  # in hours
         self._event_count_per_timestamp = 0
 
-        self.get_client_config: Optional[Callable[[], RelaySpec]] = None
+        self.get_client_config: Callable[[], RelaySpec] | None = None
 
     async def validate_write(
         self, e: NostrEvent, publisher_pubkey: str
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         valid, message = self._validate_event(e)
         if not valid:
             return (valid, message)
@@ -34,8 +34,8 @@ class EventValidator:
         return True, ""
 
     def validate_auth_event(
-        self, e: NostrEvent, auth_challenge: Optional[str]
-    ) -> Tuple[bool, str]:
+        self, e: NostrEvent, auth_challenge: str | None
+    ) -> tuple[bool, str]:
         valid, message = self._validate_event(e)
         if not valid:
             return (valid, message)
@@ -59,7 +59,7 @@ class EventValidator:
             raise Exception("EventValidator not ready!")
         return self.get_client_config()
 
-    def _validate_event(self, e: NostrEvent) -> Tuple[bool, str]:
+    def _validate_event(self, e: NostrEvent) -> tuple[bool, str]:
         if self._exceeded_max_events_per_hour():
             return False, "Exceeded max events per hour limit'!"
 
@@ -76,7 +76,7 @@ class EventValidator:
 
     async def _validate_storage(
         self, pubkey: str, event_size_bytes: int
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         if self.config.is_read_only_relay:
             return False, "Cannot write event, relay is read-only"
 
@@ -124,7 +124,7 @@ class EventValidator:
 
         return self._event_count_per_timestamp > self.config.max_events_per_hour
 
-    def _created_at_in_range(self, created_at: int) -> Tuple[bool, str]:
+    def _created_at_in_range(self, created_at: int) -> tuple[bool, str]:
         current_time = round(time.time())
         if self.config.created_at_in_past != 0:
             if created_at < (current_time - self.config.created_at_in_past):

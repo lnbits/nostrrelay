@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -100,11 +98,11 @@ class RelaySpec(RelayPublicSpec, WalletSpec, AuthSpec):
 
 class NostrRelay(BaseModel):
     id: str
-    user_id: Optional[str] = None
+    user_id: str | None = None
     name: str
-    description: Optional[str] = None
-    pubkey: Optional[str] = None
-    contact: Optional[str] = None
+    description: str | None = None
+    pubkey: str | None = None
+    contact: str | None = None
     active: bool = False
     meta: RelaySpec = RelaySpec()
 
