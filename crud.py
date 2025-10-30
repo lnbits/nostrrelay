@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 
 from lnbits.db import Database
 
@@ -21,7 +20,7 @@ async def update_relay(relay: NostrRelay) -> NostrRelay:
     return relay
 
 
-async def get_relay(user_id: str, relay_id: str) -> Optional[NostrRelay]:
+async def get_relay(user_id: str, relay_id: str) -> NostrRelay | None:
     return await db.fetchone(
         "SELECT * FROM nostrrelay.relays WHERE user_id = :user_id AND id = :id",
         {"user_id": user_id, "id": relay_id},
@@ -29,7 +28,7 @@ async def get_relay(user_id: str, relay_id: str) -> Optional[NostrRelay]:
     )
 
 
-async def get_relay_by_id(relay_id: str) -> Optional[NostrRelay]:
+async def get_relay_by_id(relay_id: str) -> NostrRelay | None:
     """Note: it does not require `user_id`. Can read any relay. Use it with care."""
     return await db.fetchone(
         "SELECT * FROM nostrrelay.relays WHERE id = :id",
@@ -58,7 +57,7 @@ async def get_config_for_all_active_relays() -> dict:
     return active_relay_configs
 
 
-async def get_public_relay(relay_id: str) -> Optional[dict]:
+async def get_public_relay(relay_id: str) -> dict | None:
     relay = await db.fetchone(
         "SELECT * FROM nostrrelay.relays WHERE id = :id",
         {"id": relay_id},
@@ -130,7 +129,7 @@ async def get_events(
     return events
 
 
-async def get_event(relay_id: str, event_id: str) -> Optional[NostrEvent]:
+async def get_event(relay_id: str, event_id: str) -> NostrEvent | None:
     event = await db.fetchone(
         "SELECT * FROM nostrrelay.events WHERE relay_id = :relay_id AND id = :id",
         {"relay_id": relay_id, "id": event_id},
@@ -286,7 +285,7 @@ async def delete_account(relay_id: str, pubkey: str):
 async def get_account(
     relay_id: str,
     pubkey: str,
-) -> Optional[NostrAccount]:
+) -> NostrAccount | None:
     return await db.fetchone(
         """
         SELECT * FROM nostrrelay.accounts
