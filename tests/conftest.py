@@ -27,13 +27,18 @@ def event_loop():
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def migrate_db():
-    print("#### 999")
     db = Database("ext_nostrrelay")
+    await db.execute("DROP TABLE IF EXISTS nostrrelay.events;")
+    await db.execute("DROP TABLE IF EXISTS nostrrelay.relays;")
+    await db.execute("DROP TABLE IF EXISTS nostrrelay.event_tags;")
+    await db.execute("DROP TABLE IF EXISTS nostrrelay.accounts;")
+
+    # check if exists else skip migrations
     for key, migrate in inspect.getmembers(migrations, inspect.isfunction):
-        print("### 1000")
         logger.info(f"Running migration '{key}'.")
         await migrate(db)
-    return db
+
+    yield db
 
 
 @pytest.fixture(scope="session")
