@@ -2,6 +2,7 @@ import asyncio
 import inspect
 
 import pytest
+import pytest_asyncio
 from lnbits.db import Database
 from loguru import logger
 from pydantic import BaseModel
@@ -24,7 +25,7 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="session", autouse=True)
 async def migrate_db():
     print("#### 999")
     db = Database("ext_nostrrelay")
@@ -32,16 +33,16 @@ async def migrate_db():
         print("### 1000")
         logger.info(f"Running migration '{key}'.")
         await migrate(db)
-    return migrations
+    return db
 
 
-@pytest.fixture(scope="session")  # type: ignore
+@pytest.fixture(scope="session")
 def valid_events(migrate_db) -> list[EventFixture]:
     data = get_fixtures("events")
     return [EventFixture.parse_obj(e) for e in data["valid"]]
 
 
-@pytest.fixture(scope="session")  # type: ignore
+@pytest.fixture(scope="session")
 def invalid_events(migrate_db) -> list[EventFixture]:
     data = get_fixtures("events")
     return [EventFixture.parse_obj(e) for e in data["invalid"]]
