@@ -2,8 +2,8 @@ import hashlib
 import json
 from enum import Enum
 
+from coincurve import PublicKeyXOnly
 from pydantic import BaseModel, Field
-from secp256k1 import PublicKey
 
 
 class NostrEventType(str, Enum):
@@ -82,14 +82,15 @@ class NostrEvent(BaseModel):
                 f"Invalid event id. Expected: '{event_id}' got '{self.id}'"
             )
         try:
-            pub_key = PublicKey(bytes.fromhex("02" + self.pubkey), True)
+            pub_key = PublicKeyXOnly(bytes.fromhex("02" + self.pubkey))
         except Exception as exc:
             raise ValueError(
                 f"Invalid public key: '{self.pubkey}' for event '{self.id}'"
             ) from exc
 
-        valid_signature = pub_key.schnorr_verify(
-            bytes.fromhex(event_id), bytes.fromhex(self.sig), None, raw=True
+        valid_signature = pub_key.verify(
+            bytes.fromhex(self.sig),
+            bytes.fromhex(event_id),
         )
         if not valid_signature:
             raise ValueError(f"Invalid signature: '{self.sig}' for event '{self.id}'")
