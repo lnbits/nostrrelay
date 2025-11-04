@@ -20,7 +20,7 @@ def test_valid_event_id_and_signature(valid_events: list[EventFixture]):
         try:
             f.data.check_signature()
         except Exception as e:
-            logger.error(f"Invalid 'id' ot 'signature' for fixture: '{f.name}'")
+            logger.error(f"Invalid 'id' of 'signature' for fixture: '{f.name}'")
             raise e
 
 
