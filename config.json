@@ -1,8 +1,9 @@
 {
   "name": "Nostr Relay",
+  "version": "1.1.0",
   "short_description": "One click launch your own relay!",
   "tile": "/nostrrelay/static/image/nostrrelay.png",
-  "min_lnbits_version": "1.0.0",
+  "min_lnbits_version": "1.4.0",
   "contributors": [
     {
       "name": "motorina0",
