@@ -24,6 +24,8 @@
 - [x] **NIP-04**: Encrypted Direct Message
   - if `AUTH` enabled: send only to the intended target
 - [x] **NIP-09**: Event Deletion
+  - [x] 'e' tags: Delete regular events by event ID
+  - [x] 'a' tags: Delete addressable events by address (kind:pubkey:d-identifier)
 - [x] **NIP-11**: Relay Information Document
   - > **Note**: the endpoint is NOT on the root level of the domain. It also includes a path (eg https://lnbits.link/nostrrelay/)
 - [ ] **NIP-12**: Generic Tag Queries
