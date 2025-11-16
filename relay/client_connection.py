@@ -222,7 +222,9 @@ class NostrClientConnection:
         if event_ids:
             nostr_filter = NostrFilter(authors=[event.pubkey], ids=event_ids)
             events_to_delete = await get_events(self.relay_id, nostr_filter, False)
-            ids_to_delete.extend([e.id for e in events_to_delete if not e.is_delete_event])
+            ids_to_delete.extend(
+                [e.id for e in events_to_delete if not e.is_delete_event]
+            )
 
         # Handle parameterized replaceable event deletions (a tags)
         if event_addresses:
@@ -239,16 +241,28 @@ class NostrClientConnection:
                             nostr_filter = NostrFilter(
                                 authors=[addr_pubkey],
                                 kinds=[kind],
-                                **{"#d": [d_tag]}  # Use alias to set d field
+                                **{"#d": [d_tag]},  # Use alias to set d field
                             )
-                            events_to_delete = await get_events(self.relay_id, nostr_filter, False)
-                            ids_to_delete.extend([e.id for e in events_to_delete if not e.is_delete_event])
+                            events_to_delete = await get_events(
+                                self.relay_id, nostr_filter, False
+                            )
+                            ids_to_delete.extend(
+                                [
+                                    e.id
+                                    for e in events_to_delete
+                                    if not e.is_delete_event
+                                ]
+                            )
                         else:
-                            logger.warning(f"Deletion request pubkey mismatch: {addr_pubkey} != {event.pubkey}")
+                            logger.warning(
+                                f"Deletion request pubkey mismatch: {addr_pubkey} != {event.pubkey}"
+                            )
                     except ValueError:
                         logger.warning(f"Invalid kind in address: {addr}")
                 else:
-                    logger.warning(f"Invalid address format (expected kind:pubkey:d-tag): {addr}")
+                    logger.warning(
+                        f"Invalid address format (expected kind:pubkey:d-tag): {addr}"
+                    )
 
         # Only mark events as deleted if we found specific IDs
         if ids_to_delete:
