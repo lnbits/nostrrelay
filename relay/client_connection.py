@@ -208,12 +208,46 @@ class NostrClientConnection:
         await self.websocket.send_text(json.dumps(data))
 
     async def _handle_delete_event(self, event: NostrEvent):
-        # NIP 09
-        nostr_filter = NostrFilter(authors=[event.pubkey])
-        nostr_filter.ids = [t[1] for t in event.tags if t[0] == "e"]
-        events_to_delete = await get_events(self.relay_id, nostr_filter, False)
-        ids = [e.id for e in events_to_delete if not e.is_delete_event]
-        await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
+        # NIP 09 - Handle both regular events (e tags) and parameterized replaceable events (a tags)
+
+        # Get event IDs from 'e' tags (for regular events)
+        event_ids = [t[1] for t in event.tags if t[0] == "e"]
+
+        # Get event addresses from 'a' tags (for parameterized replaceable events)
+        event_addresses = [t[1] for t in event.tags if t[0] == "a"]
+
+        ids_to_delete = []
+
+        # Handle regular event deletions (e tags)
+        if event_ids:
+            nostr_filter = NostrFilter(authors=[event.pubkey], ids=event_ids)
+            events_to_delete = await get_events(self.relay_id, nostr_filter, False)
+            ids_to_delete.extend([e.id for e in events_to_delete if not e.is_delete_event])
+
+        # Handle parameterized replaceable event deletions (a tags)
+        if event_addresses:
+            for addr in event_addresses:
+                # Parse address format: kind:pubkey:d-tag
+                parts = addr.split(":")
+                if len(parts) == 3:
+                    kind_str, addr_pubkey, d_tag = parts
+                    try:
+                        kind = int(kind_str)
+                        # Only delete if the address pubkey matches the deletion event author
+                        if addr_pubkey == event.pubkey:
+                            nostr_filter = NostrFilter(
+                                authors=[addr_pubkey],
+                                kinds=[kind],
+                                d=[d_tag]
+                            )
+                            events_to_delete = await get_events(self.relay_id, nostr_filter, False)
+                            ids_to_delete.extend([e.id for e in events_to_delete if not e.is_delete_event])
+                    except ValueError:
+                        logger.warning(f"Invalid kind in address: {addr}")
+
+        # Only mark events as deleted if we found specific IDs
+        if ids_to_delete:
+            await mark_events_deleted(self.relay_id, NostrFilter(ids=ids_to_delete))
 
     async def _handle_request(
         self, subscription_id: str, nostr_filter: NostrFilter
