@@ -235,15 +235,20 @@ class NostrClientConnection:
                         kind = int(kind_str)
                         # Only delete if the address pubkey matches the deletion event author
                         if addr_pubkey == event.pubkey:
+                            # NOTE: Use "#d" alias, not "d" directly (Pydantic Field alias)
                             nostr_filter = NostrFilter(
                                 authors=[addr_pubkey],
                                 kinds=[kind],
-                                d=[d_tag]
+                                **{"#d": [d_tag]}  # Use alias to set d field
                             )
                             events_to_delete = await get_events(self.relay_id, nostr_filter, False)
                             ids_to_delete.extend([e.id for e in events_to_delete if not e.is_delete_event])
+                        else:
+                            logger.warning(f"Deletion request pubkey mismatch: {addr_pubkey} != {event.pubkey}")
                     except ValueError:
                         logger.warning(f"Invalid kind in address: {addr}")
+                else:
+                    logger.warning(f"Invalid address format (expected kind:pubkey:d-tag): {addr}")
 
         # Only mark events as deleted if we found specific IDs
         if ids_to_delete:
