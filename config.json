@@ -1,12 +1,15 @@
 {
-  "name": "Nostr Relay",
+  "id": "nostrrelay",
   "version": "1.1.0",
+  "name": "Nostr Relay",
+  "repo": "https://github.com/lnbits/nostrrelay",
   "short_description": "One click launch your own relay!",
+  "description": "",
   "tile": "/nostrrelay/static/image/nostrrelay.png",
   "min_lnbits_version": "1.4.0",
   "contributors": [
     {
-      "name": "motorina0",
+      "name": "Vlad Stan",
       "uri": "https://github.com/motorina0",
       "role": "Contributor"
     },
@@ -38,5 +41,9 @@
   ],
   "description_md": "https://raw.githubusercontent.com/lnbits/nostrrelay/main/description.md",
   "terms_and_conditions_md": "https://raw.githubusercontent.com/lnbits/nostrrelay/main/toc.md",
-  "license": "MIT"
+  "license": "MIT",
+  "paid_features": "",
+  "tags": ["Nostr"],
+  "donate": "",
+  "hidden": false
 }
