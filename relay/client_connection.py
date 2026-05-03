@@ -130,7 +130,20 @@ class NostrClientConnection:
         if message_type == NostrEventType.CLOSE:
             self._handle_close(data[1])
         if message_type == NostrEventType.AUTH:
-            await self._handle_auth()
+            # NIP-42: client sends ["AUTH", signed_event] as auth response.
+            # Route the signed kind-22242 event through _handle_event which
+            # already validates it and sets self.auth_pubkey on success.
+            # If no event is provided (bare AUTH), send a fresh challenge.
+            if len(data) >= 2 and isinstance(data[1], dict):
+                event_dict = {
+                    "relay_id": self.relay_id,
+                    "publisher": data[1].get("pubkey", ""),
+                    **data[1],
+                }
+                event = NostrEvent(**event_dict)
+                await self._handle_event(event)
+            else:
+                await self._send_auth_challenge()
 
         return []
 
@@ -267,7 +280,8 @@ class NostrClientConnection:
     def _handle_close(self, subscription_id: str):
         self._remove_filter(subscription_id)
 
-    async def _handle_auth(self):
+    async def _send_auth_challenge(self):
+        """Send a NIP-42 AUTH challenge to the client."""
         await self._send_msg(["AUTH", self._current_auth_challenge()])
 
     def _can_add_filter(self) -> bool:
