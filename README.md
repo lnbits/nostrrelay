@@ -2,6 +2,13 @@
 
 ### One click and spin up your own Nostr relay. Share with the world, or use privately.
 
+## Architecture Runbook
+
+- Local: [`ARCHITECTURE-RUNBOOK.md`](ARCHITECTURE-RUNBOOK.md)
+- Core relay source runbook: <https://github.com/satwise/nostr-rs-relay/blob/master/ARCHITECTURE-RUNBOOK.md>
+- Umbrel packaging runbook: <https://github.com/satwise/umbrel-apps/blob/master/nostr-relay/ARCHITECTURE-RUNBOOK.md>
+- Organization: <https://github.com/satwise>
+
 **Configure**:
 
 - Free Plan: with limitted storage (limit can be changed)
