@@ -64,6 +64,10 @@ class NostrFilter(BaseModel):
             and (not self.until)
         )
 
+    @property
+    def is_addressable(self) -> bool:
+        return all(30000 <= k < 40000 for k in self.kinds) and len(self.kinds) > 0
+
     def enforce_limit(self, limit: int):
         if not self.limit or self.limit > limit:
             self.limit = limit
