@@ -37,6 +37,18 @@ class MockWebSocket(WebSocket):
     async def send_text(self, data: str):
         self.sent_messages.append(data)
 
+    async def wait_for_messages(self, count: int, timeout: float = 5.0):
+        """Wait until at least `count` messages were sent to this socket."""
+        loop = asyncio.get_running_loop()
+        deadline = loop.time() + timeout
+        while len(self.sent_messages) < count:
+            if loop.time() > deadline:
+                raise AssertionError(
+                    f"Expected {count} messages, got {len(self.sent_messages)} "
+                    f"after {timeout}s: {self.sent_messages}"
+                )
+            await asyncio.sleep(0.01)
+
     async def wire_mock_data(self, data: dict):
         await self.fake_wire.put(dumps(data))
 
@@ -98,7 +110,7 @@ async def alice_wires_meta_and_post01(ws_alice: MockWebSocket):
     await ws_alice.wire_mock_data(alice["post01"])
     await ws_alice.wire_mock_data(alice["post01"])
     await ws_alice.wire_mock_data(alice["meta_update"])
-    await asyncio.sleep(0.5)
+    await ws_alice.wait_for_messages(4)
 
     assert (
         len(ws_alice.sent_messages) == 4
@@ -113,8 +125,6 @@ async def alice_wires_meta_and_post01(ws_alice: MockWebSocket):
         alice["meta_update_response"]
     ), "Alice: Expected confirmation for meta update"
 
-    await asyncio.sleep(0.1)
-
 
 async def bob_wires_meta_and_folows_alice(ws_bob: MockWebSocket):
     ws_bob.sent_messages.clear()
@@ -122,8 +132,7 @@ async def bob_wires_meta_and_folows_alice(ws_bob: MockWebSocket):
     await ws_bob.wire_mock_data(bob["meta"])
     await ws_bob.wire_mock_data(bob["request_meta_alice"])
     await ws_bob.wire_mock_data(bob["request_posts_alice"])
-
-    await asyncio.sleep(0.5)
+    await ws_bob.wait_for_messages(5)
 
     assert len(ws_bob.sent_messages) == 5, "Bob: Expected 5 confirmations to be sent"
     assert ws_bob.sent_messages[0] == dumps(
@@ -149,9 +158,9 @@ async def bob_wires_contact_list(ws_alice: MockWebSocket, ws_bob: MockWebSocket)
 
     await ws_bob.wire_mock_data(bob["contact_list_create"])
     await ws_bob.wire_mock_data(bob["contact_list_update"])
-    await asyncio.sleep(0.1)
+    await ws_bob.wait_for_messages(2)
     await ws_alice.wire_mock_data(alice["subscribe_to_bob_contact_list"])
-    await asyncio.sleep(0.1)
+    await ws_alice.wait_for_messages(2)
 
     assert (
         len(ws_bob.sent_messages) == 2
@@ -181,7 +190,8 @@ async def alice_wires_post02_____bob_is_notified(
     ws_alice.sent_messages.clear()
 
     await ws_alice.wire_mock_data(alice["post02"])
-    await asyncio.sleep(0.1)
+    await ws_alice.wait_for_messages(1)
+    await ws_bob.wait_for_messages(1)
 
     assert ws_alice.sent_messages[0] == dumps(
         alice["post02_response_ok"]
@@ -198,9 +208,9 @@ async def bob_likes_post01_____alice_subscribes_and_receives_notifications(
     ws_bob.sent_messages.clear()
 
     await ws_bob.wire_mock_data(bob["like_post01"])
-    await asyncio.sleep(0.1)
+    await ws_bob.wait_for_messages(1)
     await ws_alice.wire_mock_data(alice["subscribe_reactions_to_me"])
-    await asyncio.sleep(0.1)
+    await ws_alice.wait_for_messages(2)
 
     assert (
         len(ws_alice.sent_messages) == 2
@@ -227,7 +237,8 @@ async def bob_likes_and_comments_____alice_receives_notifications(
 
     await ws_bob.wire_mock_data(bob["like_post02"])
     await ws_bob.wire_mock_data(bob["comment_on_alice_post01"])
-    await asyncio.sleep(0.5)
+    await ws_bob.wait_for_messages(2)
+    await ws_alice.wait_for_messages(2)
 
     assert (
         len(ws_bob.sent_messages) == 2
@@ -262,7 +273,8 @@ async def bob_writes_to_alice(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
     ws_bob.sent_messages.clear()
 
     await ws_bob.wire_mock_data(bob["direct_message01"])
-    await asyncio.sleep(0.1)
+    await ws_bob.wait_for_messages(1)
+    await ws_alice.wait_for_messages(1)
 
     assert (
         len(ws_bob.sent_messages) == 1
@@ -287,7 +299,7 @@ async def alice_writes_to_bob(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
     ws_bob.sent_messages.clear()
 
     await ws_alice.wire_mock_data(alice["direct_message01"])
-    await asyncio.sleep(0.1)
+    await ws_alice.wait_for_messages(1)
 
     assert (
         len(ws_alice.sent_messages) == 1
@@ -298,7 +310,7 @@ async def alice_writes_to_bob(ws_alice: MockWebSocket, ws_bob: MockWebSocket):
     assert len(ws_bob.sent_messages) == 0, "Bob: no subscription, no message"
 
     await ws_bob.wire_mock_data(bob["subscribe_to_direct_messages"])
-    await asyncio.sleep(0.5)
+    await ws_bob.wait_for_messages(2)
 
     assert (
         len(ws_bob.sent_messages) == 2
@@ -321,7 +333,7 @@ async def alice_deletes_post01__bob_is_notified(
 ):
     ws_bob.sent_messages.clear()
     await ws_bob.wire_mock_data(bob["request_posts_alice"])
-    await asyncio.sleep(0.1)
+    await ws_bob.wait_for_messages(3)
     assert (
         len(ws_bob.sent_messages) == 3
     ), "Bob: Expected two posts from Alice plus and EOSE"
@@ -330,9 +342,10 @@ async def alice_deletes_post01__bob_is_notified(
     ws_bob.sent_messages.clear()
 
     await ws_bob.wire_mock_data(bob["subscribe_to_delete_from_alice"])
-    await asyncio.sleep(0.1)
+    await ws_bob.wait_for_messages(1)
     await ws_alice.wire_mock_data(alice["delete_post01"])
-    await asyncio.sleep(0.1)
+    await ws_alice.wait_for_messages(1)
+    await ws_bob.wait_for_messages(2)
 
     assert (
         len(ws_alice.sent_messages) == 1
@@ -353,7 +366,7 @@ async def alice_deletes_post01__bob_is_notified(
 
     ws_bob.sent_messages.clear()
     await ws_bob.wire_mock_data(bob["request_posts_alice"])
-    await asyncio.sleep(0.1)
+    await ws_bob.wait_for_messages(2)
     assert (
         len(ws_bob.sent_messages) == 2
     ), "Bob: Expected one posts from Alice plus and EOSE"
