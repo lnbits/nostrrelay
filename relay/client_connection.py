@@ -221,12 +221,60 @@ class NostrClientConnection:
         await self.websocket.send_text(json.dumps(data))
 
     async def _handle_delete_event(self, event: NostrEvent):
-        # NIP 09
-        nostr_filter = NostrFilter(authors=[event.pubkey])
-        nostr_filter.ids = [t[1] for t in event.tags if t[0] == "e"]
-        events_to_delete = await get_events(self.relay_id, nostr_filter, False)
-        ids = [e.id for e in events_to_delete if not e.is_delete_event]
-        await mark_events_deleted(self.relay_id, NostrFilter(ids=ids))
+        """NIP-09: `e` tags name events by id, `a` tags name replaceable or
+        addressable events by `kind:pubkey:d`. Only the author's own events
+        are touched; for `a` tags only versions up to the deletion request's
+        `created_at` are removed, so a later re-publication survives."""
+        ids_to_delete: list[str] = []
+
+        event_ids = [t[1] for t in event.tags if t[0] == "e"]
+        if event_ids:
+            nostr_filter = NostrFilter(authors=[event.pubkey], ids=event_ids)
+            events_to_delete = await get_events(self.relay_id, nostr_filter, False)
+            ids_to_delete += [e.id for e in events_to_delete if not e.is_delete_event]
+
+        for address in (t[1] for t in event.tags if t[0] == "a"):
+            address_filter = self._address_filter(address, event.pubkey)
+            if not address_filter:
+                logger.debug(f"NIP-09: ignoring address '{address}'")
+                continue
+            # An addressable kind with an empty `d` names the version whose
+            # `d` tag is empty or missing, which no tag join can express, so
+            # fetch tags and filter here.
+            empty_d = address_filter.is_addressable and not address_filter.d
+            events_to_delete = await get_events(
+                self.relay_id, address_filter, include_tags=empty_d
+            )
+            ids_to_delete += [
+                e.id
+                for e in events_to_delete
+                if e.created_at <= event.created_at
+                and (not empty_d or not e.has_tag_value_other_than("d", ""))
+            ]
+
+        if ids_to_delete:
+            await mark_events_deleted(self.relay_id, NostrFilter(ids=ids_to_delete))
+
+    @staticmethod
+    def _address_filter(address: str, author: str) -> NostrFilter | None:
+        # `kind:pubkey:d`; the `d` value may itself contain ':'.
+        parts = address.split(":", 2)
+        if len(parts) != 3 or not parts[0].isdigit():
+            return None
+        kind, pubkey, d_tag = int(parts[0]), parts[1], parts[2]
+        if pubkey != author:
+            return None
+        # NIP-01: replaceable are 0, 3 and 10000-19999; addressable 30000-39999.
+        replaceable = kind in (0, 3) or 10000 <= kind < 20000
+        addressable = 30000 <= kind < 40000
+        if not (replaceable or addressable):
+            return None
+        if d_tag:
+            # `d` is a Pydantic alias field; it must be set through the alias.
+            return NostrFilter(
+                authors=[author], kinds=[kind], **{"#d": [d_tag]}  # type: ignore[arg-type]
+            )
+        return NostrFilter(authors=[author], kinds=[kind])
 
     async def _handle_request(
         self, subscription_id: str, nostr_filter: NostrFilter

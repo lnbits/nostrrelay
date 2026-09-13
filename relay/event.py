@@ -104,5 +104,8 @@ class NostrEvent(BaseModel):
     def has_tag_value(self, tag_name: str, tag_value: str) -> bool:
         return tag_value in self.tag_values(tag_name)
 
+    def has_tag_value_other_than(self, tag_name: str, value: str) -> bool:
+        return any(t[0] == tag_name and t[1] != value for t in self.tags if len(t) > 1)
+
     def is_direct_message_for_pubkey(self, pubkey: str) -> bool:
         return self.is_direct_message and self.has_tag_value("p", pubkey)
