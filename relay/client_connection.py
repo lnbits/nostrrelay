@@ -119,7 +119,10 @@ class NostrClientConnection:
             if len(data) < 3:
                 return []
             subscription_id = data[1]
-            # Handle multiple filters in REQ message
+            # A REQ replaces the subscription as a whole, so drop the previous
+            # filters once here, not per filter: doing it inside the loop kept
+            # only the last filter of a multi-filter REQ.
+            self._remove_filter(subscription_id)
             responses = []
             for filter_data in data[2:]:
                 response = await self._handle_request(
@@ -253,8 +256,7 @@ class NostrClientConnection:
                 return [["NOTICE", f"This is a paid relay: '{self.relay_id}'"]]
 
         nostr_filter.subscription_id = subscription_id
-        self._remove_filter(subscription_id)
-        if self._can_add_filter():
+        if not self._can_add_filter():
             max_filters = self.config.max_client_filters
             return [
                 [
@@ -286,8 +288,8 @@ class NostrClientConnection:
 
     def _can_add_filter(self) -> bool:
         return (
-            self.config.max_client_filters != 0
-            and len(self.filters) >= self.config.max_client_filters
+            self.config.max_client_filters == 0
+            or len(self.filters) < self.config.max_client_filters
         )
 
     def _auth_challenge_expired(self):
