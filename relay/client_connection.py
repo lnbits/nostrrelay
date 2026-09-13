@@ -72,12 +72,19 @@ class NostrClientConnection:
         if self._is_direct_message_for_other(event):
             return False
 
+        # One connection can hold several subscriptions whose filters all match
+        # the same event: a multiplexer such as nostrclient funnels every one of
+        # its clients through a single connection. NIP-01 requires the event to
+        # reach each matching subscription, so deliver once per subscription id
+        # rather than stopping at the first hit.
+        notified: set[str] = set()
         for nostr_filter in self.filters:
-            if nostr_filter.matches(event):
-                resp = event.serialize_response(nostr_filter.subscription_id)
-                await self._send_msg(resp)
-                return True
-        return False
+            sub_id = nostr_filter.subscription_id
+            if sub_id in notified or not nostr_filter.matches(event):
+                continue
+            notified.add(sub_id)  # type: ignore[arg-type]
+            await self._send_msg(event.serialize_response(sub_id))
+        return len(notified) > 0
 
     def _is_direct_message_for_other(self, event: NostrEvent) -> bool:
         """
