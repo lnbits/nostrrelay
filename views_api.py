@@ -86,7 +86,7 @@ async def api_update_relay(
             detail="Relay not found",
         )
 
-    updated_relay = NostrRelay.parse_obj({**dict(relay), **dict(data)})
+    updated_relay = NostrRelay.model_validate({**dict(relay), **dict(data)})
     updated_relay.user_id = wallet.wallet.user
     updated_relay = await update_relay(updated_relay)
 

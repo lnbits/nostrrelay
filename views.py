@@ -19,7 +19,7 @@ def nostrrelay_renderer():
 @nostrrelay_generic_router.get("/", response_class=HTMLResponse)
 async def index(request: Request, user: User = Depends(check_user_exists)):
     return nostrrelay_renderer().TemplateResponse(
-        "nostrrelay/index.html", {"request": request, "user": user.json()}
+        "nostrrelay/index.html", {"request": request, "user": user.model_dump_json()}
     )
 
 
