@@ -123,7 +123,7 @@ class NostrClientConnection:
             responses = []
             for filter_data in data[2:]:
                 response = await self._handle_request(
-                    subscription_id, NostrFilter.parse_obj(filter_data)
+                    subscription_id, NostrFilter.model_validate(filter_data)
                 )
                 responses.extend(response)
             return responses

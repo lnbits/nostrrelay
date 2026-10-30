@@ -20,7 +20,7 @@ class NostrEvent(BaseModel):
     pubkey: str
     created_at: int
     kind: int
-    tags: list[list[str]] = Field(default=[], no_database=True)
+    tags: list[list[str]] = Field(default=[], json_schema_extra={"no_database": True})
     content: str = ""
     sig: str
 

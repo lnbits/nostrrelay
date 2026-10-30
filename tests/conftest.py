@@ -14,7 +14,7 @@ from .helpers import get_fixtures
 
 class EventFixture(BaseModel):
     name: str
-    exception: str | None
+    exception: str | None = None
     data: NostrEvent
 
 
@@ -44,10 +44,10 @@ async def migrate_db():
 @pytest.fixture(scope="session")
 def valid_events(migrate_db) -> list[EventFixture]:
     data = get_fixtures("events")
-    return [EventFixture.parse_obj(e) for e in data["valid"]]
+    return [EventFixture.model_validate(e) for e in data["valid"]]
 
 
 @pytest.fixture(scope="session")
 def invalid_events(migrate_db) -> list[EventFixture]:
     data = get_fixtures("events")
-    return [EventFixture.parse_obj(e) for e in data["invalid"]]
+    return [EventFixture.model_validate(e) for e in data["invalid"]]

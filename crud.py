@@ -73,7 +73,7 @@ async def get_public_relay(relay_id: str) -> dict | None:
         "description": relay.description,
         "pubkey": relay.pubkey,
         "contact": relay.contact,
-        "config": RelayPublicSpec(**relay.meta.dict()).dict(by_alias=True),
+        "config": RelayPublicSpec(**relay.meta.model_dump()).model_dump(by_alias=True),
     }
 
 
