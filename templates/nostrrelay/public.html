@@ -202,7 +202,7 @@
     mixins: [windowMixin],
     data() {
       return {
-        relay: JSON.parse('{{relay | tojson | safe}}'),
+        relay: {{ relay | tojson }},
         pubkey: '',
         invoice: '',
         invoiceResponse: null,
